@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Caculator</title>
+  <style>
+    /* --- giữ nguyên toàn bộ CSS của bạn --- */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f0f8ff;
+      display: flex;
+      gap: 30px;
+      color: #222;
+    }
+    .container {
+      width: 48%;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      padding: 20px 25px;
+      box-sizing: border-box;
+    }
+    h2, h3 {
+      margin-bottom: 15px;
+      color: #004080;
+      border-bottom: 2px solid #0080ff;
+      padding-bottom: 5px;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      color: #003366;
+    }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-family: monospace;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+      border-color: #3399ff;
+      outline: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-family: monospace;
+      font-size: 15px;
+    }
+    table th, table td {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      text-align: center;
+      color: #004080;
+    }
+    table th {
+      background-color: #e6f0ff;
+    }
+    table input {
+      border: none;
+      text-align: center;
+      font-weight: bold;
+      font-size: 14px;
+      width: 100%;
+      padding: 4px 0;
+      background: transparent;
+      color: #00264d;
+    }
+    table input:focus {
+      outline: 1px solid #3399ff;
+      background: #dbe9ff;
+    }
+    .btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 15px;
+      margin-right: 10px;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    .btn-red {
+      background-color: #dc3545;
+      float: right;
+      margin: 0 0 15px 0;
+    }
+    .btn-red:hover {
+      background-color: #a61b2b;
+    }
+    .log {
+      margin-top: 15px;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px 15px;
+      font-family: monospace;
+      font-size: 14px;
+      min-height: 120px;
+      white-space: pre-wrap;
+      color: #222;
+    }
+    .history, #doneList {
+      max-height: 480px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      background: #fafafa;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #111;
+    }
+    .history-entry {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 8px;
+      margin-bottom: 10px;
+      background: #fff;
+      border-radius: 5px;
+    }
+    .history-entry:last-child {
+      margin-bottom: 0;
+    }
+    .entry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .entry-header input[type="text"] {
+      width: 160px;
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #aaa;
+      font-family: inherit;
+      color: #003366;
+    }
+    .entry-header span {
+      color: #004080;
+      font-weight: 600;
+      font-size: 14px;
+      user-select: none;
+    }
+    .entry-header button {
+      margin-left: 8px;
+      border-radius: 5px;
+      font-size: 13px;
+      padding: 6px 10px;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+    .delete-btn:hover {
+      background-color: #a61b2b;
+    }
+    .done-btn {
+      background-color: #28a745;
+      color: white;
+    }
+    .done-btn:hover {
+      background-color: #1e7e34;
+    }
+    .edit-btn {
+      background-color: #ffc107;
+      color: #222;
+    }
+    .edit-btn:hover {
+      background-color: #e0a800;
+    }
+    .save-btn {
+      background-color: #007bff;
+      color: white;
+    }
+    .save-btn:hover {
+      background-color: #0056b3;
+    }
+    .cancel-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+    .cancel-btn:hover {
+      background-color: #565e64;
+    }
+    .entry-content div {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .entry-content div span {
+      user-select: text;
+    }
+    .entry-content div input[type="checkbox"] {
+      margin-right: 8px;
+      cursor: pointer;
+      transform: scale(1.1);
+    }
+    .highlighted {
+      background-color: #d3f4d3;
+      font-weight: bold;
+    }
+    .done-entry {
+      border-left: 4px solid #28a745;
+      background-color: #e6f7e6 !important;
+      font-weight: bold !important;
+      color: #155724 !important;
+    }
+    .history::-webkit-scrollbar,
+    #doneList::-webkit-scrollbar {
+      width: 8px;
+    }
+    .history::-webkit-scrollbar-thumb,
+    #doneList::-webkit-scrollbar-thumb {
+      background-color: #b0c4de;
+      border-radius: 4px;
+    }
+    .btn-container {
+      margin-top: 15px;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Caculator</h2>
+    <label>Tỷ giá (IDR / U / ABA):</label>
+    <table>
+      <thead>
+        <tr><th>Loại</th><th>Tỷ giá</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>IDR / U</td><td><input type="number" id="rateU" placeholder="U" oninput="calculate()" /></td></tr>
+        <tr><td>IDR / ABA</td><td><input type="number" id="rateABA" placeholder="ABA" oninput="calculate()" /></td></tr>
+      </tbody>
+    </table>
+    <label>USDT:</label>
+    <input type="text" id="usdt_input" placeholder="Ví dụ: 1k, 1.2k, 1350.5" oninput="calculate()">
+    <label>ABA:</label>
+    <input type="text" id="aba_input" placeholder="Ví dụ: 2k, 5000" oninput="calculate()">
+    <label>IDR ➝ USDT:</label>
+    <input type="number" id="idr_usdt_input" placeholder="Nhập số IDR để đổi USDT" oninput="calculate()">
+    <label>IDR ➝ ABA:</label>
+    <input type="number" id="idr_aba_input" placeholder="Nhập số IDR để đổi ABA" oninput="calculate()">
+    <div class="btn-container">
+      <button class="btn" onclick="copyForm()">Copy Form</button>
+      <button class="btn" onclick="addToHistory()">Add vào lịch sử</button>
+    </div>
+    <div class="log" id="log"></div>
+  </div>
+  <div class="container">
+    <h3>Lịch sử
+      <button class="btn btn-red" style="float:right;" onclick="clearHistory()">Xóa toàn bộ lịch sử</button>
+    </h3>
+    <div class="history" id="history"></div>
+    <h3>Đã xong</h3>
+    <div id="doneList"></div>
+  </div>
+
+  <script>
+    function parseInput(value) {
+      value = value.toLowerCase().trim();
+      if (value.includes('k')) {
+        value = value.replace(',', '.').replace('k', '');
+        return parseFloat(value) * 1000;
+      }
+      return parseFloat(value.replace(/,/g, ''));
+    }
+    function formatIDR(num) {
+      return Math.round(num).toLocaleString('de-DE').replace(/\./g, ',');
+    }
+    function formatCurrencyVN(num) {
+      const rounded = Math.round(num * 100) / 100;
+      if (!Number.isInteger(rounded)) {
+        return rounded.toString();
+      }
+      return rounded.toLocaleString('de-DE').replace(/\./g, ',');
+    }
+    function formatSmartDecimal(num) {
+      const rounded = Math.round(num * 100) / 100;
+      return Number.isInteger(rounded)
+        ? rounded.toLocaleString('en-US', { minimumFractionDigits: 0 })
+        : rounded.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function getRates() {
+      const rateU = parseFloat(document.getElementById('rateU').value);
+      const rateABA = parseFloat(document.getElementById('rateABA').value);
+      return { rateU, rateABA };
+    }
+    function getToday() {
+      const d = new Date();
+      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+    }
+    function getCurrentTime() {
+      const d = new Date();
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
+    function calculate() {
+      const { rateU, rateABA } = getRates();
+      const usdtVal = document.getElementById('usdt_input').value;
+      const abaVal = document.getElementById('aba_input').value;
+      const idrUsdtRaw = document.getElementById('idr_usdt_input').value.trim();
+      const idrAbaRaw = document.getElementById('idr_aba_input').value.trim();
+      let log = '', today = getToday();
+      if (!rateU && !rateABA) {
+        document.getElementById("log").innerText = "Không tìm thấy tỷ giá.";
+        return;
+      }
+      if (usdtVal) {
+        const usdt = parseInput(usdtVal);
+        if (!isNaN(usdt) && rateU) {
+          const fee = usdt < 5000 ? 7 : 0;
+          const total = usdt + fee;
+          const idr = total * rateU;
+          log += `${today}\nUSDT: ${formatCurrencyVN(usdt)}${fee > 0 ? ` + ${fee} (fee)` : ''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`;
+        }
+      }
+      if (abaVal) {
+        const aba = parseInput(abaVal);
+        if (!isNaN(aba) && rateABA) {
+          const fee = aba < 5000 ? 10 : 0;
+          const total = aba + fee;
+          const idr = total * rateABA;
+          log += `${today}\nABA: ${formatCurrencyVN(aba)}${fee > 0 ? ` + ${fee} (fee)` : ''} @ ${rateABA}\nIDR: ${formatIDR(idr)}\n\n`;
+        }
+      }
+      if (idrUsdtRaw && !isNaN(parseFloat(idrUsdtRaw)) && rateU) {
+        const idr = parseFloat(idrUsdtRaw);
+        const usdt = idr / rateU;
+        log += `${today}:\nIDR: ${formatIDR(idr)} @ ${rateU}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;
+      }
+      if (idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA) {
+        const idr = parseFloat(idrAbaRaw);
+        const aba = idr / rateABA;
+        log += `${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${formatSmartDecimal(aba)}\n\n`;
+      }
+      document.getElementById("log").innerText = log || "Không có dữ liệu.";
+    }
+    function copyForm() {
+      const text = document.getElementById("log").innerText;
+      if (text.trim()) {
+        navigator.clipboard.writeText(text).then(() => alert("Đã sao chép."));
+      }
+    }
+    function addToHistory() {
+      const logText = document.getElementById("log").innerText.trim();
+      if (!logText || logText === "Không có dữ liệu." || logText === "Không tìm thấy tỷ giá.") return;
+      const entry = document.createElement("div");
+      entry.className = "history-entry";
+      const header = document.createElement("div");
+      header.className = "entry-header";
+      const name = document.createElement("input");
+      name.placeholder = "Tên giao dịch";
+      name.type = "text";
+      const date = document.createElement("span");
+      date.textContent = `${getToday()} ${getCurrentTime()}`;
+      const del = document.createElement("button");
+      del.textContent = "Xóa";
+      del.className = "delete-btn";
+      del.onclick = () => entry.remove();
+      const doneBtn = document.createElement("button");
+      doneBtn.textContent = "Duyệt";
+      doneBtn.className = "done-btn";
+      doneBtn.onclick = () => markAsDone(entry);
+      header.appendChild(name);
+      header.appendChild(date);
+      header.appendChild(doneBtn);
+      header.appendChild(del);
+      const content = document.createElement("div");
+      content.className = "entry-content";
+      content.style.marginTop = "8px";
+      const lines = logText.split('\n');
+      lines.forEach(line => {
+        if (line.trim() === '') return;
+        const lineContainer = document.createElement("div");
+        const tick = document.createElement("input");
+        tick.type = "checkbox";
+        tick.style.marginRight = "8px";
+        const span = document.createElement("span");
+        span.textContent = line;
+        tick.addEventListener('change', () => {
+          if (tick.checked) {
+            span.classList.add('highlighted');
+          } else {
+            span.classList.remove('highlighted');
+          }
+        });
+        lineContainer.appendChild(tick);
+        lineContainer.appendChild(span);
+        content.appendChild(lineContainer);
+      });
+      entry.appendChild(header);
+      entry.appendChild(content);
+      document.getElementById("history").prepend(entry);
+    }
+    function markAsDone(entry) {
+      entry.remove();
+      const doneEntry = document.createElement("div");
+      doneEntry.className = "history-entry done-entry";
+      const header = document.createElement("div");
+      header.className = "entry-header";
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.value = entry.querySelector('.entry-header input[type="text"]').value;
+      nameInput.style.fontWeight = "bold";
+      nameInput.style.color = "#155724";
+      nameInput.readOnly = true;
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "Chỉnh sửa";
+      editBtn.className = "edit-btn";
+      const content = document.createElement("textarea");
+      content.style.width = "100%";
+      content.style.marginTop = "8px";
+      content.style.fontFamily = "monospace";
+      content.style.fontSize = "14px";
+      content.style.borderRadius = "6px";
+      content.style.border = "1px solid #ccc";
+      content.style.resize = "vertical";
+      content.value = getEntryContentText(entry);
+      content.style.display = "none";
+      const contentDisplay = document.createElement("div");
+      contentDisplay.style.whiteSpace = "pre-wrap";
+      contentDisplay.style.color = "#155724";
+      contentDisplay.style.fontWeight = "bold";
+      contentDisplay.style.marginTop = "8px";
+      contentDisplay.textContent = content.value;
+      editBtn.onclick = () => {
+        if (content.style.display === "none") {
+          content.style.display = "block";
+          contentDisplay.style.display = "none";
+          editBtn.textContent = "Lưu";
+          nameInput.readOnly = false;
+          nameInput.focus();
+        } else {
+          content.style.display = "none";
+          contentDisplay.style.display = "block";
+          contentDisplay.textContent = content.value;
+          editBtn.textContent = "Chỉnh sửa";
+          nameInput.readOnly = true;
+        }
+      };
+      header.appendChild(nameInput);
+      header.appendChild(editBtn);
+      doneEntry.appendChild(header);
+      doneEntry.appendChild(contentDisplay);
+      doneEntry.appendChild(content);
+      document.getElementById("doneList").prepend(doneEntry);
+    }
+    function getEntryContentText(entry) {
+      const lines = [...entry.querySelectorAll('.entry-content div span')].map(span => span.textContent);
+      return lines.join('\n');
+    }
+    function clearHistory() {
+      if (confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) {
+        document.getElementById("history").innerHTML = "";
+        document.getElementById("doneList").innerHTML = "";
+      }
+    }
+  </script>
+</body>
+</html>
