@@ -25,10 +25,10 @@
     .history, #doneList { max-height: 480px; overflow-y: auto; border: 1px solid #ccc; background: #fafafa; border-radius: 6px; padding: 10px 12px; font-family: monospace; font-size: 14px; color: #111; }
     .history-entry { border-bottom: 1px solid #ccc; padding: 10px 8px; margin-bottom: 10px; background: #fff; border-radius: 5px; }
     .history-entry:last-child { margin-bottom: 0; }
-    .entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .entry-header input[type="text"] { width: 160px; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1px solid #aaa; font-family: inherit; color: #003366; }
-    .entry-header span { color: #004080; font-weight: 600; font-size: 14px; user-select: none; }
-    .entry-header button { margin-left: 8px; border-radius: 5px; font-size: 13px; padding: 6px 10px; border: none; cursor: pointer; user-select: none; transition: background-color 0.3s ease; }
+    .entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+    .entry-header input[type="text"] { flex: 1; min-width: 160px; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1px solid #aaa; font-family: inherit; color: #003366; }
+    .entry-header span { color: #004080; font-weight: 600; font-size: 14px; user-select: none; white-space: nowrap; }
+    .entry-header button { margin-left: 0; border-radius: 5px; font-size: 13px; padding: 6px 10px; border: none; cursor: pointer; user-select: none; transition: background-color 0.3s ease; }
     .delete-btn { background-color: #dc3545; color: white; } .delete-btn:hover { background-color: #a61b2b; }
     .done-btn { background-color: #28a745; color: white; } .done-btn:hover { background-color: #1e7e34; }
     .edit-btn { background-color: #ffc107; color: #222; } .edit-btn:hover { background-color: #e0a800; }
@@ -46,10 +46,15 @@
     .sync-ok { background:#e6ffed; color:#056e1a; }
     .sync-warn { background:#fff2e6; color:#8a4b00; }
     .sync-err { background:#ffe6e6; color:#7a1414; }
+
+    @media (max-width: 900px){
+      body{flex-direction:column}
+      .container{width:100%}
+    }
   </style>
 </head>
 <body>
-  <div class="sync-badge sync-warn" id="syncStatus" title="Tự lưu cục bộ. Dán firebaseConfig để bật đồng bộ realtime.">
+  <div class="sync-badge sync-warn" id="syncStatus" title="Tự lưu cục bộ. Bật Firebase để đồng bộ realtime.">
     Sync: Local only
   </div>
 
@@ -88,15 +93,15 @@
     <div id="doneList"></div>
   </div>
 
+  <!-- ====== JS gốc của bạn ====== -->
   <script>
-    /* ====== Toàn bộ JS gốc của bạn ====== */
     function parseInput(value) {
       value = value.toLowerCase().trim();
       if (value.includes('k')) { value = value.replace(',', '.').replace('k', ''); return parseFloat(value) * 1000; }
       return parseFloat(value.replace(/,/g, ''));
     }
     function formatIDR(num) { return Math.round(num).toLocaleString('de-DE').replace(/\./g, ','); }
-    function formatCurrencyVN(num) { const r = Math.round(num * 100) / 100; if (!Number.isInteger(r)) return r.toString(); return r.toLocaleString('de-DE').replace(/\./g, ','); }
+    function formatCurrencyVN(num) { const rounded = Math.round(num * 100) / 100; return Number.isInteger(rounded) ? rounded.toLocaleString('de-DE').replace(/\./g, ',') : rounded.toString(); }
     function formatSmartDecimal(num) { const r = Math.round(num * 100) / 100; return Number.isInteger(r) ? r.toLocaleString('en-US',{minimumFractionDigits:0}) : r.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
     function getRates() { const rateU = parseFloat(document.getElementById('rateU').value); const rateABA = parseFloat(document.getElementById('rateABA').value); return { rateU, rateABA }; }
     function getToday() { const d = new Date(); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; }
@@ -156,8 +161,7 @@
       const header = document.createElement("div"); header.className = "entry-header";
       const nameInput = document.createElement("input"); nameInput.type = "text"; nameInput.value = entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly = true;
       const editBtn = document.createElement("button"); editBtn.textContent = "Chỉnh sửa"; editBtn.className = "edit-btn";
-      const content = document.createElement("textarea"); content.style.cssText = "width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";
-      content.value = getEntryContentText(entry);
+      const content = document.createElement("textarea"); content.style.cssText = "width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value = getEntryContentText(entry);
       const contentDisplay = document.createElement("div"); contentDisplay.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; contentDisplay.textContent = content.value;
       editBtn.onclick = () => {
         if (content.style.display === "none") { content.style.display = "block"; contentDisplay.style.display = "none"; editBtn.textContent = "Lưu"; nameInput.readOnly = false; nameInput.focus(); }
@@ -169,7 +173,7 @@
     function clearHistory() { if (confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) { document.getElementById("history").innerHTML = ""; document.getElementById("doneList").innerHTML = ""; } }
   </script>
 
-  <!-- ======== AUTO-SAVE localStorage ======== -->
+  <!-- ====== Auto-save localStorage (backup khi reload) ====== -->
   <script>
     (function(){
       const KEY='caculator_autosave_v1';
@@ -196,13 +200,13 @@
     })();
   </script>
 
-  <!-- ======== FIREBASE REALTIME (với cấu hình của bạn) ======== -->
+  <!-- ====== Firebase Realtime (đã fix: nhập tên mượt + thứ tự mới nhất ở trên) ====== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
     import { getDatabase, ref, push, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
-    // === firebaseConfig của bạn (đÃ NHÚNG) ===
+    // Cấu hình của bạn
     const firebaseConfig = {
       apiKey: "AIzaSyDcyh6-XOKIS8GLCx24aAT5WPewc-Cu0RM",
       authDomain: "testsever1-1f5c9.firebaseapp.com",
@@ -216,18 +220,9 @@
     const statusEl = document.getElementById('syncStatus');
     const roomId = location.hash?.slice(1) || "global";
 
-    // Kiểm tra cấu hình thực tế (tránh lỗi invalid-api-key)
-    function validConfig(cfg){
-      return cfg
-        && typeof cfg.apiKey==='string' && cfg.apiKey.length>10
-        && typeof cfg.authDomain==='string' && cfg.authDomain.endsWith('.firebaseapp.com')
-        && typeof cfg.databaseURL==='string' && cfg.databaseURL.startsWith('https://')
-        && typeof cfg.projectId==='string' && cfg.projectId.length>3
-        && typeof cfg.appId==='string' && cfg.appId.includes(':');
-    }
+    function ok(cfg){ return cfg && cfg.apiKey && cfg.authDomain && cfg.databaseURL && cfg.projectId && cfg.appId; }
 
-    if (!validConfig(firebaseConfig)) {
-      console.warn("[Sync] Firebase config chưa hợp lệ → chạy Local only.");
+    if (!ok(firebaseConfig)) {
       statusEl.textContent = "Sync: Local only";
       statusEl.classList.remove('sync-ok'); statusEl.classList.add('sync-warn');
     } else {
@@ -235,7 +230,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        signInAnonymously(auth).catch(e => console.warn("Anonymous auth error:", e?.code));
+        signInAnonymously(auth).catch(()=>{});
 
         const entriesRef = ref(db, `rooms/${roomId}/entries`);
         const inputsRef  = ref(db, `rooms/${roomId}/inputs`);
@@ -244,7 +239,7 @@
         const historyEl=document.getElementById('history');
         const doneEl=document.getElementById('doneList');
 
-        // Đồng bộ INPUTS 2 chiều
+        // ===== Đồng bộ INPUTS 2 chiều =====
         let applyingRemote=false;
         function readInputs(){ const o={}; inputIds.forEach(id=>o[id]=document.getElementById(id)?.value||""); return o; }
         function saveInputs(){ if(applyingRemote) return; set(inputsRef, readInputs()); }
@@ -255,18 +250,37 @@
           applyingRemote=false; if(typeof window.calculate==='function') window.calculate();
         });
 
-        // Render entries từ DB
+        // ===== Render entries (debounce nhập tên + sort mới nhất trước) =====
+        let editingKey = null; // đang gõ ở entry nào → không re-render lúc đó
         function renderAll(data){
+          if (editingKey) return;
           historyEl.innerHTML=""; doneEl.innerHTML="";
           const arr = data ? Object.entries(data) : [];
-          arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
-          for(const [key,e] of arr){ if(e.status==='done') makeDoneEntry(key,e); else makeActiveEntry(key,e); }
+          arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0)); // mới nhất trên
+          for(const [key,e] of arr){ (e.status==='done' ? makeDoneEntry : makeActiveEntry)(key,e); }
         }
+
         function makeActiveEntry(key,e){
           const entry=document.createElement("div"); entry.className="history-entry"; entry.dataset.key=key;
+
           const header=document.createElement("div"); header.className="entry-header";
           const name=document.createElement("input"); name.type="text"; name.placeholder="Tên giao dịch"; name.value=e.name||"";
-          name.addEventListener('input', ()=>update(ref(db,`rooms/${roomId}/entries/${key}`),{name:name.value}));
+          let tmr=null;
+          name.addEventListener('focus', ()=>{ editingKey = key; });
+          name.addEventListener('input', ()=>{
+            editingKey = key;
+            clearTimeout(tmr);
+            tmr = setTimeout(()=>{
+              update(ref(db,`rooms/${roomId}/entries/${key}`),{name:name.value});
+              editingKey = null;           // cho phép render lại
+            }, 600);
+          });
+          name.addEventListener('blur', ()=>{
+            clearTimeout(tmr);
+            update(ref(db,`rooms/${roomId}/entries/${key}`),{name:name.value});
+            editingKey = null;
+          });
+
           const date=document.createElement("span"); date.textContent=e.date||"";
           const doneBtn=document.createElement("button"); doneBtn.className="done-btn"; doneBtn.textContent="Duyệt";
           const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`rooms/${roomId}/entries/${key}`));
@@ -290,10 +304,14 @@
             });
             lineContainer.append(tick,span); content.appendChild(lineContainer);
           });
-          entry.append(header,content); historyEl.prepend(entry);
+
+          entry.append(header,content);
+          historyEl.appendChild(entry); // đã sort rồi nên append theo thứ tự
         }
+
         function makeDoneEntry(key,e){
           const entry=document.createElement("div"); entry.className="history-entry done-entry"; entry.dataset.key=key;
+
           const header=document.createElement("div"); header.className="entry-header";
           const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=e.name||""; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true;
           const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.textContent="Chỉnh sửa";
@@ -310,27 +328,29 @@
               update(ref(db,`rooms/${roomId}/entries/${key}`),{name:nameInput.value,content:textarea.value}); }
           };
 
-          entry.append(header,display,textarea); doneEl.prepend(entry);
+          entry.append(header,display,textarea);
+          doneEl.appendChild(entry); // đã sort rồi nên append theo thứ tự
         }
 
-        // Override để ghi DB khi thêm lịch sử
+        // Ghi DB khi thêm lịch sử
         window.addToHistory = function(){
           const logText=document.getElementById("log").innerText.trim();
           if(!logText || logText==="Không có dữ liệu." || logText==="Không tìm thấy tỷ giá.") return;
           const lines=logText.split('\n').filter(l=>l.trim()!=="");
-          const entry={ name:"", date:`${getToday()} ${getCurrentTime()}`, lines, ticks:new Array(lines.length).fill(false), status:"active", createdAt:Date.now() };
-          push(entriesRef, entry);
+          push(entriesRef, { name:"", date:`${getToday()} ${getCurrentTime()}`, lines, ticks:new Array(lines.length).fill(false), status:"active", createdAt:Date.now() });
         };
         window.clearHistory = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) return; set(entriesRef, null); };
 
+        // Lắng nghe DB
         onValue(entriesRef, snap => renderAll(snap.val()));
 
+        // Trạng thái
         statusEl.textContent = "Sync: Realtime";
         statusEl.classList.remove('sync-warn','sync-err'); statusEl.classList.add('sync-ok');
-      } catch (err) {
-        console.warn("[Sync] Lỗi khởi tạo Firebase → chạy Local only.", err);
+      } catch (e) {
         statusEl.textContent = "Sync: Local only";
         statusEl.classList.remove('sync-ok'); statusEl.classList.add('sync-err');
+        console.warn(e);
       }
     }
   </script>
