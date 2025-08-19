@@ -2,252 +2,62 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Caculator</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Caculator</title>
   <style>
     /* --- giữ nguyên toàn bộ CSS của bạn --- */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f0f8ff;
-      display: flex;
-      gap: 30px;
-      color: #222;
-    }
-    .container {
-      width: 48%;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      padding: 20px 25px;
-      box-sizing: border-box;
-    }
-    h2, h3 {
-      margin-bottom: 15px;
-      color: #004080;
-      border-bottom: 2px solid #0080ff;
-      padding-bottom: 5px;
-    }
-    label {
-      font-weight: 600;
-      display: block;
-      margin-top: 15px;
-      margin-bottom: 5px;
-      color: #003366;
-    }
-    input[type="text"], input[type="number"], textarea {
-      width: 100%;
-      padding: 8px 12px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-family: monospace;
-      font-size: 14px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    }
-    input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
-      border-color: #3399ff;
-      outline: none;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
-      font-family: monospace;
-      font-size: 15px;
-    }
-    table th, table td {
-      border: 1px solid #ccc;
-      padding: 6px 10px;
-      text-align: center;
-      color: #004080;
-    }
-    table th {
-      background-color: #e6f0ff;
-    }
-    table input {
-      border: none;
-      text-align: center;
-      font-weight: bold;
-      font-size: 14px;
-      width: 100%;
-      padding: 4px 0;
-      background: transparent;
-      color: #00264d;
-    }
-    table input:focus {
-      outline: 1px solid #3399ff;
-      background: #dbe9ff;
-    }
-    .btn {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 18px;
-      font-size: 15px;
-      cursor: pointer;
-      margin-top: 15px;
-      margin-right: 10px;
-      transition: background-color 0.3s ease;
-      user-select: none;
-    }
-    .btn:hover {
-      background-color: #0056b3;
-    }
-    .btn-red {
-      background-color: #dc3545;
-      float: right;
-      margin: 0 0 15px 0;
-    }
-    .btn-red:hover {
-      background-color: #a61b2b;
-    }
-    .log {
-      margin-top: 15px;
-      background: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 12px 15px;
-      font-family: monospace;
-      font-size: 14px;
-      min-height: 120px;
-      white-space: pre-wrap;
-      color: #222;
-    }
-    .history, #doneList {
-      max-height: 480px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      background: #fafafa;
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-family: monospace;
-      font-size: 14px;
-      color: #111;
-    }
-    .history-entry {
-      border-bottom: 1px solid #ccc;
-      padding: 10px 8px;
-      margin-bottom: 10px;
-      background: #fff;
-      border-radius: 5px;
-    }
-    .history-entry:last-child {
-      margin-bottom: 0;
-    }
-    .entry-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .entry-header input[type="text"] {
-      width: 160px;
-      padding: 6px 10px;
-      font-size: 14px;
-      border-radius: 4px;
-      border: 1px solid #aaa;
-      font-family: inherit;
-      color: #003366;
-    }
-    .entry-header span {
-      color: #004080;
-      font-weight: 600;
-      font-size: 14px;
-      user-select: none;
-    }
-    .entry-header button {
-      margin-left: 8px;
-      border-radius: 5px;
-      font-size: 13px;
-      padding: 6px 10px;
-      border: none;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.3s ease;
-    }
-    .delete-btn {
-      background-color: #dc3545;
-      color: white;
-    }
-    .delete-btn:hover {
-      background-color: #a61b2b;
-    }
-    .done-btn {
-      background-color: #28a745;
-      color: white;
-    }
-    .done-btn:hover {
-      background-color: #1e7e34;
-    }
-    .edit-btn {
-      background-color: #ffc107;
-      color: #222;
-    }
-    .edit-btn:hover {
-      background-color: #e0a800;
-    }
-    .save-btn {
-      background-color: #007bff;
-      color: white;
-    }
-    .save-btn:hover {
-      background-color: #0056b3;
-    }
-    .cancel-btn {
-      background-color: #6c757d;
-      color: white;
-    }
-    .cancel-btn:hover {
-      background-color: #565e64;
-    }
-    .entry-content div {
-      display: flex;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-    .entry-content div span {
-      user-select: text;
-    }
-    .entry-content div input[type="checkbox"] {
-      margin-right: 8px;
-      cursor: pointer;
-      transform: scale(1.1);
-    }
-    .highlighted {
-      background-color: #d3f4d3;
-      font-weight: bold;
-    }
-    .done-entry {
-      border-left: 4px solid #28a745;
-      background-color: #e6f7e6 !important;
-      font-weight: bold !important;
-      color: #155724 !important;
-    }
-    .history::-webkit-scrollbar,
-    #doneList::-webkit-scrollbar {
-      width: 8px;
-    }
-    .history::-webkit-scrollbar-thumb,
-    #doneList::-webkit-scrollbar-thumb {
-      background-color: #b0c4de;
-      border-radius: 4px;
-    }
-    .btn-container {
-      margin-top: 15px;
-      overflow: hidden;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f0f8ff; display: flex; gap: 30px; color: #222; }
+    .container { width: 48%; background: white; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); padding: 20px 25px; box-sizing: border-box; }
+    h2, h3 { margin-bottom: 15px; color: #004080; border-bottom: 2px solid #0080ff; padding-bottom: 5px; }
+    label { font-weight: 600; display: block; margin-top: 15px; margin-bottom: 5px; color: #003366; }
+    input[type="text"], input[type="number"], textarea { width: 100%; padding: 8px 12px; border-radius: 5px; border: 1px solid #ccc; font-family: monospace; font-size: 14px; box-sizing: border-box; transition: border-color 0.3s ease; }
+    input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-color: #3399ff; outline: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-family: monospace; font-size: 15px; }
+    table th, table td { border: 1px solid #ccc; padding: 6px 10px; text-align: center; color: #004080; }
+    table th { background-color: #e6f0ff; }
+    table input { border: none; text-align: center; font-weight: bold; font-size: 14px; width: 100%; padding: 4px 0; background: transparent; color: #00264d; }
+    table input:focus { outline: 1px solid #3399ff; background: #dbe9ff; }
+    .btn { background-color: #007bff; color: white; border: none; border-radius: 6px; padding: 10px 18px; font-size: 15px; cursor: pointer; margin-top: 15px; margin-right: 10px; transition: background-color 0.3s ease; user-select: none; }
+    .btn:hover { background-color: #0056b3; }
+    .btn-red { background-color: #dc3545; float: right; margin: 0 0 15px 0; }
+    .btn-red:hover { background-color: #a61b2b; }
+    .log { margin-top: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; padding: 12px 15px; font-family: monospace; font-size: 14px; min-height: 120px; white-space: pre-wrap; color: #222; }
+    .history, #doneList { max-height: 480px; overflow-y: auto; border: 1px solid #ccc; background: #fafafa; border-radius: 6px; padding: 10px 12px; font-family: monospace; font-size: 14px; color: #111; }
+    .history-entry { border-bottom: 1px solid #ccc; padding: 10px 8px; margin-bottom: 10px; background: #fff; border-radius: 5px; }
+    .history-entry:last-child { margin-bottom: 0; }
+    .entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .entry-header input[type="text"] { width: 160px; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1px solid #aaa; font-family: inherit; color: #003366; }
+    .entry-header span { color: #004080; font-weight: 600; font-size: 14px; user-select: none; }
+    .entry-header button { margin-left: 8px; border-radius: 5px; font-size: 13px; padding: 6px 10px; border: none; cursor: pointer; user-select: none; transition: background-color 0.3s ease; }
+    .delete-btn { background-color: #dc3545; color: white; } .delete-btn:hover { background-color: #a61b2b; }
+    .done-btn { background-color: #28a745; color: white; } .done-btn:hover { background-color: #1e7e34; }
+    .edit-btn { background-color: #ffc107; color: #222; } .edit-btn:hover { background-color: #e0a800; }
+    .save-btn { background-color: #007bff; color: white; } .save-btn:hover { background-color: #0056b3; }
+    .cancel-btn { background-color: #6c757d; color: white; } .cancel-btn:hover { background-color: #565e64; }
+    .entry-content div { display: flex; align-items: center; margin-bottom: 4px; }
+    .entry-content div span { user-select: text; }
+    .entry-content div input[type="checkbox"] { margin-right: 8px; cursor: pointer; transform: scale(1.1); }
+    .highlighted { background-color: #d3f4d3; font-weight: bold; }
+    .done-entry { border-left: 4px solid #28a745; background-color: #e6f7e6 !important; font-weight: bold !important; color: #155724 !important; }
+    .history::-webkit-scrollbar, #doneList::-webkit-scrollbar { width: 8px; }
+    .history::-webkit-scrollbar-thumb, #doneList::-webkit-scrollbar-thumb { background-color: #b0c4de; border-radius: 4px; }
+    .btn-container { margin-top: 15px; overflow: hidden; }
+    .sync-badge { position: fixed; right: 16px; top: 12px; background:#eee; color:#333; border-radius:16px; padding:6px 10px; font:600 12px/1.2 system-ui,Arial; box-shadow:0 1px 3px rgba(0,0,0,.1); z-index: 9999; }
+    .sync-ok { background:#e6ffed; color:#056e1a; }
+    .sync-warn { background:#fff2e6; color:#8a4b00; }
+    .sync-err { background:#ffe6e6; color:#7a1414; }
   </style>
 </head>
 <body>
+  <div class="sync-badge sync-warn" id="syncStatus" title="Tự lưu cục bộ. Dán firebaseConfig để bật đồng bộ realtime.">
+    Sync: Local only
+  </div>
+
   <div class="container">
     <h2>Caculator</h2>
     <label>Tỷ giá (IDR / U / ABA):</label>
     <table>
-      <thead>
-        <tr><th>Loại</th><th>Tỷ giá</th></tr>
-      </thead>
+      <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
       <tbody>
         <tr><td>IDR / U</td><td><input type="number" id="rateU" placeholder="U" oninput="calculate()" /></td></tr>
         <tr><td>IDR / ABA</td><td><input type="number" id="rateABA" placeholder="ABA" oninput="calculate()" /></td></tr>
@@ -267,54 +77,30 @@
     </div>
     <div class="log" id="log"></div>
   </div>
+
   <div class="container">
     <h3>Lịch sử
       <button class="btn btn-red" style="float:right;" onclick="clearHistory()">Xóa toàn bộ lịch sử</button>
     </h3>
     <div class="history" id="history"></div>
+
     <h3>Đã xong</h3>
     <div id="doneList"></div>
   </div>
 
   <script>
-    /* ====== Toàn bộ JS gốc của bạn (giữ nguyên) ====== */
+    /* ====== Toàn bộ JS gốc của bạn ====== */
     function parseInput(value) {
       value = value.toLowerCase().trim();
-      if (value.includes('k')) {
-        value = value.replace(',', '.').replace('k', '');
-        return parseFloat(value) * 1000;
-      }
+      if (value.includes('k')) { value = value.replace(',', '.').replace('k', ''); return parseFloat(value) * 1000; }
       return parseFloat(value.replace(/,/g, ''));
     }
-    function formatIDR(num) {
-      return Math.round(num).toLocaleString('de-DE').replace(/\./g, ',');
-    }
-    function formatCurrencyVN(num) {
-      const rounded = Math.round(num * 100) / 100;
-      if (!Number.isInteger(rounded)) {
-        return rounded.toString();
-      }
-      return rounded.toLocaleString('de-DE').replace(/\./g, ',');
-    }
-    function formatSmartDecimal(num) {
-      const rounded = Math.round(num * 100) / 100;
-      return Number.isInteger(rounded)
-        ? rounded.toLocaleString('en-US', { minimumFractionDigits: 0 })
-        : rounded.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-    function getRates() {
-      const rateU = parseFloat(document.getElementById('rateU').value);
-      const rateABA = parseFloat(document.getElementById('rateABA').value);
-      return { rateU, rateABA };
-    }
-    function getToday() {
-      const d = new Date();
-      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
-    }
-    function getCurrentTime() {
-      const d = new Date();
-      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    }
+    function formatIDR(num) { return Math.round(num).toLocaleString('de-DE').replace(/\./g, ','); }
+    function formatCurrencyVN(num) { const r = Math.round(num * 100) / 100; if (!Number.isInteger(r)) return r.toString(); return r.toLocaleString('de-DE').replace(/\./g, ','); }
+    function formatSmartDecimal(num) { const r = Math.round(num * 100) / 100; return Number.isInteger(r) ? r.toLocaleString('en-US',{minimumFractionDigits:0}) : r.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function getRates() { const rateU = parseFloat(document.getElementById('rateU').value); const rateABA = parseFloat(document.getElementById('rateABA').value); return { rateU, rateABA }; }
+    function getToday() { const d = new Date(); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; }
+    function getCurrentTime() { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
     function calculate() {
       const { rateU, rateABA } = getRates();
       const usdtVal = document.getElementById('usdt_input').value;
@@ -322,449 +108,231 @@
       const idrUsdtRaw = document.getElementById('idr_usdt_input').value.trim();
       const idrAbaRaw = document.getElementById('idr_aba_input').value.trim();
       let log = '', today = getToday();
-      if (!rateU && !rateABA) {
-        document.getElementById("log").innerText = "Không tìm thấy tỷ giá.";
-        return;
-      }
+      if (!rateU && !rateABA) { document.getElementById("log").innerText = "Không tìm thấy tỷ giá."; return; }
       if (usdtVal) {
         const usdt = parseInput(usdtVal);
-        if (!isNaN(usdt) && rateU) {
-          const fee = usdt < 5000 ? 7 : 0;
-          const total = usdt + fee;
-          const idr = total * rateU;
-          log += `${today}\nUSDT: ${formatCurrencyVN(usdt)}${fee > 0 ? ` + ${fee} (fee)` : ''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`;
-        }
+        if (!isNaN(usdt) && rateU) { const fee = usdt < 5000 ? 7 : 0; const total = usdt + fee; const idr = total * rateU;
+          log += `${today}\nUSDT: ${formatCurrencyVN(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`; }
       }
       if (abaVal) {
         const aba = parseInput(abaVal);
-        if (!isNaN(aba) && rateABA) {
-          const fee = aba < 5000 ? 10 : 0;
-          const total = aba + fee;
-          const idr = total * rateABA;
-          log += `${today}\nABA: ${formatCurrencyVN(aba)}${fee > 0 ? ` + ${fee} (fee)` : ''} @ ${rateABA}\nIDR: ${formatIDR(idr)}\n\n`;
-        }
+        if (!isNaN(aba) && rateABA) { const fee = aba < 5000 ? 10 : 0; const total = aba + fee; const idr = total * rateABA;
+          log += `${today}\nABA: ${formatCurrencyVN(aba)}${fee>0?` + ${fee} (fee)`:''} @ ${rateABA}\nIDR: ${formatIDR(idr)}\n\n`; }
       }
       if (idrUsdtRaw && !isNaN(parseFloat(idrUsdtRaw)) && rateU) {
-        const idr = parseFloat(idrUsdtRaw);
-        const usdt = idr / rateU;
+        const idr = parseFloat(idrUsdtRaw); const usdt = idr / rateU;
         log += `${today}:\nIDR: ${formatIDR(idr)} @ ${rateU}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;
       }
       if (idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA) {
-        const idr = parseFloat(idrAbaRaw);
-        const aba = idr / rateABA;
+        const idr = parseFloat(idrAbaRaw); const aba = idr / rateABA;
         log += `${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${formatSmartDecimal(aba)}\n\n`;
       }
       document.getElementById("log").innerText = log || "Không có dữ liệu.";
     }
-    function copyForm() {
-      const text = document.getElementById("log").innerText;
-      if (text.trim()) {
-        navigator.clipboard.writeText(text).then(() => alert("Đã sao chép."));
-      }
-    }
+    function copyForm() { const text = document.getElementById("log").innerText; if (text.trim()) navigator.clipboard.writeText(text).then(()=>alert("Đã sao chép.")); }
     function addToHistory() {
-      /* sẽ được override bằng realtime (để tránh tạo trùng DOM) */
       const logText = document.getElementById("log").innerText.trim();
       if (!logText || logText === "Không có dữ liệu." || logText === "Không tìm thấy tỷ giá.") return;
-      const entry = document.createElement("div");
-      entry.className = "history-entry";
-      const header = document.createElement("div");
-      header.className = "entry-header";
-      const name = document.createElement("input");
-      name.placeholder = "Tên giao dịch";
-      name.type = "text";
-      const date = document.createElement("span");
-      date.textContent = `${getToday()} ${getCurrentTime()}`;
-      const del = document.createElement("button");
-      del.textContent = "Xóa";
-      del.className = "delete-btn";
-      del.onclick = () => entry.remove();
-      const doneBtn = document.createElement("button");
-      doneBtn.textContent = "Duyệt";
-      doneBtn.className = "done-btn";
-      doneBtn.onclick = () => markAsDone(entry);
-      header.appendChild(name);
-      header.appendChild(date);
-      header.appendChild(doneBtn);
-      header.appendChild(del);
-      const content = document.createElement("div");
-      content.className = "entry-content";
-      content.style.marginTop = "8px";
-      const lines = logText.split('\n');
-      lines.forEach(line => {
-        if (line.trim() === '') return;
+      const entry = document.createElement("div"); entry.className = "history-entry";
+      const header = document.createElement("div"); header.className = "entry-header";
+      const name = document.createElement("input"); name.placeholder = "Tên giao dịch"; name.type = "text";
+      const date = document.createElement("span"); date.textContent = `${getToday()} ${getCurrentTime()}`;
+      const del = document.createElement("button"); del.textContent = "Xóa"; del.className = "delete-btn"; del.onclick = () => entry.remove();
+      const doneBtn = document.createElement("button"); doneBtn.textContent = "Duyệt"; doneBtn.className = "done-btn"; doneBtn.onclick = () => markAsDone(entry);
+      header.append(name,date,doneBtn,del);
+      const content = document.createElement("div"); content.className = "entry-content"; content.style.marginTop = "8px";
+      logText.split('\n').forEach(line => { if (!line.trim()) return;
         const lineContainer = document.createElement("div");
-        const tick = document.createElement("input");
-        tick.type = "checkbox";
-        tick.style.marginRight = "8px";
-        const span = document.createElement("span");
-        span.textContent = line;
-        tick.addEventListener('change', () => {
-          if (tick.checked) {
-            span.classList.add('highlighted');
-          } else {
-            span.classList.remove('highlighted');
-          }
-        });
-        lineContainer.appendChild(tick);
-        lineContainer.appendChild(span);
-        content.appendChild(lineContainer);
+        const tick = document.createElement("input"); tick.type = "checkbox"; tick.style.marginRight = "8px";
+        const span = document.createElement("span"); span.textContent = line;
+        tick.addEventListener('change', () => { span.classList.toggle('highlighted', tick.checked); });
+        lineContainer.append(tick, span); content.appendChild(lineContainer);
       });
-      entry.appendChild(header);
-      entry.appendChild(content);
-      document.getElementById("history").prepend(entry);
+      entry.append(header, content); document.getElementById("history").prepend(entry);
     }
     function markAsDone(entry) {
-      /* sẽ được override bằng realtime (để cập nhật DB) */
       entry.remove();
-      const doneEntry = document.createElement("div");
-      doneEntry.className = "history-entry done-entry";
-      const header = document.createElement("div");
-      header.className = "entry-header";
-      const nameInput = document.createElement("input");
-      nameInput.type = "text";
-      nameInput.value = entry.querySelector('.entry-header input[type="text"]').value;
-      nameInput.style.fontWeight = "bold";
-      nameInput.style.color = "#155724";
-      nameInput.readOnly = true;
-      const editBtn = document.createElement("button");
-      editBtn.textContent = "Chỉnh sửa";
-      editBtn.className = "edit-btn";
-      const content = document.createElement("textarea");
-      content.style.width = "100%";
-      content.style.marginTop = "8px";
-      content.style.fontFamily = "monospace";
-      content.style.fontSize = "14px";
-      content.style.borderRadius = "6px";
-      content.style.border = "1px solid #ccc";
-      content.style.resize = "vertical";
+      const doneEntry = document.createElement("div"); doneEntry.className = "history-entry done-entry";
+      const header = document.createElement("div"); header.className = "entry-header";
+      const nameInput = document.createElement("input"); nameInput.type = "text"; nameInput.value = entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly = true;
+      const editBtn = document.createElement("button"); editBtn.textContent = "Chỉnh sửa"; editBtn.className = "edit-btn";
+      const content = document.createElement("textarea"); content.style.cssText = "width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";
       content.value = getEntryContentText(entry);
-      content.style.display = "none";
-      const contentDisplay = document.createElement("div");
-      contentDisplay.style.whiteSpace = "pre-wrap";
-      contentDisplay.style.color = "#155724";
-      contentDisplay.style.fontWeight = "bold";
-      contentDisplay.style.marginTop = "8px";
-      contentDisplay.textContent = content.value;
+      const contentDisplay = document.createElement("div"); contentDisplay.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; contentDisplay.textContent = content.value;
       editBtn.onclick = () => {
-        if (content.style.display === "none") {
-          content.style.display = "block";
-          contentDisplay.style.display = "none";
-          editBtn.textContent = "Lưu";
-          nameInput.readOnly = false;
-          nameInput.focus();
-        } else {
-          content.style.display = "none";
-          contentDisplay.style.display = "block";
-          contentDisplay.textContent = content.value;
-          editBtn.textContent = "Chỉnh sửa";
-          nameInput.readOnly = true;
-        }
+        if (content.style.display === "none") { content.style.display = "block"; contentDisplay.style.display = "none"; editBtn.textContent = "Lưu"; nameInput.readOnly = false; nameInput.focus(); }
+        else { content.style.display = "none"; contentDisplay.style.display = "block"; contentDisplay.textContent = content.value; editBtn.textContent = "Chỉnh sửa"; nameInput.readOnly = true; }
       };
-      header.appendChild(nameInput);
-      header.appendChild(editBtn);
-      doneEntry.appendChild(header);
-      doneEntry.appendChild(contentDisplay);
-      doneEntry.appendChild(content);
-      document.getElementById("doneList").prepend(doneEntry);
+      header.append(nameInput, editBtn); doneEntry.append(header, contentDisplay, content); document.getElementById("doneList").prepend(doneEntry);
     }
-    function getEntryContentText(entry) {
-      const lines = [...entry.querySelectorAll('.entry-content div span')].map(span => span.textContent);
-      return lines.join('\n');
-    }
-    function clearHistory() {
-      if (confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) {
-        document.getElementById("history").innerHTML = "";
-        document.getElementById("doneList").innerHTML = "";
-      }
-    }
+    function getEntryContentText(entry) { const lines = [...entry.querySelectorAll('.entry-content div span')].map(span => span.textContent); return lines.join('\n'); }
+    function clearHistory() { if (confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) { document.getElementById("history").innerHTML = ""; document.getElementById("doneList").innerHTML = ""; } }
   </script>
 
-  <!-- ===================== ĐỒNG BỘ REALTIME VỚI FIREBASE ===================== -->
+  <!-- ======== AUTO-SAVE localStorage ======== -->
+  <script>
+    (function(){
+      const KEY='caculator_autosave_v1';
+      const ids=['rateU','rateABA','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
+      function save(){ try{
+        const inputs={}; ids.forEach(id=>inputs[id]=(document.getElementById(id)?.value)||'');
+        const state={ inputs, history: document.getElementById('history')?.innerHTML||'', done: document.getElementById('doneList')?.innerHTML||'', t: Date.now() };
+        localStorage.setItem(KEY, JSON.stringify(state));
+      }catch(e){} }
+      function load(){ try{
+        const raw=localStorage.getItem(KEY); if(!raw) return; const s=JSON.parse(raw);
+        if(s.inputs){ ids.forEach(id=>{ const el=document.getElementById(id); if(el && s.inputs[id]!=null) el.value=s.inputs[id]; }); }
+        if(typeof window.calculate==='function') window.calculate();
+        if(s.history) document.getElementById('history').innerHTML=s.history;
+        if(s.done) document.getElementById('doneList').innerHTML=s.done;
+      }catch(e){} }
+      load();
+      ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>setTimeout(save,120)); });
+      ['history','doneList'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.addEventListener('input', ()=>setTimeout(save,120)); el.addEventListener('click', ()=>setTimeout(save,120)); el.addEventListener('change', ()=>setTimeout(save,120)); } });
+      const _add=window.addToHistory; if(typeof _add==='function') window.addToHistory=function(){ _add(); setTimeout(save,50); };
+      const _done=window.markAsDone; if(typeof _done==='function') window.markAsDone=function(e){ _done(e); setTimeout(save,50); };
+      const _clear=window.clearHistory; if(typeof _clear==='function') window.clearHistory=function(){ _clear(); setTimeout(save,50); };
+      window.addEventListener('beforeunload', save);
+    })();
+  </script>
+
+  <!-- ======== FIREBASE REALTIME (với cấu hình của bạn) ======== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import {
-      getDatabase, ref, push, set, update, remove, onValue
-    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { getDatabase, ref, push, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
-    // ======= DÁN CẤU HÌNH CỦA BẠN VÀO ĐÂY (bắt buộc có databaseURL) =======
+    // === firebaseConfig của bạn (đÃ NHÚNG) ===
     const firebaseConfig = {
-      // apiKey: "...",
-      // authDomain: "...",
-      // databaseURL: "https://<YOUR-ID>-default-rtdb.firebaseio.com",
-      // projectId: "...",
-      // storageBucket: "...",
-      // messagingSenderId: "...",
-      // appId: "..."
+      apiKey: "AIzaSyDcyh6-XOKIS8GLCx24aAT5WPewc-Cu0RM",
+      authDomain: "testsever1-1f5c9.firebaseapp.com",
+      databaseURL: "https://testsever1-1f5c9-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "testsever1-1f5c9",
+      storageBucket: "testsever1-1f5c9.firebasestorage.app",
+      messagingSenderId: "587078219356",
+      appId: "1:587078219356:web:5684169dcabbf85a0e9899"
     };
 
-    // ======= Khởi tạo Firebase + đăng nhập ẩn danh =======
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    signInAnonymously(auth).catch(console.error);
-
+    const statusEl = document.getElementById('syncStatus');
     const roomId = location.hash?.slice(1) || "global";
-    const entriesRef = ref(db, `rooms/${roomId}/entries`);
-    const inputsRef  = ref(db, `rooms/${roomId}/inputs`);
 
-    const historyEl = document.getElementById("history");
-    const doneEl    = document.getElementById("doneList");
-    const inputIds  = ['rateU','rateABA','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
-
-    // ======= Debounce helper =======
-    function debounce(fn, ms=250) {
-      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
+    // Kiểm tra cấu hình thực tế (tránh lỗi invalid-api-key)
+    function validConfig(cfg){
+      return cfg
+        && typeof cfg.apiKey==='string' && cfg.apiKey.length>10
+        && typeof cfg.authDomain==='string' && cfg.authDomain.endsWith('.firebaseapp.com')
+        && typeof cfg.databaseURL==='string' && cfg.databaseURL.startsWith('https://')
+        && typeof cfg.projectId==='string' && cfg.projectId.length>3
+        && typeof cfg.appId==='string' && cfg.appId.includes(':');
     }
 
-    // ======= Đồng bộ INPUTS (hai chiều) =======
-    let applyingRemoteInputs = false;
+    if (!validConfig(firebaseConfig)) {
+      console.warn("[Sync] Firebase config chưa hợp lệ → chạy Local only.");
+      statusEl.textContent = "Sync: Local only";
+      statusEl.classList.remove('sync-ok'); statusEl.classList.add('sync-warn');
+    } else {
+      try {
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        signInAnonymously(auth).catch(e => console.warn("Anonymous auth error:", e?.code));
 
-    function readInputsFromDOM() {
-      const o = {};
-      inputIds.forEach(id => { const el = document.getElementById(id); o[id] = el ? el.value : ""; });
-      return o;
-    }
-    const saveInputsToDB = debounce(() => {
-      if (applyingRemoteInputs) return;
-      set(inputsRef, readInputsFromDOM());
-    }, 250);
+        const entriesRef = ref(db, `rooms/${roomId}/entries`);
+        const inputsRef  = ref(db, `rooms/${roomId}/inputs`);
 
-    // Ghi lên DB khi người dùng gõ
-    inputIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('input', saveInputsToDB);
-    });
+        const inputIds=['rateU','rateABA','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
+        const historyEl=document.getElementById('history');
+        const doneEl=document.getElementById('doneList');
 
-    // Nhận về từ DB để hiển thị ở máy khác
-    onValue(inputsRef, (snap) => {
-      const v = snap.val();
-      if (!v) return;
-      applyingRemoteInputs = true;
-      inputIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && typeof v[id] !== 'undefined' && el.value !== v[id]) el.value = v[id] ?? "";
-      });
-      applyingRemoteInputs = false;
-      if (typeof window.calculate === 'function') window.calculate();
-    });
-
-    // ======= Render entries từ DB =======
-    function renderAll(data) {
-      historyEl.innerHTML = "";
-      doneEl.innerHTML = "";
-      const entries = data ? Object.entries(data) : [];
-      entries.sort((a,b)=> (b[1]?.createdAt||0) - (a[1]?.createdAt||0));
-
-      for (const [key, e] of entries) {
-        if (e.status === 'done') makeDoneEntry(key, e);
-        else makeActiveEntry(key, e);
-      }
-    }
-
-    function makeActiveEntry(key, e) {
-      const entry = document.createElement("div");
-      entry.className = "history-entry";
-      entry.dataset.key = key;
-
-      const header = document.createElement("div");
-      header.className = "entry-header";
-
-      const name = document.createElement("input");
-      name.type = "text";
-      name.placeholder = "Tên giao dịch";
-      name.value = e.name || "";
-      name.addEventListener('input', debounce(() => {
-        update(ref(db, `rooms/${roomId}/entries/${key}`), { name: name.value });
-      }, 300));
-
-      const date = document.createElement("span");
-      date.textContent = e.date || "";
-
-      const doneBtn = document.createElement("button");
-      doneBtn.className = "done-btn";
-      doneBtn.textContent = "Duyệt";
-      doneBtn.onclick = () => markAsDoneRealtime(entry, key);
-
-      const del = document.createElement("button");
-      del.className = "delete-btn";
-      del.textContent = "Xóa";
-      del.onclick = () => remove(ref(db, `rooms/${roomId}/entries/${key}`));
-
-      header.appendChild(name);
-      header.appendChild(date);
-      header.appendChild(doneBtn);
-      header.appendChild(del);
-
-      const content = document.createElement("div");
-      content.className = "entry-content";
-      content.style.marginTop = "8px";
-
-      (e.lines || []).forEach((line, i) => {
-        if (!line?.trim()) return;
-        const lineContainer = document.createElement("div");
-        const tick = document.createElement("input");
-        tick.type = "checkbox";
-        tick.style.marginRight = "8px";
-        const span = document.createElement("span");
-        span.textContent = line;
-
-        // trạng thái tick
-        const checked = !!(e.ticks && e.ticks[i]);
-        tick.checked = checked;
-        if (checked) span.classList.add('highlighted');
-
-        tick.addEventListener('change', () => {
-          // cập nhật mảng ticks theo DOM hiện tại
-          const ticks = [];
-          content.querySelectorAll('input[type="checkbox"]').forEach(ch => ticks.push(ch.checked));
-          update(ref(db, `rooms/${roomId}/entries/${key}`), { ticks });
-          span.classList.toggle('highlighted', tick.checked);
+        // Đồng bộ INPUTS 2 chiều
+        let applyingRemote=false;
+        function readInputs(){ const o={}; inputIds.forEach(id=>o[id]=document.getElementById(id)?.value||""); return o; }
+        function saveInputs(){ if(applyingRemote) return; set(inputsRef, readInputs()); }
+        inputIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>setTimeout(saveInputs,120)); });
+        onValue(inputsRef, snap => {
+          const v=snap.val(); if(!v) return; applyingRemote=true;
+          inputIds.forEach(id=>{ const el=document.getElementById(id); if(el && typeof v[id]!=='undefined' && el.value!==v[id]) el.value=v[id]??""; });
+          applyingRemote=false; if(typeof window.calculate==='function') window.calculate();
         });
 
-        lineContainer.appendChild(tick);
-        lineContainer.appendChild(span);
-        content.appendChild(lineContainer);
-      });
-
-      entry.appendChild(header);
-      entry.appendChild(content);
-      historyEl.prepend(entry);
-    }
-
-    function makeDoneEntry(key, e) {
-      const entry = document.createElement("div");
-      entry.className = "history-entry done-entry";
-      entry.dataset.key = key;
-
-      const header = document.createElement("div");
-      header.className = "entry-header";
-
-      const nameInput = document.createElement("input");
-      nameInput.type = "text";
-      nameInput.value = e.name || "";
-      nameInput.style.fontWeight = "bold";
-      nameInput.style.color = "#155724";
-      nameInput.readOnly = true;
-
-      const editBtn = document.createElement("button");
-      editBtn.className = "edit-btn";
-      editBtn.textContent = "Chỉnh sửa";
-
-      const del = document.createElement("button");
-      del.className = "delete-btn";
-      del.textContent = "Xóa";
-      del.onclick = () => remove(ref(db, `rooms/${roomId}/entries/${key}`));
-
-      header.appendChild(nameInput);
-      header.appendChild(editBtn);
-      header.appendChild(del);
-
-      const textarea = document.createElement("textarea");
-      textarea.style.width = "100%";
-      textarea.style.marginTop = "8px";
-      textarea.style.fontFamily = "monospace";
-      textarea.style.fontSize = "14px";
-      textarea.style.borderRadius = "6px";
-      textarea.style.border = "1px solid #ccc";
-      textarea.style.resize = "vertical";
-      textarea.style.display = "none";
-      textarea.value = e.content || (e.lines || []).join("\n");
-
-      const display = document.createElement("div");
-      display.style.whiteSpace = "pre-wrap";
-      display.style.color = "#155724";
-      display.style.fontWeight = "bold";
-      display.style.marginTop = "8px";
-      display.textContent = textarea.value;
-
-      editBtn.onclick = () => {
-        const editing = textarea.style.display === "block";
-        if (!editing) {
-          textarea.style.display = "block";
-          display.style.display = "none";
-          editBtn.textContent = "Lưu";
-          nameInput.readOnly = false;
-          nameInput.focus();
-        } else {
-          textarea.style.display = "none";
-          display.style.display = "block";
-          display.textContent = textarea.value;
-          editBtn.textContent = "Chỉnh sửa";
-          nameInput.readOnly = true;
-          update(ref(db, `rooms/${roomId}/entries/${key}`), {
-            name: nameInput.value,
-            content: textarea.value
-          });
+        // Render entries từ DB
+        function renderAll(data){
+          historyEl.innerHTML=""; doneEl.innerHTML="";
+          const arr = data ? Object.entries(data) : [];
+          arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+          for(const [key,e] of arr){ if(e.status==='done') makeDoneEntry(key,e); else makeActiveEntry(key,e); }
         }
-      };
+        function makeActiveEntry(key,e){
+          const entry=document.createElement("div"); entry.className="history-entry"; entry.dataset.key=key;
+          const header=document.createElement("div"); header.className="entry-header";
+          const name=document.createElement("input"); name.type="text"; name.placeholder="Tên giao dịch"; name.value=e.name||"";
+          name.addEventListener('input', ()=>update(ref(db,`rooms/${roomId}/entries/${key}`),{name:name.value}));
+          const date=document.createElement("span"); date.textContent=e.date||"";
+          const doneBtn=document.createElement("button"); doneBtn.className="done-btn"; doneBtn.textContent="Duyệt";
+          const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`rooms/${roomId}/entries/${key}`));
+          doneBtn.onclick=()=>{
+            const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);
+            update(ref(db,`rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});
+          };
+          header.append(name,date,doneBtn,del);
 
-      entry.appendChild(header);
-      entry.appendChild(display);
-      entry.appendChild(textarea);
-      doneEl.prepend(entry);
-    }
+          const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
+          (e.lines||[]).forEach((line,i)=>{
+            if(!line?.trim()) return;
+            const lineContainer=document.createElement("div");
+            const tick=document.createElement("input"); tick.type="checkbox"; tick.style.marginRight="8px";
+            const span=document.createElement("span"); span.textContent=line;
+            tick.checked=!!(e.ticks&&e.ticks[i]); if(tick.checked) span.classList.add('highlighted');
+            tick.addEventListener('change',()=>{
+              const ticks=[]; content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));
+              update(ref(db,`rooms/${roomId}/entries/${key}`),{ticks});
+              span.classList.toggle('highlighted', tick.checked);
+            });
+            lineContainer.append(tick,span); content.appendChild(lineContainer);
+          });
+          entry.append(header,content); historyEl.prepend(entry);
+        }
+        function makeDoneEntry(key,e){
+          const entry=document.createElement("div"); entry.className="history-entry done-entry"; entry.dataset.key=key;
+          const header=document.createElement("div"); header.className="entry-header";
+          const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=e.name||""; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true;
+          const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.textContent="Chỉnh sửa";
+          const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`rooms/${roomId}/entries/${key}`));
+          header.append(nameInput,editBtn,del);
 
-    // ======= Override các hàm gốc để ghi vào DB thay vì chỉ đổi DOM =======
-    const _addToHistory = window.addToHistory;
-    window.addToHistory = function () {
-      const logText = document.getElementById("log").innerText.trim();
-      if (!logText || logText === "Không có dữ liệu." || logText === "Không tìm thấy tỷ giá.") return;
-      const lines = logText.split('\n').filter(l => l.trim() !== "");
-      const entry = {
-        name: "",
-        date: `${getToday()} ${getCurrentTime()}`,
-        lines,
-        ticks: new Array(lines.length).fill(false),
-        status: "active",
-        createdAt: Date.now()
-      };
-      push(entriesRef, entry);
-    };
+          const textarea=document.createElement("textarea"); textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; textarea.value=e.content||(e.lines||[]).join("\n");
+          const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=textarea.value;
 
-    const _markAsDone = window.markAsDone;
-    function markAsDoneRealtime(entryEl, key) {
-      const name = entryEl.querySelector('.entry-header input[type="text"]')?.value || "";
-      // Lấy nội dung hiển thị hiện tại (các dòng)
-      let content = "";
-      if (typeof window.getEntryContentText === 'function') {
-        content = window.getEntryContentText(entryEl);
-      } else {
-        const spans = entryEl.querySelectorAll('.entry-content div span');
-        content = [...spans].map(s => s.textContent).join('\n');
+          editBtn.onclick=()=>{
+            const editing=textarea.style.display==="block";
+            if(!editing){ textarea.style.display="block"; display.style.display="none"; editBtn.textContent="Lưu"; nameInput.readOnly=false; nameInput.focus(); }
+            else { textarea.style.display="none"; display.style.display="block"; display.textContent=textarea.value; editBtn.textContent="Chỉnh sửa"; nameInput.readOnly=true;
+              update(ref(db,`rooms/${roomId}/entries/${key}`),{name:nameInput.value,content:textarea.value}); }
+          };
+
+          entry.append(header,display,textarea); doneEl.prepend(entry);
+        }
+
+        // Override để ghi DB khi thêm lịch sử
+        window.addToHistory = function(){
+          const logText=document.getElementById("log").innerText.trim();
+          if(!logText || logText==="Không có dữ liệu." || logText==="Không tìm thấy tỷ giá.") return;
+          const lines=logText.split('\n').filter(l=>l.trim()!=="");
+          const entry={ name:"", date:`${getToday()} ${getCurrentTime()}`, lines, ticks:new Array(lines.length).fill(false), status:"active", createdAt:Date.now() };
+          push(entriesRef, entry);
+        };
+        window.clearHistory = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) return; set(entriesRef, null); };
+
+        onValue(entriesRef, snap => renderAll(snap.val()));
+
+        statusEl.textContent = "Sync: Realtime";
+        statusEl.classList.remove('sync-warn','sync-err'); statusEl.classList.add('sync-ok');
+      } catch (err) {
+        console.warn("[Sync] Lỗi khởi tạo Firebase → chạy Local only.", err);
+        statusEl.textContent = "Sync: Local only";
+        statusEl.classList.remove('sync-ok'); statusEl.classList.add('sync-err');
       }
-      update(ref(db, `rooms/${roomId}/entries/${key}`), {
-        name, content, status: "done"
-      });
     }
-    window.markAsDone = function (entryEl) {
-      const key = entryEl?.dataset?.key;
-      if (key) return markAsDoneRealtime(entryEl, key);
-      // fallback (nếu entry không có key do code cũ tạo trước khi load DB)
-      _markAsDone(entryEl);
-    };
-
-    const _clearHistory = window.clearHistory;
-    window.clearHistory = function () {
-      if (!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) return;
-      set(entriesRef, null);
-      // DOM sẽ tự cập nhật qua onValue
-    };
-
-    // ======= Lắng nghe DB và render =======
-    onValue(entriesRef, (snap) => {
-      renderAll(snap.val());
-    });
-
-    // Tự tính lại log lần đầu (nếu có input có sẵn)
-    if (typeof window.calculate === 'function') window.calculate();
-
-    // Chờ xác nhận đăng nhập (không bắt buộc, chỉ để debug nếu cần)
-    onAuthStateChanged(auth, (user) => {
-      // console.log('auth uid:', user?.uid);
-    });
   </script>
-  <!-- =================== HẾT PHẦN REALTIME =================== -->
 </body>
 </html>
