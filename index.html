@@ -42,58 +42,83 @@
     .history::-webkit-scrollbar, #doneList::-webkit-scrollbar { width: 8px; }
     .history::-webkit-scrollbar-thumb, #doneList::-webkit-scrollbar-thumb { background-color: #b0c4de; border-radius: 4px; }
     .btn-container { margin-top: 15px; overflow: hidden; }
+
     .sync-badge { position: fixed; right: 16px; top: 12px; background:#eee; color:#333; border-radius:16px; padding:6px 10px; font:600 12px/1.2 system-ui,Arial; box-shadow:0 1px 3px rgba(0,0,0,.1); z-index: 9999; }
     .sync-ok { background:#e6ffed; color:#056e1a; }
     .sync-warn { background:#fff2e6; color:#8a4b00; }
     .sync-err { background:#ffe6e6; color:#7a1414; }
 
-    @media (max-width: 900px){
-      body{flex-direction:column}
-      .container{width:100%}
-    }
+    /* Login card */
+    .auth-wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #f0f8ff; }
+    .auth-card { width: 360px; max-width: 92vw; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.1); padding: 20px; }
+    .auth-card h2 { margin: 0 0 12px; border: none; color: #0b4aa7; }
+    .auth-card .row { margin-bottom: 10px; }
+    .auth-card input { width: 100%; padding: 10px 12px; border: 1px solid #cdd6e0; border-radius: 8px; font-size: 14px; }
+    .auth-card button { width: 100%; padding: 10px 12px; border: none; border-radius: 8px; background: #0b73ff; color: #fff; font-weight: 600; cursor: pointer; }
+    .auth-msg { margin-top: 8px; font-size: 13px; color: #a11; min-height: 18px; }
+    .topbar { position: fixed; left: 16px; top: 12px; display: flex; gap: 8px; align-items: center; z-index: 9999; }
+    .logout { background:#444; color:#fff; border:none; border-radius:16px; padding:6px 10px; font:600 12px/1.2 system-ui; cursor:pointer; }
+    @media (max-width: 900px){ body{flex-direction:column} .container{width:100%} }
   </style>
 </head>
 <body>
-  <div class="sync-badge sync-warn" id="syncStatus" title="Tự lưu cục bộ. Bật Firebase để đồng bộ realtime.">
-    Sync: Local only
+  <!-- trạng thái + logout -->
+  <div class="topbar">
+    <button id="logoutBtn" class="logout" hidden>Đăng xuất</button>
   </div>
+  <div class="sync-badge sync-warn" id="syncStatus" title="Tự lưu cục bộ. Đăng nhập để đồng bộ realtime.">Sync: Local only</div>
 
-  <div class="container">
-    <h2>Caculator</h2>
-    <label>Tỷ giá (IDR / U / ABA):</label>
-    <table>
-      <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
-      <tbody>
-        <tr><td>IDR / U</td><td><input type="number" id="rateU" placeholder="U" oninput="calculate()" /></td></tr>
-        <tr><td>IDR / ABA</td><td><input type="number" id="rateABA" placeholder="ABA" oninput="calculate()" /></td></tr>
-      </tbody>
-    </table>
-    <label>USDT:</label>
-    <input type="text" id="usdt_input" placeholder="Ví dụ: 1k, 1.2k, 1350.5" oninput="calculate()">
-    <label>ABA:</label>
-    <input type="text" id="aba_input" placeholder="Ví dụ: 2k, 5000" oninput="calculate()">
-    <label>IDR ➝ USDT:</label>
-    <input type="number" id="idr_usdt_input" placeholder="Nhập số IDR để đổi USDT" oninput="calculate()">
-    <label>IDR ➝ ABA:</label>
-    <input type="number" id="idr_aba_input" placeholder="Nhập số IDR để đổi ABA" oninput="calculate()">
-    <div class="btn-container">
-      <button class="btn" onclick="copyForm()">Copy Form</button>
-      <button class="btn" onclick="addToHistory()">Add vào lịch sử</button>
+  <!-- màn đăng nhập -->
+  <div id="loginWrap" class="auth-wrap">
+    <div class="auth-card">
+      <h2>Đăng nhập</h2>
+      <div class="row"><input id="email" type="email" placeholder="Email" autocomplete="username" /></div>
+      <div class="row"><input id="password" type="password" placeholder="Mật khẩu" autocomplete="current-password" /></div>
+      <button id="loginBtn">Đăng nhập</button>
+      <div id="loginMsg" class="auth-msg"></div>
+      <div style="font-size:12px;color:#666;margin-top:6px">Tài khoản do admin cấp. Không mở đăng ký.</div>
     </div>
-    <div class="log" id="log"></div>
   </div>
 
-  <div class="container">
-    <h3>Lịch sử
-      <button class="btn btn-red" style="float:right;" onclick="clearHistory()">Xóa toàn bộ lịch sử</button>
-    </h3>
-    <div class="history" id="history"></div>
+  <!-- ứng dụng chính (ẩn tới khi đăng nhập) -->
+  <div id="app" hidden>
+    <div class="container">
+      <h2>Caculator</h2>
+      <label>Tỷ giá (IDR / U / ABA):</label>
+      <table>
+        <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
+        <tbody>
+          <tr><td>IDR / U</td><td><input type="number" id="rateU" placeholder="U" oninput="calculate()" /></td></tr>
+          <tr><td>IDR / ABA</td><td><input type="number" id="rateABA" placeholder="ABA" oninput="calculate()" /></td></tr>
+        </tbody>
+      </table>
+      <label>USDT:</label>
+      <input type="text" id="usdt_input" placeholder="Ví dụ: 1k, 1.2k, 1350.5" oninput="calculate()">
+      <label>ABA:</label>
+      <input type="text" id="aba_input" placeholder="Ví dụ: 2k, 5000" oninput="calculate()">
+      <label>IDR ➝ USDT:</label>
+      <input type="number" id="idr_usdt_input" placeholder="Nhập số IDR để đổi USDT" oninput="calculate()">
+      <label>IDR ➝ ABA:</label>
+      <input type="number" id="idr_aba_input" placeholder="Nhập số IDR để đổi ABA" oninput="calculate()">
+      <div class="btn-container">
+        <button class="btn" onclick="copyForm()">Copy Form</button>
+        <button class="btn" onclick="addToHistory()">Add vào lịch sử</button>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
 
-    <h3>Đã xong</h3>
-    <div id="doneList"></div>
+    <div class="container">
+      <h3>Lịch sử
+        <button class="btn btn-red" style="float:right;" onclick="clearHistory()">Xóa toàn bộ lịch sử</button>
+      </h3>
+      <div class="history" id="history"></div>
+
+      <h3>Đã xong</h3>
+      <div id="doneList"></div>
+    </div>
   </div>
 
-  <!-- ====== JS gốc của bạn ====== -->
+  <!-- ====== JS gốc (giữ nguyên tính toán & UI local) ====== -->
   <script>
     function parseInput(value) {
       value = value.toLowerCase().trim();
@@ -173,7 +198,7 @@
     function clearHistory() { if (confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) { document.getElementById("history").innerHTML = ""; document.getElementById("doneList").innerHTML = ""; } }
   </script>
 
-  <!-- ====== Auto-save localStorage (backup khi reload) ====== -->
+  <!-- ====== Auto-save localStorage ====== -->
   <script>
     (function(){
       const KEY='caculator_autosave_v1';
@@ -200,13 +225,13 @@
     })();
   </script>
 
-  <!-- ====== Firebase Realtime (đã fix: nhập tên mượt + thứ tự mới nhất ở trên) ====== -->
+  <!-- ====== Firebase + Auth (Email/Password bắt buộc) ====== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
     import { getDatabase, ref, push, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
-    // Cấu hình của bạn
+    // ⬇️ Cấu hình của bạn
     const firebaseConfig = {
       apiKey: "AIzaSyDcyh6-XOKIS8GLCx24aAT5WPewc-Cu0RM",
       authDomain: "testsever1-1f5c9.firebaseapp.com",
@@ -217,141 +242,175 @@
       appId: "1:587078219356:web:5684169dcabbf85a0e9899"
     };
 
-    const statusEl = document.getElementById('syncStatus');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
+    setPersistence(auth, browserLocalPersistence);
+
+    const statusEl  = document.getElementById('syncStatus');
+    const appEl     = document.getElementById('app');
+    const loginWrap = document.getElementById('loginWrap');
+    const loginBtn  = document.getElementById('loginBtn');
+    const loginMsg  = document.getElementById('loginMsg');
+    const emailEl   = document.getElementById('email');
+    const passEl    = document.getElementById('password');
+    const logoutBtn = document.getElementById('logoutBtn');
+
     const roomId = location.hash?.slice(1) || "global";
+    let unsubEntries = null, unsubInputs = null;
+    let editingKey = null;
 
-    function ok(cfg){ return cfg && cfg.apiKey && cfg.authDomain && cfg.databaseURL && cfg.projectId && cfg.appId; }
-
-    if (!ok(firebaseConfig)) {
-      statusEl.textContent = "Sync: Local only";
-      statusEl.classList.remove('sync-ok'); statusEl.classList.add('sync-warn');
-    } else {
+    loginBtn.onclick = async () => {
+      loginMsg.textContent = "";
       try {
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-        signInAnonymously(auth).catch(()=>{});
+        if (!emailEl.value || !passEl.value) { loginMsg.textContent = "Nhập email và mật khẩu."; return; }
+        await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value);
+      } catch (e) {
+        loginMsg.textContent = e?.code?.replace("auth/","") || "Đăng nhập thất bại";
+      }
+    };
+    logoutBtn.onclick = () => signOut(auth);
 
-        const entriesRef = ref(db, `rooms/${roomId}/entries`);
-        const inputsRef  = ref(db, `rooms/${roomId}/inputs`);
-
-        const inputIds=['rateU','rateABA','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
-        const historyEl=document.getElementById('history');
-        const doneEl=document.getElementById('doneList');
-
-        // ===== Đồng bộ INPUTS 2 chiều =====
-        let applyingRemote=false;
-        function readInputs(){ const o={}; inputIds.forEach(id=>o[id]=document.getElementById(id)?.value||""); return o; }
-        function saveInputs(){ if(applyingRemote) return; set(inputsRef, readInputs()); }
-        inputIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>setTimeout(saveInputs,120)); });
-        onValue(inputsRef, snap => {
-          const v=snap.val(); if(!v) return; applyingRemote=true;
-          inputIds.forEach(id=>{ const el=document.getElementById(id); if(el && typeof v[id]!=='undefined' && el.value!==v[id]) el.value=v[id]??""; });
-          applyingRemote=false; if(typeof window.calculate==='function') window.calculate();
-        });
-
-        // ===== Render entries (debounce nhập tên + sort mới nhất trước) =====
-        let editingKey = null; // đang gõ ở entry nào → không re-render lúc đó
-        function renderAll(data){
-          if (editingKey) return;
-          historyEl.innerHTML=""; doneEl.innerHTML="";
-          const arr = data ? Object.entries(data) : [];
-          arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0)); // mới nhất trên
-          for(const [key,e] of arr){ (e.status==='done' ? makeDoneEntry : makeActiveEntry)(key,e); }
-        }
-
-        function makeActiveEntry(key,e){
-          const entry=document.createElement("div"); entry.className="history-entry"; entry.dataset.key=key;
-
-          const header=document.createElement("div"); header.className="entry-header";
-          const name=document.createElement("input"); name.type="text"; name.placeholder="Tên giao dịch"; name.value=e.name||"";
-          let tmr=null;
-          name.addEventListener('focus', ()=>{ editingKey = key; });
-          name.addEventListener('input', ()=>{
-            editingKey = key;
-            clearTimeout(tmr);
-            tmr = setTimeout(()=>{
-              update(ref(db,`rooms/${roomId}/entries/${key}`),{name:name.value});
-              editingKey = null;           // cho phép render lại
-            }, 600);
-          });
-          name.addEventListener('blur', ()=>{
-            clearTimeout(tmr);
-            update(ref(db,`rooms/${roomId}/entries/${key}`),{name:name.value});
-            editingKey = null;
-          });
-
-          const date=document.createElement("span"); date.textContent=e.date||"";
-          const doneBtn=document.createElement("button"); doneBtn.className="done-btn"; doneBtn.textContent="Duyệt";
-          const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`rooms/${roomId}/entries/${key}`));
-          doneBtn.onclick=()=>{
-            const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);
-            update(ref(db,`rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});
-          };
-          header.append(name,date,doneBtn,del);
-
-          const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
-          (e.lines||[]).forEach((line,i)=>{
-            if(!line?.trim()) return;
-            const lineContainer=document.createElement("div");
-            const tick=document.createElement("input"); tick.type="checkbox"; tick.style.marginRight="8px";
-            const span=document.createElement("span"); span.textContent=line;
-            tick.checked=!!(e.ticks&&e.ticks[i]); if(tick.checked) span.classList.add('highlighted');
-            tick.addEventListener('change',()=>{
-              const ticks=[]; content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));
-              update(ref(db,`rooms/${roomId}/entries/${key}`),{ticks});
-              span.classList.toggle('highlighted', tick.checked);
-            });
-            lineContainer.append(tick,span); content.appendChild(lineContainer);
-          });
-
-          entry.append(header,content);
-          historyEl.appendChild(entry); // đã sort rồi nên append theo thứ tự
-        }
-
-        function makeDoneEntry(key,e){
-          const entry=document.createElement("div"); entry.className="history-entry done-entry"; entry.dataset.key=key;
-
-          const header=document.createElement("div"); header.className="entry-header";
-          const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=e.name||""; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true;
-          const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.textContent="Chỉnh sửa";
-          const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`rooms/${roomId}/entries/${key}`));
-          header.append(nameInput,editBtn,del);
-
-          const textarea=document.createElement("textarea"); textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; textarea.value=e.content||(e.lines||[]).join("\n");
-          const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=textarea.value;
-
-          editBtn.onclick=()=>{
-            const editing=textarea.style.display==="block";
-            if(!editing){ textarea.style.display="block"; display.style.display="none"; editBtn.textContent="Lưu"; nameInput.readOnly=false; nameInput.focus(); }
-            else { textarea.style.display="none"; display.style.display="block"; display.textContent=textarea.value; editBtn.textContent="Chỉnh sửa"; nameInput.readOnly=true;
-              update(ref(db,`rooms/${roomId}/entries/${key}`),{name:nameInput.value,content:textarea.value}); }
-          };
-
-          entry.append(header,display,textarea);
-          doneEl.appendChild(entry); // đã sort rồi nên append theo thứ tự
-        }
-
-        // Ghi DB khi thêm lịch sử
-        window.addToHistory = function(){
-          const logText=document.getElementById("log").innerText.trim();
-          if(!logText || logText==="Không có dữ liệu." || logText==="Không tìm thấy tỷ giá.") return;
-          const lines=logText.split('\n').filter(l=>l.trim()!=="");
-          push(entriesRef, { name:"", date:`${getToday()} ${getCurrentTime()}`, lines, ticks:new Array(lines.length).fill(false), status:"active", createdAt:Date.now() });
-        };
-        window.clearHistory = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) return; set(entriesRef, null); };
-
-        // Lắng nghe DB
-        onValue(entriesRef, snap => renderAll(snap.val()));
-
-        // Trạng thái
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginWrap.style.display = "none";
+        appEl.hidden = false;
+        logoutBtn.hidden = false;
         statusEl.textContent = "Sync: Realtime";
         statusEl.classList.remove('sync-warn','sync-err'); statusEl.classList.add('sync-ok');
-      } catch (e) {
+        attachRealtime(user);
+      } else {
+        detachRealtime();
+        appEl.hidden = true;
+        logoutBtn.hidden = true;
+        loginWrap.style.display = "flex";
         statusEl.textContent = "Sync: Local only";
-        statusEl.classList.remove('sync-ok'); statusEl.classList.add('sync-err');
-        console.warn(e);
+        statusEl.classList.remove('sync-ok'); statusEl.classList.add('sync-warn');
       }
+    });
+
+    function detachRealtime(){
+      if (typeof unsubEntries === 'function') { unsubEntries(); unsubEntries = null; }
+      if (typeof unsubInputs  === 'function') { unsubInputs();  unsubInputs  = null; }
+    }
+
+    function attachRealtime(user){
+      detachRealtime();
+
+      const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputs`);
+      const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entries`);
+
+      // Sync inputs 2 chiều
+      const ids=['rateU','rateABA','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
+      let applyingRemote=false;
+      function readInputs(){ const o={}; ids.forEach(id=>o[id]=document.getElementById(id)?.value||""); return o; }
+      function saveInputs(){ if(applyingRemote) return; set(inputsRef, readInputs()); }
+      ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>setTimeout(saveInputs,120)); });
+      unsubInputs = onValue(inputsRef, snap => {
+        const v=snap.val(); if(!v) return;
+        applyingRemote=true;
+        ids.forEach(id=>{ const el=document.getElementById(id); if(el && typeof v[id]!=='undefined' && el.value!==v[id]) el.value=v[id]??""; });
+        applyingRemote=false;
+        if(typeof window.calculate==='function') window.calculate();
+      });
+
+      // Render entries
+      const historyEl=document.getElementById('history');
+      const doneEl=document.getElementById('doneList');
+
+      function renderAll(data){
+        if (editingKey) return;
+        historyEl.innerHTML=""; doneEl.innerHTML="";
+        const arr = data ? Object.entries(data) : [];
+        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+        for(const [key,e] of arr){ (e.status==='done' ? makeDoneEntry : makeActiveEntry)(key,e); }
+      }
+
+      function makeActiveEntry(key,e){
+        const entry=document.createElement("div"); entry.className="history-entry"; entry.dataset.key=key;
+        const header=document.createElement("div"); header.className="entry-header";
+
+        const name=document.createElement("input"); name.type="text"; name.placeholder="Tên giao dịch"; name.value=e.name||"";
+        let tmr=null;
+        name.addEventListener('focus', ()=>{ editingKey = key; });
+        name.addEventListener('input', ()=>{
+          editingKey = key; clearTimeout(tmr);
+          tmr = setTimeout(()=>{ update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:name.value}); editingKey=null; }, 600);
+        });
+        name.addEventListener('blur', ()=>{
+          clearTimeout(tmr); update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:name.value}); editingKey=null;
+        });
+
+        const date=document.createElement("span"); date.textContent=e.date||"";
+        const doneBtn=document.createElement("button"); doneBtn.className="done-btn"; doneBtn.textContent="Duyệt";
+        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa";
+        del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`));
+        doneBtn.onclick=()=>{
+          const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);
+          update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});
+        };
+        header.append(name,date,doneBtn,del);
+
+        const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
+        (e.lines||[]).forEach((line,i)=>{
+          if(!line?.trim()) return;
+          const lineContainer=document.createElement("div");
+          const tick=document.createElement("input"); tick.type="checkbox"; tick.style.marginRight="8px";
+          const span=document.createElement("span"); span.textContent=line;
+          tick.checked=!!(e.ticks&&e.ticks[i]); if(tick.checked) span.classList.add('highlighted');
+          tick.addEventListener('change',()=>{
+            const ticks=[]; content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));
+            update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{ticks});
+            span.classList.toggle('highlighted', tick.checked);
+          });
+          lineContainer.append(tick,span); content.appendChild(lineContainer);
+        });
+
+        entry.append(header,content);
+        historyEl.appendChild(entry); // đã sort, append giữ thứ tự
+      }
+
+      function makeDoneEntry(key,e){
+        const entry=document.createElement("div"); entry.className="history-entry done-entry"; entry.dataset.key=key;
+        const header=document.createElement("div"); header.className="entry-header";
+        const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=e.name||""; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true;
+        const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.textContent="Chỉnh sửa";
+        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa";
+        del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`));
+        header.append(nameInput,editBtn,del);
+
+        const textarea=document.createElement("textarea"); textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; textarea.value=e.content||(e.lines||[]).join("\n");
+        const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=textarea.value;
+
+        editBtn.onclick=()=>{
+          const editing=textarea.style.display==="block";
+          if(!editing){ textarea.style.display="block"; display.style.display="none"; editBtn.textContent="Lưu"; nameInput.readOnly=false; nameInput.focus(); }
+          else { textarea.style.display="none"; display.style.display="block"; display.textContent=textarea.value; editBtn.textContent="Chỉnh sửa"; nameInput.readOnly=true;
+            update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:nameInput.value,content:textarea.value}); }
+        };
+
+        entry.append(header,display,textarea);
+        doneEl.appendChild(entry);
+      }
+
+      // Override hàm Add để ghi DB theo UID
+      window.addToHistory = function(){
+        const logText=document.getElementById("log").innerText.trim();
+        if(!logText || logText==="Không có dữ liệu." || logText==="Không tìm thấy tỷ giá.") return;
+        const lines=logText.split('\n').filter(l=>l.trim()!=="");
+        push(ref(db,`users/${user.uid}/rooms/${roomId}/entries`), {
+          name:"", date:`${getToday()} ${getCurrentTime()}`,
+          lines, ticks:new Array(lines.length).fill(false),
+          status:"active", createdAt:Date.now()
+        });
+      };
+      window.clearHistory = function(){
+        if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) return;
+        set(ref(db,`users/${user.uid}/rooms/${roomId}/entries`), null);
+      };
+
+      // Lắng nghe DB
+      unsubEntries = onValue(ref(db,`users/${user.uid}/rooms/${roomId}/entries`), snap => renderAll(snap.val()));
     }
   </script>
 </body>
