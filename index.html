@@ -5,240 +5,623 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Caculator</title>
   <style>
-    /* Bất kỳ phần tử có thuộc tính hidden đều ẩn tuyệt đối */
-    [hidden] { display: none !important; }
-
-    /* Nền tảng chung */
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f0f8ff; color: #222; }
-
-    /* App hiển thị ngang (2 cột) khi KHÔNG hidden */
-    #app { display: flex; gap: 30px; align-items: flex-start; }
-    #app[hidden] { display: none !important; }
-
-    .container { width: 48%; background: white; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); padding: 20px 25px; box-sizing: border-box; }
-    h2, h3 { margin-bottom: 15px; color: #004080; border-bottom: 2px solid #0080ff; padding-bottom: 5px; }
-    label { font-weight: 600; display: block; margin-top: 15px; margin-bottom: 5px; color: #003366; }
-    input[type="text"], input[type="number"], textarea { width: 100%; padding: 8px 12px; border-radius: 5px; border: 1px solid #ccc; font-family: monospace; font-size: 14px; box-sizing: border-box; transition: border-color 0.3s ease; }
-    input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-color: #3399ff; outline: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-family: monospace; font-size: 15px; }
-    table th, table td { border: 1px solid #ccc; padding: 6px 10px; text-align: center; color: #004080; }
-    table th { background-color: #e6f0ff; }
-    table input { border: none; text-align: center; font-weight: bold; font-size: 14px; width: 100%; padding: 4px 0; background: transparent; color: #00264d; }
-    table input:focus { outline: 1px solid #3399ff; background: #dbe9ff; }
-    .btn { background-color: #007bff; color: white; border: none; border-radius: 6px; padding: 10px 18px; font-size: 15px; cursor: pointer; margin-top: 15px; margin-right: 10px; transition: background-color 0.3s ease; user-select: none; }
-    .btn:hover { background-color: #0056b3; }
-    .btn-red { background-color: #dc3545; float: right; margin: 0 0 15px 0; }
-    .btn-red:hover { background-color: #a61b2b; }
-    .log { margin-top: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; padding: 12px 15px; font-family: monospace; font-size: 14px; min-height: 120px; white-space: pre-wrap; color: #222; }
-    .history, #doneList { max-height: 480px; overflow-y: auto; border: 1px solid #ccc; background: #fafafa; border-radius: 6px; padding: 10px 12px; font-family: monospace; font-size: 14px; color: #111; }
-    .history-entry { border-bottom: 1px solid #ccc; padding: 10px 8px; margin-bottom: 10px; background: #fff; border-radius: 5px; }
-    .history-entry:last-child { margin-bottom: 0; }
-    .entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
-    .entry-header input[type="text"] { flex: 1; min-width: 160px; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1px solid #aaa; font-family: inherit; color: #003366; }
-    .entry-header span { color: #004080; font-weight: 600; font-size: 14px; user-select: none; white-space: nowrap; }
-    .entry-header button { margin-left: 0; border-radius: 5px; font-size: 13px; padding: 6px 10px; border: none; cursor: pointer; user-select: none; transition: background-color 0.3s ease; }
-    .delete-btn { background-color: #dc3545; color: white; } .delete-btn:hover { background-color: #a61b2b; }
-    .done-btn { background-color: #28a745; color: white; } .done-btn:hover { background-color: #1e7e34; }
-    .edit-btn { background-color: #ffc107; color: #222; } .edit-btn:hover { background-color: #e0a800; }
-    .save-btn { background-color: #007bff; color: white; } .save-btn:hover { background-color: #0056b3; }
-    .cancel-btn { background-color: #6c757d; color: white; } .cancel-btn:hover { background-color: #565e64; }
-    .entry-content div { display: flex; align-items: center; margin-bottom: 4px; }
-    .entry-content div span { user-select: text; }
-    .entry-content div input[type="checkbox"] { margin-right: 8px; cursor: pointer; transform: scale(1.1); }
-    .highlighted { background-color: #d3f4d3; font-weight: bold; }
-    .done-entry { border-left: 4px solid #28a745; background-color: #e6f7e6 !important; font-weight: bold !important; color: #155724 !important; }
-    .history::-webkit-scrollbar, #doneList::-webkit-scrollbar { width: 8px; }
-    .history::-webkit-scrollbar-thumb, #doneList::-webkit-scrollbar-thumb { background-color: #b0c4de; border-radius: 4px; }
-    .btn-container { margin-top: 15px; overflow: hidden; }
-
-    .sync-badge { position: fixed; right: 16px; top: 12px; background:#eee; color:#333; border-radius:16px; padding:6px 10px; font:600 12px/1.2 system-ui,Arial; box-shadow:0 1px 3px rgba(0,0,0,.1); z-index: 9999; }
-    .sync-ok { background:#e6ffed; color:#056e1a; }
-    .sync-warn { background:#fff2e6; color:#8a4b00; }
-    .sync-err { background:#ffe6e6; color:#7a1414; }
-
-    /* Login card */
-    .auth-wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #f0f8ff; }
-    .auth-card { width: 360px; max-width: 92vw; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.1); padding: 20px; }
-    .auth-card h2 { margin: 0 0 12px; border: none; color: #0b4aa7; }
-    .auth-card .row { margin-bottom: 10px; }
-    .auth-card input { width: 100%; padding: 10px 12px; border: 1px solid #cdd6e0; border-radius: 8px; font-size: 14px; }
-    .auth-card button { width: 100%; padding: 10px 12px; border: none; border-radius: 8px; background: #0b73ff; color: #fff; font-weight: 600; cursor: pointer; }
-    .auth-msg { margin-top: 8px; font-size: 13px; color: #a11; min-height: 18px; }
-    .topbar { position: fixed; left: 16px; top: 12px; display: flex; gap: 8px; align-items: center; z-index: 9999; }
-    .logout { background:#444; color:#fff; border:none; border-radius:16px; padding:6px 10px; font:600 12px/1.2 system-ui; cursor:pointer; }
-
-    /* Responsive: chỉ xếp dọc khi màn hình hẹp */
-    @media (max-width: 768px){
-      #app { flex-direction: column; }
-      .container { width: 100%; }
-    }
+    [hidden]{display:none!important}
+    body{font-family:Arial,sans-serif;margin:20px;background:#f0f8ff;color:#222}
+    #app,#appVI,#appTHB,#appABA{display:flex;gap:30px;align-items:flex-start}
+    #app[hidden],#appVI[hidden],#appTHB[hidden],#appABA[hidden]{display:none!important}
+    .container{width:48%;background:#fff;border-radius:8px;box-shadow:0 0 8px rgba(0,0,0,.1);padding:20px 25px;box-sizing:border-box}
+    h2,h3{margin-bottom:15px;color:#004080;border-bottom:2px solid #0080ff;padding-bottom:5px}
+    label{font-weight:600;display:block;margin:15px 0 5px;color:#003366}
+    input[type="text"],input[type="number"],textarea{width:100%;padding:8px 12px;border-radius:5px;border:1px solid #ccc;font-family:monospace;font-size:14px;box-sizing:border-box;transition:border-color .3s}
+    input[type="text"]:focus,input[type="number"]:focus,textarea:focus{border-color:#3399ff;outline:none}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-family:monospace;font-size:15px}
+    table th,table td{border:1px solid #ccc;padding:6px 10px;text-align:center;color:#004080}
+    table th{background:#e6f0ff}
+    table input{border:none;text-align:center;font-weight:bold;font-size:14px;width:100%;padding:4px 0;background:transparent;color:#00264d}
+    table input:focus{outline:1px solid #3399ff;background:#dbe9ff}
+    .btn{background:#007bff;color:#fff;border:none;border-radius:6px;padding:10px 18px;font-size:15px;cursor:pointer;margin-top:15px;margin-right:10px;transition:background-color .3s;user-select:none}
+    .btn:hover{background:#0056b3}
+    .btn-red{background:#dc3545;float:right;margin:0 0 15px 0}.btn-red:hover{background:#a61b2b}
+    .log{margin-top:15px;background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:12px 15px;font-family:monospace;font-size:14px;min-height:120px;white-space:pre-wrap;color:#222}
+    .history,#doneList,.historyVI,#doneListVI,.historyTHB,#doneListTHB,.historyABA,#doneListABA{max-height:480px;overflow-y:auto;border:1px solid #ccc;background:#fafafa;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:14px;color:#111}
+    .history-entry{border-bottom:1px solid #ccc;padding:10px 8px;margin-bottom:10px;background:#fff;border-radius:5px}
+    .history-entry:last-child{margin-bottom:0}
+    .entry-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
+    .entry-header input[type="text"]{flex:1;min-width:160px;padding:6px 10px;font-size:14px;border-radius:4px;border:1px solid #aaa;font-family:inherit;color:#003366}
+    .entry-header span{color:#004080;font-weight:600;font-size:14px;user-select:none;white-space:nowrap}
+    .entry-header button{margin-left:0;border-radius:5px;font-size:13px;padding:6px 10px;border:none;cursor:pointer;user-select:none;transition:background-color .3s}
+    .delete-btn{background:#dc3545;color:#fff}.delete-btn:hover{background:#a61b2b}
+    .done-btn{background:#28a745;color:#fff}.done-btn:hover{background:#1e7e34}
+    .edit-btn{background:#ffc107;color:#222}.edit-btn:hover{background:#e0a800}
+    .entry-content div{display:flex;align-items:center;margin-bottom:4px}
+    .entry-content div span{user-select:text}
+    .entry-content div input[type="checkbox"]{margin-right:8px;cursor:pointer;transform:scale(1.1)}
+    .highlighted{background:#d3f4d3;font-weight:bold}
+    .done-entry{border-left:4px solid #28a745;background:#e6f7e6!important;font-weight:bold!important;color:#155724!important}
+    .history::-webkit-scrollbar,#doneList::-webkit-scrollbar,.historyVI::-webkit-scrollbar,#doneListVI::-webkit-scrollbar,.historyTHB::-webkit-scrollbar,#doneListTHB::-webkit-scrollbar,.historyABA::-webkit-scrollbar,#doneListABA::-webkit-scrollbar{width:8px}
+    .history::-webkit-scrollbar-thumb,#doneList::-webkit-scrollbar-thumb,.historyVI::-webkit-scrollbar-thumb,#doneListVI::-webkit-scrollbar-thumb,.historyTHB::-webkit-scrollbar-thumb,#doneListTHB::-webkit-scrollbar-thumb,.historyABA::-webkit-scrollbar-thumb,#doneListABA::-webkit-scrollbar-thumb{background:#b0c4de;border-radius:4px}
+    .btn-container{margin-top:15px;overflow:hidden}
+    .tabs{display:inline-flex;border:1px solid #cbd5e1;border-radius:999px;overflow:hidden;background:#fff}
+    .tab{padding:8px 14px;border:none;background:transparent;cursor:pointer;font-weight:600;color:#334155}
+    .tab.active{background:#0b73ff;color:#fff}
+    .topbar{position:fixed;left:16px;top:12px;display:flex;gap:8px;align-items:center;z-index:9999}
+    .sync-badge{position:fixed;right:16px;top:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.15);font-size:16px;color:#111;z-index:9999}
+    .sync-ok{background:#e6ffed}.sync-warn{background:#fff7e6}.sync-err{background:#ffe6e6}
+    .auth-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f0f8ff}
+    .auth-card{width:360px;max-width:92vw;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:20px}
+    .auth-card h2{margin:0 0 12px;border:none;color:#0b4aa7}
+    .auth-card .row{margin-bottom:10px}
+    .auth-card input{width:100%;padding:10px 12px;border:1px solid #cdd6e0;border-radius:8px;font-size:14px}
+    .auth-card button{width:100%;padding:10px 12px;border:none;border-radius:8px;background:#0b73ff;color:#fff;font-weight:600;cursor:pointer}
+    .auth-msg{margin-top:8px;font-size:13px;color:#a11;min-height:18px}
+    @media (max-width:992px){#app,#appVI,#appTHB,#appABA{flex-direction:column}.container{width:100%}}
   </style>
 </head>
 <body>
-  <!-- trạng thái + logout -->
-  <div class="topbar">
-    <button id="logoutBtn" class="logout" hidden>Đăng xuất</button>
+  <!-- Topbar (ẩn trước khi login) -->
+  <div id="topbar" class="topbar" hidden>
+    <button id="logoutBtn" class="btn" hidden>Đăng xuất</button>
+    <div class="tabs" style="margin-left:8px;">
+      <button class="tab active" id="tabIDR">I</button>
+      <button class="tab" id="tabVI">V</button>
+      <button class="tab" id="tabTHB">Tê</button>
+      <button class="tab" id="tabABA">AB</button>
+    </div>
   </div>
-  <div class="sync-badge sync-warn" id="syncStatus" title="Tự lưu cục bộ. Đăng nhập để đồng bộ realtime.">Sync: Local only</div>
 
-  <!-- màn đăng nhập -->
+  <!-- Badge Sync -->
+  <div id="syncStatus" class="sync-badge sync-warn" title="Local only">🔄</div>
+
+  <!-- Login -->
   <div id="loginWrap" class="auth-wrap">
     <div class="auth-card">
       <h2>Đăng nhập</h2>
-      <div class="row"><input id="email" type="email" placeholder="Email" autocomplete="username" /></div>
-      <div class="row"><input id="password" type="password" placeholder="Mật khẩu" autocomplete="current-password" /></div>
+      <div class="row"><input id="email" type="email" placeholder="Email" autocomplete="off" autocapitalize="off" spellcheck="false" /></div>
+      <div class="row"><input id="password" type="password" placeholder="Mật khẩu" autocomplete="off" autocapitalize="off" spellcheck="false" /></div>
       <button id="loginBtn">Đăng nhập</button>
       <div id="loginMsg" class="auth-msg"></div>
       <div style="font-size:12px;color:#666;margin-top:6px">Tài khoản do admin cấp. Không mở đăng ký.</div>
     </div>
   </div>
 
-  <!-- ứng dụng chính: thêm style="display:none" để chắc chắn ẩn trước khi đăng nhập -->
-  <div id="app" hidden style="display:none">
-    <div class="container">
-      <h2>Caculator</h2>
-      <label>Tỷ giá (IDR / U / ABA):</label>
-      <table>
-        <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
-        <tbody>
-          <tr><td>IDR / U</td><td><input type="number" id="rateU" placeholder="U" oninput="calculate()" /></td></tr>
-          <tr><td>IDR / ABA</td><td><input type="number" id="rateABA" placeholder="ABA" oninput="calculate()" /></td></tr>
-        </tbody>
-      </table>
-      <label>USDT:</label>
-      <input type="text" id="usdt_input" placeholder="Ví dụ: 1k, 1.2k, 1350.5" oninput="calculate()">
-      <label>ABA:</label>
-      <input type="text" id="aba_input" placeholder="Ví dụ: 2k, 5000" oninput="calculate()">
-      <label>IDR ➝ USDT:</label>
-      <input type="number" id="idr_usdt_input" placeholder="Nhập số IDR để đổi USDT" oninput="calculate()">
-      <label>IDR ➝ ABA:</label>
-      <input type="number" id="idr_aba_input" placeholder="Nhập số IDR để đổi ABA" oninput="calculate()">
-      <div class="btn-container">
-        <button class="btn" onclick="copyForm()">Copy Form</button>
-        <button class="btn" onclick="addToHistory()">Add vào lịch sử</button>
+  <!-- PAGE: IDR -->
+  <div id="pageIDR" style="margin-top:60px;" hidden>
+    <div id="app" hidden style="display:none">
+      <div class="container">
+        <h2>Caculator — Trang "I"</h2>
+        <label>Tỷ giá:</label>
+        <table>
+          <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
+          <tbody>
+            <tr><td>IDR / U</td><td><input type="number" id="rateU" placeholder="U" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR / ABA</td><td><input type="number" id="rateABA" placeholder="ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+          </tbody>
+        </table>
+        <label>USDT:</label><input type="text" id="usdt_input" placeholder="VD: 1k, 1.2k, 1350.5" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label>ABA:</label><input type="text" id="aba_input" placeholder="VD: 2k, 5000" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label>IDR ➝ USDT:</label><input type="number" id="idr_usdt_input" placeholder="Nhập IDR đổi USDT" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label>IDR ➝ ABA:</label><input type="number" id="idr_aba_input" placeholder="Nhập IDR đổi ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="btn-container">
+          <button class="btn" onclick="copyForm()">Copy Form</button>
+          <button class="btn" onclick="addToHistory()">Add vào lịch sử</button>
+        </div>
+        <div class="log" id="log"></div>
       </div>
-      <div class="log" id="log"></div>
-    </div>
-
-    <div class="container">
-      <h3>Lịch sử
-        <button class="btn btn-red" style="float:right;" onclick="clearHistory()">Xóa toàn bộ lịch sử</button>
-      </h3>
-      <div class="history" id="history"></div>
-
-      <h3>Đã xong</h3>
-      <div id="doneList"></div>
+      <div class="container">
+        <h3>Lịch sử <button class="btn btn-red" style="float:right" onclick="clearHistory()">Xóa toàn bộ lịch sử</button></h3>
+        <div class="history" id="history"></div>
+        <h3>Đã xong</h3>
+        <div id="doneList"></div>
+      </div>
     </div>
   </div>
 
-  <!-- ====== JS gốc: tính toán & UI local ====== -->
+  <!-- PAGE: VI -->
+  <div id="pageVI" style="margin-top:60px;" hidden>
+    <div id="appVI" hidden style="display:none">
+      <div class="container">
+        <h2>Caculator — Trang "VI"</h2>
+        <label>Tỷ giá VI:</label>
+        <table>
+          <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
+          <tbody>
+            <tr><td>VND / USDT</td><td><input type="number" id="rateVI" placeholder="V" oninput="calculateVI()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+          </tbody>
+        </table>
+        <label>Vi (VND ➝ USDT):</label><input type="text" id="vi_input" placeholder="VD: 1B, 5m, 2,5m" oninput="calculateVI()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label>U (USDT ➝ VND):</label><input type="text" id="u_input_vi" placeholder="VD: 100, 1.2k, 3m" oninput="calculateVI()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="btn-container">
+          <button class="btn" onclick="copyFormVI()">Copy Form</button>
+          <button class="btn" onclick="addToHistoryVI()">Add vào lịch sử</button>
+        </div>
+        <div class="log" id="logVI"></div>
+      </div>
+      <div class="container">
+        <h3>Lịch sử <button class="btn btn-red" style="float:right" onclick="clearHistoryVI()">Xóa toàn bộ lịch sử</button></h3>
+        <div class="historyVI" id="historyVI"></div>
+        <h3>Đã xong</h3>
+        <div id="doneListVI"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: THB -->
+  <div id="pageTHB" style="margin-top:60px;" hidden>
+    <div id="appTHB" hidden style="display:none">
+      <div class="container">
+        <h2>Caculator — Trang "Tê"</h2>
+        <label>Tỷ giá THB:</label>
+        <table>
+          <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
+          <tbody>
+            <tr><td>THB / USDT</td><td><input type="number" id="rateTHB" placeholder="VD: 33.25" step="0.01" oninput="calculateTHB()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+          </tbody>
+        </table>
+        <label>Tê (THB ➝ USDT):</label>
+        <input type="text" id="thb_input" placeholder="VD: 300k, 1.5m " oninput="calculateTHB()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label>U (USDT ➝ THB):</label>
+        <input type="text" id="u_input_thb" placeholder="VD: 100, 2.5 (giữ số thập phân)" oninput="calculateTHB()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="btn-container">
+          <button class="btn" onclick="copyFormTHB()">Copy Form</button>
+          <button class="btn" onclick="addToHistoryTHB()">Add vào lịch sử</button>
+        </div>
+        <div class="log" id="logTHB"></div>
+      </div>
+      <div class="container">
+        <h3>Lịch sử <button class="btn btn-red" style="float:right" onclick="clearHistoryTHB()">Xóa toàn bộ lịch sử</button></h3>
+        <div class="historyTHB" id="historyTHB"></div>
+        <h3>Đã xong</h3>
+        <div id="doneListTHB"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: ABA -->
+  <div id="pageABA" style="margin-top:60px;" hidden>
+    <div id="appABA" hidden style="display:none">
+      <div class="container">
+        <h2>Caculator — Trang "ABA"</h2>
+        <label>Tỷ giá ABA:</label>
+        <table>
+          <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>USDT ⇄ ABA</td>
+              <td><input type="text" id="rateABA4" placeholder="VD: 0.993" oninput="calculateABA()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <label>Số lượng:</label>
+
+        <input type="text" id="amountABA" placeholder="VD: 10k, 1.5k, 1000" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+        <div class="round-toggle" style="margin:8px 0 4px; display:inline-flex; gap:8px; align-items:center;">
+          <button id="roundIconABA" type="button" title="Đổi cách làm tròn (floor → round → ceil)"
+                  style="border:none;background:transparent;font-size:18px;cursor:pointer;line-height:1" data-mode="floor">📱</button>
+          <span id="roundModeLabelABA" style="font-weight:600;color:#003366">Làm tròn: <b>floor</b></span>
+        </div>
+<!-- Bảng 1: USDT -> ABA -->
+        <div class="btn-container">
+          <button class="btn" onclick="copyLog('logABA_u2a')">Copy form USDT→ABA</button>
+          <button class="btn" onclick="addToHistoryABA_U2A()">Add vào lịch sử (USDT→ABA)</button>
+        </div>
+        <div class="log" id="logABA_u2a"></div>
+
+        <!-- Bảng 2: ABA -> USDT -->
+        <div class="btn-container">
+          <button class="btn" onclick="copyLog('logABA_a2u')">Copy form ABA→USDT</button>
+          <button class="btn" onclick="addToHistoryABA_A2U()">Add vào lịch sử (ABA→USDT)</button>
+        </div>
+        <div class="log" id="logABA_a2u"></div>
+      </div>
+
+      <div class="container">
+        <h3>Lịch sử <button class="btn btn-red" style="float:right" onclick="clearHistoryABA()">Xóa toàn bộ lịch sử</button></h3>
+        <div class="historyABA" id="historyABA"></div>
+        <h3>Đã xong</h3>
+        <div id="doneListABA"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== JS tiện ích & tính toán ===== -->
   <script>
-    function parseInput(value) {
-      value = value.toLowerCase().trim();
-      if (value.includes('k')) { value = value.replace(',', '.').replace('k', ''); return parseFloat(value) * 1000; }
-      return parseFloat(value.replace(/,/g, ''));
+    document.addEventListener('DOMContentLoaded', () => {
+      const selRM = document.getElementById('roundModeABA'); if(selRM){ selRM.addEventListener('change', ()=> calculateABA()); }
+      const iconRM = document.getElementById('roundIconABA'); if(iconRM){ iconRM.addEventListener('click', cycleRoundModeABA); }
+      const sel = [
+        '#rateU','#rateABA','#usdt_input','#aba_input','#idr_usdt_input','#idr_aba_input',
+        '#rateVI','#vi_input','#u_input_vi',
+        '#rateTHB','#thb_input','#u_input_thb',
+        '#rateABA4','#amountABA',
+        '#email','#password'
+      ].join(',');
+      document.querySelectorAll(sel).forEach(el=>{
+        el.setAttribute('autocomplete','off');
+        el.setAttribute('autocapitalize','off');
+        el.setAttribute('spellcheck','false');
+        if(!el.getAttribute('name')) el.setAttribute('name', el.id || ('field_'+Math.random().toString(36).slice(2)));
+      
+      // Live format amountABA while typing (AB page), expands k/m/b and preserves decimals
+      (function(){
+        const el = document.getElementById('amountABA');
+        if(!el) return;
+        let lock=false;
+        function digitsBeforeCaret(input){
+          const pos = input.selectionStart ?? 0;
+          return String(input.value).slice(0,pos).replace(/\D/g,'').length;
+        }
+        function setCaretByDigitIndex(input, idx){
+          const v=String(input.value); let count=0, i=0;
+          for(; i<v.length; i++){ if(/\d/.test(v[i])){ if(count===idx) break; count++; } }
+          input.setSelectionRange(i,i);
+        }
+        el.addEventListener('input', ()=>{
+          if(lock) return;
+          const idx = digitsBeforeCaret(el);
+          // If user just typed a trailing separator, don't normalize yet to avoid flicker
+          if(/[,\.]$/.test(el.value) && !/\d$/.test(el.value)) return;
+          const pretty = formatABAInput(el.value);
+          lock=true; el.value = pretty; setCaretByDigitIndex(el, idx); lock=false;
+          if(typeof calculateABA==='function') calculateABA();
+        });
+      })();
+});
+    });
+
+    // parseInput dùng chung (k/m/b; tối đa 2 chữ số thập phân) – GIỮ NGUYÊN CHO 3 TRANG TRƯỚC
+    function parseInput(value){
+      if(value===undefined||value===null) return NaN;
+      let val=String(value).trim(); if(!val) return NaN;
+      let mul=1; const suf=val.match(/([kmbKMB])\s*$/);
+      if(suf){ const c=suf[1].toLowerCase(); if(c==='k') mul=1e3; else if(c==='m') mul=1e6; else if(c==='b') mul=1e9; val=val.replace(/([kmbKMB])\s*$/,'').trim(); }
+      let s=val.replace(/\s/g,'');
+      if(s.includes('.') && s.includes(',')){ s=s.replace(/\./g,'').replace(',', '.'); }
+      else if(s.includes(',')){ const p=s.split(','); if(p.length===2 && p[1].length<=2) s=p[0]+'.'+p[1]; else s=s.replace(/,/g,''); }
+      else if(s.includes('.')){ const p=s.split('.'); if(!(p.length===2 && p[1].length<=2)) s=s.replace(/\./g,''); }
+      const num=parseFloat(s); if(isNaN(num)) return NaN;
+      return num*mul;
     }
-    function formatIDR(num) { return Math.round(num).toLocaleString('de-DE').replace(/\./g, ','); }
-    function formatCurrencyVN(num) { const rounded = Math.round(num * 100) / 100; return Number.isInteger(rounded) ? rounded.toLocaleString('de-DE').replace(/\./g, ',') : rounded.toString(); }
-    function formatSmartDecimal(num) { const r = Math.round(num * 100) / 100; return Number.isInteger(r) ? r.toLocaleString('en-US',{minimumFractionDigits:0}) : r.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2}); }
-    function getRates() { const rateU = parseFloat(document.getElementById('rateU').value); const rateABA = parseFloat(document.getElementById('rateABA').value); return { rateU, rateABA }; }
-    function getToday() { const d = new Date(); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; }
-    function getCurrentTime() { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
-    function calculate() {
-      const { rateU, rateABA } = getRates();
-      const usdtVal = document.getElementById('usdt_input').value;
-      const abaVal = document.getElementById('aba_input').value;
-      const idrUsdtRaw = document.getElementById('idr_usdt_input').value.trim();
-      const idrAbaRaw = document.getElementById('idr_aba_input').value.trim();
-      let log = '', today = getToday();
-      if (!rateU && !rateABA) { document.getElementById("log").innerText = "Không tìm thấy tỷ giá."; return; }
-      if (usdtVal) {
-        const usdt = parseInput(usdtVal);
-        if (!isNaN(usdt) && rateU) { const fee = usdt < 5000 ? 7 : 0; const total = usdt + fee; const idr = total * rateU;
-          log += `${today}\nUSDT: ${formatCurrencyVN(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`; }
-      }
-      if (abaVal) {
-        const aba = parseInput(abaVal);
-        if (!isNaN(aba) && rateABA) { const fee = aba < 5000 ? 10 : 0; const total = aba + fee; const idr = total * rateABA;
-          log += `${today}\nABA: ${formatCurrencyVN(aba)}${fee>0?` + ${fee} (fee)`:''} @ ${rateABA}\nIDR: ${formatIDR(idr)}\n\n`; }
-      }
-      if (idrUsdtRaw && !isNaN(parseFloat(idrUsdtRaw)) && rateU) {
-        const idr = parseFloat(idrUsdtRaw); const usdt = idr / rateU;
-        log += `${today}:\nIDR: ${formatIDR(idr)} @ ${rateU}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;
-      }
-      if (idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA) {
-        const idr = parseFloat(idrAbaRaw); const aba = idr / rateABA;
-        log += `${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${formatSmartDecimal(aba)}\n\n`;
-      }
-      document.getElementById("log").innerText = log || "Không có dữ liệu.";
+
+    /* ===== HÀM PARSE RIÊNG CHO TRANG ABA (không giới hạn thập phân) ===== */
+    function parseRateABA(v){
+      if(v===undefined||v===null) return NaN;
+      let s=String(v).trim(); if(!s) return NaN;
+      s=s.replace(/\s/g,'');
+      if(s.includes('.') && s.includes(',')){ s=s.replace(/,/g,''); } // '.' là thập phân
+      else if(s.includes(',') && !s.includes('.')){ s=s.replace(',', '.'); } // ',' là thập phân
+      const n=parseFloat(s);
+      return isNaN(n)?NaN:n;
     }
-    function copyForm() { const text = document.getElementById("log").innerText; if (text.trim()) navigator.clipboard.writeText(text).then(()=>alert("Đã sao chép.")); }
-    function addToHistory() {
-      const logText = document.getElementById("log").innerText.trim();
-      if (!logText || logText === "Không có dữ liệu." || logText === "Không tìm thấy tỷ giá.") return;
-      const entry = document.createElement("div"); entry.className = "history-entry";
-      const header = document.createElement("div"); header.className = "entry-header";
-      const name = document.createElement("input"); name.placeholder = "Tên giao dịch"; name.type = "text";
-      const date = document.createElement("span"); date.textContent = `${getToday()} ${getCurrentTime()}`;
-      const del = document.createElement("button"); del.textContent = "Xóa"; del.className = "delete-btn"; del.onclick = () => entry.remove();
-      const doneBtn = document.createElement("button"); doneBtn.textContent = "Duyệt"; doneBtn.className = "done-btn"; doneBtn.onclick = () => markAsDone(entry);
+    
+
+function parseAmountABA(v){
+      if(v===undefined||v===null) return NaN;
+      let s=String(v).trim(); if(!s) return NaN;
+
+      // suffix k/m/b
+      let mul=1; const suf=s.match(/([kmbKMB])\s*$/);
+      if(suf){ const c=suf[1].toLowerCase(); if(c==='k') mul=1e3; else if(c==='m') mul=1e6; else if(c==='b') mul=1e9; s=s.replace(/([kmbKMB])\s*$/,'').trim(); }
+
+      s=s.replace(/\s/g,'');
+
+      // RULES (simplified, AB only):
+      // - Comma (,) is ALWAYS thousands separator -> remove all commas.
+      // - Dot (.) is DECIMAL ONLY when it appears at most once; if more than once, treat all dots as thousands -> remove.
+      s=s.replace(/,/g,'');
+      const dotCount=(s.match(/\./g)||[]).length;
+      if(dotCount>1){ s=s.replace(/\./g,''); }
+
+      const n=parseFloat(s);
+      return isNaN(n)?NaN:n*mul;
+    }
+
+    // Pretty formatter: keep decimals if user typed a single '.'; otherwise no decimals. Commas ALWAYS as thousands.
+    function formatABAInput(raw){
+      let s=String(raw ?? '').trim();
+      if(!s) return '';
+      // If ends with comma or trailing dot (user still typing), do not normalize
+      if(/[,.]$/.test(s) && !/\d$/.test(s)) return s;
+
+      // suffix k/m/b
+      let mul=1; const suf=s.match(/([kmbKMB])\s*$/);
+      if(suf){ const c=suf[1].toLowerCase(); if(c==='k') mul=1e3; else if(c==='m') mul=1e6; else if(c==='b') mul=1e9; s=s.replace(/([kmbKMB])\s*$/,'').trim(); }
+
+      s=s.replace(/\s/g,'');
+
+      // Decide decimals: only '.' counts, and only when single '.'
+      const dotCount=(s.match(/\./g)||[]).length;
+      let decimals=0;
+      if(dotCount===1){
+        decimals = s.split('.')[1].length;
+      }
+      // Remove grouping commas always
+      s=s.replace(/,/g,'');
+      // If multiple dots -> treat as grouping: remove all '.'
+      if(dotCount>1){ s=s.replace(/\./g,''); decimals=0; }
+
+      let n=parseFloat(s);
+      if(!isFinite(n)) return s;
+      n = n*mul;
+      return Number(n).toLocaleString('en-US',{minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+    }
+
+
+    // === ABA rounding helpers (page 4 only) ===
+    function getRoundModeABA(){
+      const sel = document.getElementById('roundModeABA');
+      if(sel) return sel.value;
+      const ico = document.getElementById('roundIconABA');
+      return ico ? (ico.dataset.mode || 'floor') : 'floor';
+    }
+    function setRoundModeABA(mode){
+      const ico=document.getElementById('roundIconABA');
+      const lbl=document.getElementById('roundModeLabelABA');
+      if(ico){ ico.dataset.mode = mode; }
+      if(lbl){ lbl.innerHTML = 'Làm tròn: <b>'+mode+'</b>'; }
+    }
+    function cycleRoundModeABA(){
+      const order=['floor','round','ceil'];
+      const cur=getRoundModeABA();
+      const next=order[(order.indexOf(cur)+1)%order.length];
+      setRoundModeABA(next);
+      if(typeof calculateABA==='function') calculateABA();
+    }
+    function roundByModeABA(n, mode){
+      const x = Number(n)||0;
+      if(mode==='ceil') return Math.ceil(x);
+      if(mode==='round') return Math.round(x);
+      return Math.floor(x);
+    }
+    function formatABAByMode(n){
+      const mode = getRoundModeABA();
+      if(mode==='round'){
+        return Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
+      }
+      // floor / ceil -> integer with grouping
+      return roundByModeABA(n, mode).toLocaleString('en-US');
+    }
+
+    // Định dạng
+
+
+    function formatCurrencyVN(n){const r=Math.round(n*100)/100;return Number.isInteger(r)?r.toLocaleString('de-DE').replace(/\./g,','):r.toString();}
+    function formatSmartDecimal(n){const r=Math.round(n*100)/100;return Number.isInteger(r)?r.toLocaleString('en-US',{minimumFractionDigits:0}):r.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2});}
+    function formatUSDT2(n){ return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function formatUpTo2(n){ return Number(n).toLocaleString('en-US',{maximumFractionDigits:2}); }
+    function formatGeneric(n){ return Number(n).toLocaleString('en-US',{maximumFractionDigits:8}); }
+    function formatIDR(n){return Math.round(n).toLocaleString('de-DE').replace(/\./g,',');}
+    function formatVNDInt(n){return Math.round(n).toLocaleString('de-DE').replace(/\./g,',');}
+    function formatRateTHB(n){ if(isNaN(n)) return ''; return Number(n).toFixed(2); }
+    function formatTHBInt(n){ return Math.round(Number(n)).toLocaleString('en-US'); }
+    function getToday(){const d=new Date();return`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;}
+    function getCurrentTime(){const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+
+    /* ========= IDR (giữ nguyên) ========= */
+    function getRates(){const rateU=parseFloat(document.getElementById('rateU').value);const rateABA=parseFloat(document.getElementById('rateABA').value);return{rateU,rateABA};}
+    function calculate(){
+      const {rateU,rateABA}=getRates();
+      const usdtVal=document.getElementById('usdt_input').value;
+      const abaVal=document.getElementById('aba_input').value;
+      const idrUsdtRaw=document.getElementById('idr_usdt_input').value.trim();
+      const idrAbaRaw=document.getElementById('idr_aba_input').value.trim();
+      let log='', today=getToday();
+      if(!rateU && !rateABA){document.getElementById("log").innerText="Không tìm thấy tỷ giá.";return;}
+      if(usdtVal){const usdt=parseInput(usdtVal);if(!isNaN(usdt)&&rateU){const fee=usdt<5000?7:0;const total=usdt+fee;const idr=total*rateU;log+=`${today}\nUSDT: ${formatCurrencyVN(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`;}}
+      if(abaVal){const aba=parseInput(abaVal);if(!isNaN(aba)&&rateABA){const fee=aba<5000?10:0;const total=aba+fee;const idr=total*rateABA;log+=`${today}\nABA: ${formatCurrencyVN(aba)}${fee>0?` + ${fee} (fee)`:''} @ ${rateABA}\nIDR: ${formatIDR(idr)}\n\n`;}}
+      if(idrUsdtRaw && !isNaN(parseFloat(idrUsdtRaw)) && rateU){const idr=parseFloat(idrUsdtRaw);const usdt=idr/rateU;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateU}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;}
+      if(idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA){const idr=parseFloat(idrAbaRaw);const aba=idr/rateABA;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${formatSmartDecimal(aba)}\n\n`;}
+      document.getElementById("log").innerText=log||"Không có dữ liệu.";
+    }
+    function copyForm(){const t=document.getElementById("log").innerText;if(t.trim())navigator.clipboard.writeText(t).then(()=>alert("Đã sao chép."));}
+    function addToHistory(){
+      const logText=document.getElementById("log").innerText.trim(); if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.") return;
+      const entry=document.createElement("div"); entry.className="history-entry";
+      const header=document.createElement("div"); header.className="entry-header";
+      const name=document.createElement("input"); name.placeholder="Tên giao dịch"; name.type="text"; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
+      const date=document.createElement("span"); date.textContent=`${getToday()} ${getCurrentTime()}`;
+      const del=document.createElement("button"); del.textContent="Xóa"; del.className="delete-btn"; del.onclick=()=>entry.remove();
+      const doneBtn=document.createElement("button"); doneBtn.textContent="Duyệt"; doneBtn.className="done-btn"; doneBtn.onclick=()=>markAsDone(entry);
       header.append(name,date,doneBtn,del);
-      const content = document.createElement("div"); content.className = "entry-content"; content.style.marginTop = "8px";
-      logText.split('\n').forEach(line => { if (!line.trim()) return;
-        const lineContainer = document.createElement("div");
-        const tick = document.createElement("input"); tick.type = "checkbox"; tick.style.marginRight = "8px";
-        const span = document.createElement("span"); span.textContent = line;
-        tick.addEventListener('change', () => { span.classList.toggle('highlighted', tick.checked); });
-        lineContainer.append(tick, span); content.appendChild(lineContainer);
-      });
-      entry.append(header, content); document.getElementById("history").prepend(entry);
+      const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
+      logText.split('\n').forEach(line=>{if(!line.trim())return;const div=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.addEventListener('change',()=>span.classList.toggle('highlighted',tick.checked));div.append(tick,span);content.appendChild(div);});
+      entry.append(header,content); document.getElementById("history").prepend(entry);
     }
-    function markAsDone(entry) {
+    function markAsDone(entry){
       entry.remove();
-      const doneEntry = document.createElement("div"); doneEntry.className = "history-entry done-entry";
-      const header = document.createElement("div"); header.className = "entry-header";
-      const nameInput = document.createElement("input"); nameInput.type = "text"; nameInput.value = entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly = true;
-      const editBtn = document.createElement("button"); editBtn.textContent = "Chỉnh sửa"; editBtn.className = "edit-btn";
-      const content = document.createElement("textarea"); content.style.cssText = "width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value = getEntryContentText(entry);
-      const contentDisplay = document.createElement("div"); contentDisplay.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; contentDisplay.textContent = content.value;
-      editBtn.onclick = () => {
-        if (content.style.display === "none") { content.style.display = "block"; contentDisplay.style.display = "none"; editBtn.textContent = "Lưu"; nameInput.readOnly = false; nameInput.focus(); }
-        else { content.style.display = "none"; contentDisplay.style.display = "block"; contentDisplay.textContent = content.value; editBtn.textContent = "Chỉnh sửa"; nameInput.readOnly = true; }
-      };
-      header.append(nameInput, editBtn); doneEntry.append(header, contentDisplay, content); document.getElementById("doneList").prepend(doneEntry);
+      const doneEntry=document.createElement("div"); doneEntry.className="history-entry done-entry";
+      const header=document.createElement("div"); header.className="entry-header";
+      const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
+      const editBtn=document.createElement("button"); editBtn.textContent="Chỉnh sửa"; editBtn.className="edit-btn";
+      const content=document.createElement("textarea"); content.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value=getEntryContentText(entry);
+      const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=content.value;
+      editBtn.onclick=()=>{if(content.style.display==="none"){content.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{content.style.display="none";display.style.display="block";display.textContent=content.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;}};
+      header.append(nameInput,editBtn); doneEntry.append(header,display,content); document.getElementById("doneList").prepend(doneEntry);
     }
-    function getEntryContentText(entry) { const lines = [...entry.querySelectorAll('.entry-content div span')].map(span => span.textContent); return lines.join('\n'); }
-    function clearHistory() { if (confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) { document.getElementById("history").innerHTML = ""; document.getElementById("doneList").innerHTML = ""; } }
+    function getEntryContentText(entry){return[...entry.querySelectorAll('.entry-content div span')].map(s=>s.textContent).join('\n');}
+    function clearHistory(){if(confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")){document.getElementById("history").innerHTML="";document.getElementById("doneList").innerHTML="";}}
+
+    /* ========= VI (giữ nguyên) ========= */
+    function calculateVI(){
+      const rate=parseFloat(document.getElementById('rateVI').value);
+      const viVal=document.getElementById('vi_input').value;
+      const uVal=document.getElementById('u_input_vi').value;
+      let log='', today=getToday();
+      if(!rate){document.getElementById("logVI").innerText="Không tìm thấy tỷ giá.";return;}
+      if(viVal){const vnd=parseInput(viVal);if(!isNaN(vnd)){const usdt=vnd/rate;log+=`${today}\nVND: ${formatVNDInt(vnd)} @ ${formatVNDInt(rate)}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;}}
+      if(uVal){const usdt=parseInput(uVal);if(!isNaN(usdt)){const vnd=usdt*rate;log+=`${today}\nUSDT: ${formatCurrencyVN(usdt)} @ ${formatVNDInt(rate)}\nVND: ${formatVNDInt(vnd)}\n\n`;}}
+      document.getElementById("logVI").innerText=log||"Không có dữ liệu.";
+    }
+    function copyFormVI(){const t=document.getElementById("logVI").innerText;if(t.trim())navigator.clipboard.writeText(t).then(()=>alert("Đã sao chép."));}
+    window.addToHistoryVI = function(){
+      const logText=document.getElementById("logVI").innerText.trim(); if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.") return;
+      const entry=document.createElement("div"); entry.className="history-entry";
+      const header=document.createElement("div"); header.className="entry-header";
+      const name=document.createElement("input"); name.placeholder="Tên giao dịch"; name.type="text"; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
+      const date=document.createElement("span"); date.textContent=`${getToday()} ${getCurrentTime()}`;
+      const del=document.createElement("button"); del.textContent="Xóa"; del.className="delete-btn"; del.onclick=()=>entry.remove();
+      const doneBtn=document.createElement("button"); doneBtn.textContent="Duyệt"; doneBtn.className="done-btn"; doneBtn.onclick=()=>markAsDoneVI(entry);
+      header.append(name,date,doneBtn,del);
+      const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
+      logText.split('\n').forEach(line=>{if(!line.trim())return;const div=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.addEventListener('change',()=>span.classList.toggle('highlighted',tick.checked));div.append(tick,span);content.appendChild(div);});
+      entry.append(header,content); document.getElementById("historyVI").prepend(entry);
+    };
+    function markAsDoneVI(entry){
+      entry.remove();
+      const doneEntry=document.createElement("div"); doneEntry.className="history-entry done-entry";
+      const header=document.createElement("div"); header.className="entry-header";
+      const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
+      const editBtn=document.createElement("button"); editBtn.textContent="Chỉnh sửa"; editBtn.className="edit-btn";
+      const content=document.createElement("textarea"); content.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value=getEntryContentText(entry);
+      const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=content.value;
+      editBtn.onclick=()=>{if(content.style.display==="none"){content.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{content.style.display="none";display.style.display="block";display.textContent=content.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;}};
+      header.append(nameInput,editBtn); doneEntry.append(header,display,content); document.getElementById("doneListVI").prepend(doneEntry);
+    }
+    function clearHistoryVI(){if(confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")){document.getElementById("historyVI").innerHTML="";document.getElementById("doneListVI").innerHTML="";}}
+
+    /* ========= THB (giữ nguyên) ========= */
+    function calculateTHB(){
+      const rate = parseFloat(document.getElementById('rateTHB').value);
+      const thbVal = document.getElementById('thb_input').value;
+      const uVal   = document.getElementById('u_input_thb').value;
+      let log='', today=getToday();
+      if(!rate){ document.getElementById("logTHB").innerText="Không tìm thấy tỷ giá."; return; }
+      if(thbVal){
+        const thb = parseInput(thbVal);
+        if(!isNaN(thb)){
+          const usdt = thb / rate;
+          log += `${today}\nTHB: ${formatTHBInt(thb)} @ ${formatRateTHB(rate)}\nUSDT: ${formatUSDT2(usdt)}\n\n`;
+        }
+      }
+      if(uVal){
+        const usdt = parseInput(uVal);
+        if(!isNaN(usdt)){
+          const thb = usdt * rate;
+          log += `${today}\nUSDT: ${formatUSDT2(usdt)} @ ${formatRateTHB(rate)}\nTHB: ${formatTHBInt(thb)}\n\n`;
+        }
+      }
+      document.getElementById("logTHB").innerText = log || "Không có dữ liệu.";
+    }
+    function copyFormTHB(){ const t=document.getElementById("logTHB").innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>alert("Đã sao chép.")); }
+    window.addToHistoryTHB = function(){
+      const logText=document.getElementById("logTHB").innerText.trim();
+      if(!logText || logText==="Không có dữ liệu." || logText==="Không tìm thấy tỷ giá.") return;
+      const entry=document.createElement("div"); entry.className="history-entry";
+      const header=document.createElement("div"); header.className="entry-header";
+      const name=document.createElement("input"); name.placeholder="Tên giao dịch"; name.type="text"; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
+      const date=document.createElement("span"); date.textContent=`${getToday()} ${getCurrentTime()}`;
+      const del=document.createElement("button"); del.textContent="Xóa"; del.className="delete-btn"; del.onclick=()=>entry.remove();
+      const doneBtn=document.createElement("button"); doneBtn.textContent="Duyệt"; doneBtn.className="done-btn"; doneBtn.onclick=()=>markAsDoneTHB(entry);
+      header.append(name,date,doneBtn,del);
+      const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
+      logText.split('\n').forEach(line=>{ if(!line.trim()) return; const div=document.createElement("div"); const tick=document.createElement("input"); tick.type="checkbox"; tick.style.marginRight="8px"; const span=document.createElement("span"); span.textContent=line; tick.addEventListener('change',()=>span.classList.toggle('highlighted',tick.checked)); div.append(tick,span); content.appendChild(div); });
+      entry.append(header,content); document.getElementById("historyTHB").prepend(entry);
+    };
+    function markAsDoneTHB(entry){
+      entry.remove();
+      const doneEntry=document.createElement("div"); doneEntry.className="history-entry done-entry";
+      const header=document.createElement("div"); header.className="entry-header";
+      const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
+      const editBtn=document.createElement("button"); editBtn.textContent="Chỉnh sửa"; editBtn.className="edit-btn";
+      const content=document.createElement("textarea"); content.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value=getEntryContentText(entry);
+      const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=content.value;
+      editBtn.onclick=()=>{if(content.style.display==="none"){content.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{content.style.display="none";display.style.display="block";display.textContent=content.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;}};
+      header.append(nameInput,editBtn); doneEntry.append(header,display,content); document.getElementById("doneListTHB").prepend(doneEntry);
+    }
+    function clearHistoryTHB(){ if(confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")){ document.getElementById("historyTHB").innerHTML=""; document.getElementById("doneListTHB").innerHTML=""; } }
+
+    /* ========= ABA (ĐÃ FIX theo yêu cầu) ========= */
+    function calculateABA(){
+      const rateStr = document.getElementById('rateABA4').value?.trim();
+      const amtStr  = document.getElementById('amountABA').value?.trim();
+
+      const rate = parseRateABA(rateStr);
+      const amt  = parseAmountABA(amtStr);
+
+      const today = getToday();
+      let log1 = '', log2 = '';
+
+      if(!rate){ document.getElementById("logABA_u2a").innerText="Không tìm thấy tỷ giá."; document.getElementById("logABA_a2u").innerText="Không tìm thấy tỷ giá."; return; }
+      if(!amtStr){ document.getElementById("logABA_u2a").innerText=""; document.getElementById("logABA_a2u").innerText=""; return; }
+
+      if(!isNaN(amt)){
+        // Bảng 1: USDT -> ABA (nhân)
+        const aba = amt * rate;
+        log1 += `${today}\nUSDT: ${formatABAInput(amtStr)} @ ${rateStr}\nABA: ${formatABAByMode(aba)}\n\n`;
+
+        // Bảng 2: ABA -> USDT (chia)
+        const usdt = rate !== 0 ? (amt / rate) : 0;
+        log2 += `${today}\nABA: ${formatABAInput(amtStr)} @ ${rateStr}\nUSDT: ${formatUSDT2(usdt)}\n\n`;
+      }
+
+      document.getElementById("logABA_u2a").innerText = log1 || "";
+      document.getElementById("logABA_a2u").innerText = log2 || "";
+    }
+    function copyLog(id){ const t=document.getElementById(id).innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>alert("Đã sao chép.")); }
+
+    // Tách 2 nút Add vào lịch sử riêng (ABA – DOM local)
+    function makeHistoryEntryFromText(logText){
+      const entry=document.createElement("div"); entry.className="history-entry";
+      const header=document.createElement("div"); header.className="entry-header";
+      const name=document.createElement("input"); name.placeholder="Tên giao dịch"; name.type="text"; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
+      const date=document.createElement("span"); date.textContent=`${getToday()} ${getCurrentTime()}`;
+      const del=document.createElement("button"); del.textContent="Xóa"; del.className="delete-btn"; del.onclick=()=>entry.remove();
+      const doneBtn=document.createElement("button"); doneBtn.textContent="Duyệt"; doneBtn.className="done-btn"; doneBtn.onclick=()=>markAsDoneABA(entry);
+      header.append(name,date,doneBtn,del);
+      const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
+      logText.split('\n').forEach(line=>{if(!line.trim())return;const div=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.addEventListener('change',()=>span.classList.toggle('highlighted',tick.checked));div.append(tick,span);content.appendChild(div);});
+      entry.append(header,content);
+      return entry;
+    }
+    function addToHistoryABA_U2A(){
+      const l=document.getElementById("logABA_u2a").innerText.trim(); if(!l) return;
+      document.getElementById("historyABA").prepend(makeHistoryEntryFromText(l));
+    }
+    function addToHistoryABA_A2U(){
+      const l=document.getElementById("logABA_a2u").innerText.trim(); if(!l) return;
+      document.getElementById("historyABA").prepend(makeHistoryEntryFromText(l));
+    }
+    function markAsDoneABA(entry){
+      entry.remove();
+      const doneEntry=document.createElement("div"); doneEntry.className="history-entry done-entry";
+      const header=document.createElement("div"); header.className="entry-header";
+      const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
+      const editBtn=document.createElement("button"); editBtn.textContent="Chỉnh sửa"; editBtn.className="edit-btn";
+      const content=document.createElement("textarea"); content.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value=getEntryContentText(entry);
+      const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=content.value;
+      editBtn.onclick=()=>{if(content.style.display==="none"){content.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{content.style.display="none";display.style.display="block";display.textContent=content.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;}};
+      header.append(nameInput,editBtn); doneEntry.append(header,display,content); document.getElementById("doneListABA").prepend(doneEntry);
+    }
+    function clearHistoryABA(){ if(confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")){ document.getElementById("historyABA").innerHTML=""; document.getElementById("doneListABA").innerHTML=""; } }
+
+    /* ========= Tabs ========= */
+    const tabIDR=document.getElementById('tabIDR');
+    const tabVI=document.getElementById('tabVI');
+    const tabTHB=document.getElementById('tabTHB');
+    const tabABA=document.getElementById('tabABA');
+    const pageIDR=document.getElementById('pageIDR');
+    const pageVI=document.getElementById('pageVI');
+    const pageTHB=document.getElementById('pageTHB');
+    const pageABA=document.getElementById('pageABA');
+    const topbarEl=document.getElementById('topbar');
+    let isAuthed=false;
+    function showPage(which){
+      if(!isAuthed) return;
+      tabIDR.classList.remove('active'); tabVI.classList.remove('active'); tabTHB.classList.remove('active'); tabABA.classList.remove('active');
+      pageIDR.hidden=true; pageVI.hidden=true; pageTHB.hidden=true; pageABA.hidden=true;
+      if(which==='IDR'){ tabIDR.classList.add('active'); pageIDR.hidden=false; }
+      else if(which==='VI'){ tabVI.classList.add('active'); pageVI.hidden=false; }
+      else if(which==='THB'){ tabTHB.classList.add('active'); pageTHB.hidden=false; }
+      else { tabABA.classList.add('active'); pageABA.hidden=false; }
+    }
+    tabIDR.addEventListener('click',()=>showPage('IDR'));
+    tabVI .addEventListener('click',()=>showPage('VI'));
+    tabTHB.addEventListener('click',()=>showPage('THB'));
+    tabABA.addEventListener('click',()=>showPage('ABA'));
   </script>
 
-  <!-- ====== Auto-save localStorage ====== -->
-  <script>
-    (function(){
-      const KEY='caculator_autosave_v1';
-      const ids=['rateU','rateABA','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
-      function save(){ try{
-        const inputs={}; ids.forEach(id=>inputs[id]=(document.getElementById(id)?.value)||'');
-        const state={ inputs, history: document.getElementById('history')?.innerHTML||'', done: document.getElementById('doneList')?.innerHTML||'', t: Date.now() };
-        localStorage.setItem(KEY, JSON.stringify(state));
-      }catch(e){} }
-      function load(){ try{
-        const raw=localStorage.getItem(KEY); if(!raw) return; const s=JSON.parse(raw);
-        if(s.inputs){ ids.forEach(id=>{ const el=document.getElementById(id); if(el && s.inputs[id]!=null) el.value=s.inputs[id]; }); }
-        if(typeof window.calculate==='function') window.calculate();
-        if(s.history) document.getElementById('history').innerHTML=s.history;
-        if(s.done) document.getElementById('doneList').innerHTML=s.done;
-      }catch(e){} }
-      load();
-      ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>setTimeout(save,120)); });
-      ['history','doneList'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.addEventListener('input', ()=>setTimeout(save,120)); el.addEventListener('click', ()=>setTimeout(save,120)); el.addEventListener('change', ()=>setTimeout(save,120)); } });
-      const _add=window.addToHistory; if(typeof _add==='function') window.addToHistory=function(){ _add(); setTimeout(save,50); };
-      const _done=window.markAsDone; if(typeof _done==='function') window.markAsDone=function(e){ _done(e); setTimeout(save,50); };
-      const _clear=window.clearHistory; if(typeof _clear==='function') window.clearHistory=function(){ _clear(); setTimeout(save,50); };
-      window.addEventListener('beforeunload', save);
-    })();
-  </script>
-
-  <!-- ====== Firebase + Auth (Email/Password) ====== -->
+  <!-- ===== Firebase + Auth + Realtime ===== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
     import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
@@ -261,173 +644,286 @@
 
     const statusEl  = document.getElementById('syncStatus');
     const appEl     = document.getElementById('app');
+    const appVIEl   = document.getElementById('appVI');
+    const appTHBEl  = document.getElementById('appTHB');
+    const appABAEl  = document.getElementById('appABA');
+    const pageIDREl = document.getElementById('pageIDR');
+    const pageVIEl  = document.getElementById('pageVI');
+    const pageTHBEl = document.getElementById('pageTHB');
+    const pageABAEl = document.getElementById('pageABA');
     const loginWrap = document.getElementById('loginWrap');
     const loginBtn  = document.getElementById('loginBtn');
     const loginMsg  = document.getElementById('loginMsg');
     const emailEl   = document.getElementById('email');
     const passEl    = document.getElementById('password');
     const logoutBtn = document.getElementById('logoutBtn');
+    const topbarEl2 = document.getElementById('topbar');
 
     const roomId = location.hash?.slice(1) || "global";
-    let unsubEntries = null, unsubInputs = null;
-    let editingKey = null;
+
+    let unsubInputs=null,   unsubEntries=null;
+    let unsubInputsVI=null, unsubEntriesVI=null;
+    let unsubInputsTHB=null,unsubEntriesTHB=null;
+    let unsubInputsABA=null;
 
     loginBtn.onclick = async () => {
       loginMsg.textContent = "";
       try {
         if (!emailEl.value || !passEl.value) { loginMsg.textContent = "Nhập email và mật khẩu."; return; }
         await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value);
-      } catch (e) {
-        loginMsg.textContent = e?.code?.replace("auth/","") || "Đăng nhập thất bại";
-      }
+      } catch (e) { loginMsg.textContent = e?.code?.replace("auth/","") || "Đăng nhập thất bại"; }
     };
     logoutBtn.onclick = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Hiện app
+        // Show app
+        isAuthed = true;
         loginWrap.style.display = "none";
-        appEl.hidden = false;
-        appEl.style.display = "flex";   // bỏ inline display:none
-        logoutBtn.hidden = false;
+        topbarEl2.hidden = false;
 
-        statusEl.textContent = "Sync: Realtime";
+        pageIDREl.hidden=false; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
+        appEl.hidden=false;  appEl.style.display="flex";
+        appVIEl.hidden=false; appVIEl.style.display="flex";
+        appTHBEl.hidden=false; appTHBEl.style.display="flex";
+        appABAEl.hidden=false; appABAEl.style.display="flex";
+        logoutBtn.hidden=false;
+
         statusEl.classList.remove('sync-warn','sync-err'); statusEl.classList.add('sync-ok');
-        attachRealtime(user);
-      } else {
-        // Ẩn app
-        detachRealtime();
-        appEl.hidden = true;
-        appEl.style.display = "none";   // đảm bảo ẩn
-        logoutBtn.hidden = true;
-        loginWrap.style.display = "flex";
+        statusEl.textContent = '🔄'; statusEl.title = 'Realtime';
 
-        statusEl.textContent = "Sync: Local only";
-        statusEl.classList.remove('sync-ok'); statusEl.classList.add('sync-warn');
+        attachRealtime_IDR(user);
+        attachRealtime_VI(user);
+        attachRealtime_THB(user);
+        attachRealtime_ABA_inputs(user); // ABA: sync input, lịch sử DOM local
+      } else {
+        // Hide app
+        isAuthed = false;
+        topbarEl2.hidden = true;
+        pageIDREl.hidden=true; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
+        appEl.hidden=true; appEl.style.display="none";
+        appVIEl.hidden=true; appVIEl.style.display="none";
+        appTHBEl.hidden=true; appTHBEl.style.display="none";
+        appABAEl.hidden=true; appABAEl.style.display="none";
+        logoutBtn.hidden=true;
+        loginWrap.style.display="flex";
+
+        statusEl.classList.remove('sync-ok','sync-err'); statusEl.classList.add('sync-warn');
+        statusEl.textContent = '🔄'; statusEl.title = 'Local only';
+
+        detachRealtimeAll();
       }
     });
 
-    function detachRealtime(){
-      if (typeof unsubEntries === 'function') { unsubEntries(); unsubEntries = null; }
-      if (typeof unsubInputs  === 'function') { unsubInputs();  unsubInputs  = null; }
+    function detachRealtimeAll(){
+      if (typeof unsubEntries === 'function') unsubEntries();
+      if (typeof unsubInputs  === 'function') unsubInputs();
+      if (typeof unsubEntriesVI === 'function') unsubEntriesVI();
+      if (typeof unsubInputsVI  === 'function') unsubInputsVI();
+      if (typeof unsubEntriesTHB === 'function') unsubEntriesTHB();
+      if (typeof unsubInputsTHB  === 'function') unsubInputsTHB();
+      if (typeof unsubInputsABA  === 'function') unsubInputsABA();
+      unsubEntries=null;unsubInputs=null;unsubEntriesVI=null;unsubInputsVI=null;unsubEntriesTHB=null;unsubInputsTHB=null;unsubInputsABA=null;
     }
 
-    function attachRealtime(user){
-      detachRealtime();
+    /* ==== IDR realtime ==== */
+    function attachRealtime_IDR(user){
+      if (typeof unsubInputs === 'function') unsubInputs();
+      if (typeof unsubEntries === 'function') unsubEntries();
 
       const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputs`);
       const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entries`);
-
-      // Sync inputs 2 chiều
       const ids=['rateU','rateABA','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
-      let applyingRemote=false;
-      function readInputs(){ const o={}; ids.forEach(id=>o[id]=document.getElementById(id)?.value||""); return o; }
-      function saveInputs(){ if(applyingRemote) return; set(inputsRef, readInputs()); }
-      ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>setTimeout(saveInputs,120)); });
-      unsubInputs = onValue(inputsRef, snap => {
-        const v=snap.val(); if(!v) return;
-        applyingRemote=true;
-        ids.forEach(id=>{ const el=document.getElementById(id); if(el && typeof v[id]!=='undefined' && el.value!==v[id]) el.value=v[id]??""; });
-        applyingRemote=false;
-        if(typeof window.calculate==='function') window.calculate();
-      });
+      let applying=false;
+      function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
+      function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
+      ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
+      unsubInputs = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=='undefined'&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculate==='function')window.calculate();});
 
-      // Lịch sử
-      const historyEl=document.getElementById('history');
-      const doneEl=document.getElementById('doneList');
-
+      const historyEl=document.getElementById('history'); const doneEl=document.getElementById('doneList');
       function renderAll(data){
-        if (editingKey) return;
-        historyEl.innerHTML=""; doneEl.innerHTML="";
-        const arr = data ? Object.entries(data) : [];
-        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0)); // mới nhất trước
-        for(const [key,e] of arr){ (e.status==='done' ? makeDoneEntry : makeActiveEntry)(key,e); }
+        historyEl.innerHTML="";doneEl.innerHTML="";
+        const arr=data?Object.entries(data):[];
+        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+        for(const[Key,e]of arr){(e.status==='done'?makeDoneEntry:makeActiveEntry)(Key,e);}
       }
-
       function makeActiveEntry(key,e){
-        const entry=document.createElement("div"); entry.className="history-entry"; entry.dataset.key=key;
-        const header=document.createElement("div"); header.className="entry-header";
-
-        const name=document.createElement("input"); name.type="text"; name.placeholder="Tên giao dịch"; name.value=e.name||"";
+        const entry=document.createElement("div");entry.className="history-entry";entry.dataset.key=key;
+        const header=document.createElement("div");header.className="entry-header";
+        const name=document.createElement("input");name.type="text";name.placeholder="Tên giao dịch";name.value=e.name||"";name.autocomplete="off";name.spellcheck=false;name.autocapitalize="off";
         let tmr=null;
-        name.addEventListener('focus', ()=>{ editingKey = key; });
-        name.addEventListener('input', ()=>{
-          editingKey = key; clearTimeout(tmr);
-          tmr = setTimeout(()=>{ update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:name.value}); editingKey=null; }, 600);
-        });
-        name.addEventListener('blur', ()=>{
-          clearTimeout(tmr); update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:name.value}); editingKey=null;
-        });
-
-        const date=document.createElement("span"); date.textContent=e.date||"";
-        const doneBtn=document.createElement("button"); doneBtn.className="done-btn"; doneBtn.textContent="Duyệt";
-        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa";
-        del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`));
-        doneBtn.onclick=()=>{
-          const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);
-          update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});
-        };
+        name.addEventListener('input',()=>{clearTimeout(tmr);tmr=setTimeout(()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:name.value});},600);});
+        name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:name.value});});
+        const date=document.createElement("span");date.textContent=e.date||"";
+        const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`));
+        doneBtn.onclick=()=>{const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
         header.append(name,date,doneBtn,del);
-
-        const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
-        (e.lines||[]).forEach((line,i)=>{
-          if(!line?.trim()) return;
-          const lineContainer=document.createElement("div");
-          const tick=document.createElement("input"); tick.type="checkbox"; tick.style.marginRight="8px";
-          const span=document.createElement("span"); span.textContent=line;
-          tick.checked=!!(e.ticks&&e.ticks[i]); if(tick.checked) span.classList.add('highlighted');
-          tick.addEventListener('change',()=>{
-            const ticks=[]; content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));
-            update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{ticks});
-            span.classList.toggle('highlighted', tick.checked);
-          });
-          lineContainer.append(tick,span); content.appendChild(lineContainer);
-        });
-
-        entry.append(header,content);
-        historyEl.appendChild(entry); // đã sort, append theo thứ tự
+        const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
+        (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
+        entry.append(header,content);historyEl.appendChild(entry);
       }
-
       function makeDoneEntry(key,e){
-        const entry=document.createElement("div"); entry.className="history-entry done-entry"; entry.dataset.key=key;
-        const header=document.createElement("div"); header.className="entry-header";
-        const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=e.name||""; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true;
-        const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.textContent="Chỉnh sửa";
-        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa";
-        del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`));
+        const entry=document.createElement("div");entry.className="history-entry done-entry";entry.dataset.key=key;
+        const header=document.createElement("div");header.className="entry-header";
+        const nameInput=document.createElement("input");nameInput.type="text";nameInput.value=e.name||"";nameInput.style.fontWeight="bold";nameInput.style.color="#155724";nameInput.readOnly=true;nameInput.autocomplete="off";nameInput.spellcheck=false;nameInput.autocapitalize="off";
+        const editBtn=document.createElement("button");editBtn.className="edit-btn";editBtn.textContent="Chỉnh sửa";
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`));
         header.append(nameInput,editBtn,del);
-
-        const textarea=document.createElement("textarea"); textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; textarea.value=e.content||(e.lines||[]).join("\n");
-        const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=textarea.value;
-
-        editBtn.onclick=()=>{
-          const editing=textarea.style.display==="block";
-          if(!editing){ textarea.style.display="block"; display.style.display="none"; editBtn.textContent="Lưu"; nameInput.readOnly=false; nameInput.focus(); }
-          else { textarea.style.display="none"; display.style.display="block"; display.textContent=textarea.value; editBtn.textContent="Chỉnh sửa"; nameInput.readOnly=true;
-            update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:nameInput.value,content:textarea.value}); }
-        };
-
-        entry.append(header,display,textarea);
-        doneEl.appendChild(entry);
+        const textarea=document.createElement("textarea");textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";textarea.value=e.content||(e.lines||[]).join("\n");
+        const display=document.createElement("div");display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;";display.textContent=textarea.value;
+        editBtn.onclick=()=>{const editing=textarea.style.display==="block";if(!editing){textarea.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{textarea.style.display="none";display.style.display="block";display.textContent=textarea.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:nameInput.value,content:textarea.value});}};
+        entry.append(header,display,textarea);document.getElementById('doneList').appendChild(entry);
       }
-
-      // Ghi DB khi thêm lịch sử
-      window.addToHistory = function(){
+      window.addToHistory=function(){
         const logText=document.getElementById("log").innerText.trim();
-        if(!logText || logText==="Không có dữ liệu." || logText==="Không tìm thấy tỷ giá.") return;
+        if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
         const lines=logText.split('\n').filter(l=>l.trim()!=="");
-        push(ref(db,`users/${user.uid}/rooms/${roomId}/entries`), {
-          name:"", date:`${getToday()} ${getCurrentTime()}`,
-          lines, ticks:new Array(lines.length).fill(false),
-          status:"active", createdAt:Date.now()
-        });
-      };
-      window.clearHistory = function(){
-        if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")) return;
-        set(ref(db,`users/${user.uid}/rooms/${roomId}/entries`), null);
-      };
+        push(ref(db,`users/${user.uid}/rooms/${roomId}/entries`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
+      }
+      window.clearHistory=function(){if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return;set(ref(db,`users/${user.uid}/rooms/${roomId}/entries`),null);}
+      unsubEntries = onValue(entriesRef, s=>{
+        const data=s.val();
+        const historyEl=document.getElementById('history'); const doneEl=document.getElementById('doneList');
+        historyEl.innerHTML=""; doneEl.innerHTML="";
+        if(!data) return;
+        const arr=Object.entries(data).sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+        for(const [k,e] of arr){ (e.status==='done'?makeDoneEntry:makeActiveEntry)(k,e); }
+      });
+    }
 
-      unsubEntries = onValue(ref(db,`users/${user.uid}/rooms/${roomId}/entries`), snap => renderAll(snap.val()));
+    /* ==== VI realtime ==== */
+    function attachRealtime_VI(user){
+      if (typeof unsubInputsVI === 'function') unsubInputsVI();
+      if (typeof unsubEntriesVI === 'function') unsubEntriesVI();
+
+      const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputsVI`);
+      const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entriesVI`);
+      const ids=['rateVI','vi_input','u_input_vi'];
+      let applying=false;
+      function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
+      function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
+      ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
+      unsubInputsVI = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=='undefined'&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculateVI==='function')window.calculateVI();});
+
+      const historyEl=document.getElementById('historyVI'); const doneEl=document.getElementById('doneListVI');
+      function makeActiveEntry(key,e){
+        const entry=document.createElement("div");entry.className="history-entry";entry.dataset.key=key;
+        const header=document.createElement("div");header.className="entry-header";
+        const name=document.createElement("input");name.type="text";name.placeholder="Tên giao dịch";name.value=e.name||"";name.autocomplete="off";name.spellcheck=false;name.autocapitalize="off";
+        let tmr=null;
+        name.addEventListener('input',()=>{clearTimeout(tmr);tmr=setTimeout(()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{name:name.value});},600);});
+        name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{name:name.value});});
+        const date=document.createElement("span");date.textContent=e.date||"";
+        const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`));
+        doneBtn.onclick=()=>{const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        header.append(name,date,doneBtn,del);
+        const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
+        (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
+        entry.append(header,content);historyEl.appendChild(entry);
+      }
+      function makeDoneEntry(key,e){
+        const entry=document.createElement("div");entry.className="history-entry done-entry";entry.dataset.key=key;
+        const header=document.createElement("div");header.className="entry-header";
+        const nameInput=document.createElement("input");nameInput.type="text";nameInput.value=e.name||"";nameInput.style.fontWeight="bold";nameInput.style.color="#155724";nameInput.readOnly=true;nameInput.autocomplete="off";nameInput.spellcheck=false;nameInput.autocapitalize="off";
+        const editBtn=document.createElement("button");editBtn.className="edit-btn";editBtn.textContent="Chỉnh sửa";
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`));
+        header.append(nameInput,editBtn,del);
+        const textarea=document.createElement("textarea");textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";textarea.value=e.content||(e.lines||[]).join("\n");
+        const display=document.createElement("div");display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;";display.textContent=textarea.value;
+        editBtn.onclick=()=>{const editing=textarea.style.display==="block";if(!editing){textarea.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{textarea.style.display="none";display.style.display="block";display.textContent=textarea.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{name:nameInput.value,content:textarea.value});}};
+        entry.append(header,display,textarea);document.getElementById('doneListVI').appendChild(entry);
+      }
+      function renderAll(data){
+        historyEl.innerHTML="";doneEl.innerHTML="";
+        const arr=data?Object.entries(data):[];
+        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+        for(const[Key,e]of arr){(e.status==='done'?makeDoneEntry:makeActiveEntry)(Key,e);}
+      }
+      unsubEntriesVI = onValue(entriesRef, s=>renderAll(s.val()));
+
+      // bind push/clear cho VI
+      window.addToHistoryVI = function(){
+        const logText=document.getElementById("logVI").innerText.trim();
+        if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
+        const lines=logText.split('\n').filter(l=>l.trim()!=="");
+        push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
+      }
+      window.clearHistoryVI = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI`),null); }
+    }
+
+    /* ==== THB realtime ==== */
+    function attachRealtime_THB(user){
+      if (typeof unsubInputsTHB === 'function') unsubInputsTHB();
+      if (typeof unsubEntriesTHB === 'function') unsubEntriesTHB();
+
+      const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputsTHB`);
+      const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entriesTHB`);
+      const ids=['rateTHB','thb_input','u_input_thb'];
+      let applying=false;
+      function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
+      function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
+      ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
+      unsubInputsTHB = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=='undefined'&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculateTHB==='function')window.calculateTHB();});
+
+      const historyEl=document.getElementById('historyTHB'); const doneEl=document.getElementById('doneListTHB');
+      function makeActiveEntry(key,e){
+        const entry=document.createElement("div");entry.className="history-entry";entry.dataset.key=key;
+        const header=document.createElement("div");header.className="entry-header";
+        const name=document.createElement("input");name.type="text";name.placeholder="Tên giao dịch";name.value=e.name||"";name.autocomplete="off";name.spellcheck=false;name.autocapitalize="off";
+        let tmr=null;
+        name.addEventListener('input',()=>{clearTimeout(tmr);tmr=setTimeout(()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{name:name.value});},600);});
+        name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{name:name.value});});
+        const date=document.createElement("span");date.textContent=e.date||"";
+        const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`));
+        doneBtn.onclick=()=>{const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        header.append(name,date,doneBtn,del);
+        const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
+        (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
+        entry.append(header,content);historyEl.appendChild(entry);
+      }
+      function makeDoneEntry(key,e){
+        const entry=document.createElement("div");entry.className="history-entry done-entry";entry.dataset.key=key;
+        const header=document.createElement("div");header.className="entry-header";
+        const nameInput=document.createElement("input");nameInput.type="text";nameInput.value=e.name||"";nameInput.style.fontWeight="bold";nameInput.style.color="#155724";nameInput.readOnly=true;nameInput.autocomplete="off";nameInput.spellcheck=false;nameInput.autocapitalize="off";
+        const editBtn=document.createElement("button");editBtn.className="edit-btn";editBtn.textContent="Chỉnh sửa";
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`));
+        header.append(nameInput,editBtn,del);
+        const textarea=document.createElement("textarea");textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";textarea.value=e.content||(e.lines||[]).join("\n");
+        const display=document.createElement("div");display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;";display.textContent=textarea.value;
+        editBtn.onclick=()=>{const editing=textarea.style.display==="block";if(!editing){textarea.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{textarea.style.display="none";display.style.display="block";display.textContent=textarea.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{name:nameInput.value,content:textarea.value});}};
+        entry.append(header,display,textarea);document.getElementById('doneListTHB').appendChild(entry);
+      }
+      function renderAll(data){
+        historyEl.innerHTML="";doneEl.innerHTML="";
+        const arr=data?Object.entries(data):[];
+        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+        for(const[Key,e]of arr){(e.status==='done'?makeDoneEntry:makeActiveEntry)(Key,e);}
+      }
+      unsubEntriesTHB = onValue(entriesRef, s=>renderAll(s.val()));
+
+      // bind push/clear cho THB
+      window.addToHistoryTHB = function(){
+        const logText=document.getElementById("logTHB").innerText.trim();
+        if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
+        const lines=logText.split('\n').filter(l=>l.trim()!=="");
+        push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
+      }
+      window.clearHistoryTHB = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB`),null); }
+    }
+
+    /* ==== ABA: chỉ đồng bộ INPUT để tiện đa thiết bị; lịch sử để DOM local ==== */
+    function attachRealtime_ABA_inputs(user){
+      if (typeof unsubInputsABA === 'function') unsubInputsABA();
+      const inputsRef = ref(db, `users/${user.uid}/rooms/${roomId}/inputsABA`);
+      const ids = ['rateABA4','amountABA'];
+      let applying=false;
+      function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
+      function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
+      ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
+      unsubInputsABA = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=='undefined'&&el.value!==v[id])el.value=v[id]??"";});applying=false; if(typeof window.calculateABA==='function')window.calculateABA();});
     }
   </script>
 </body>
