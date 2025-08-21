@@ -55,57 +55,44 @@
     .auth-card button{width:100%;padding:10px 12px;border:none;border-radius:8px;background:#0b73ff;color:#fff;font-weight:600;cursor:pointer}
     .auth-msg{margin-top:8px;font-size:13px;color:#a11;min-height:18px}
     @media (max-width:992px){#app,#appVI,#appTHB,#appABA{flex-direction:column}.container{width:100%}}
-  </style>
 
-  <style>
-    body[data-ab-active="1"] #logoutBtn{
-      position: fixed;
-      left: 16px; top: 16px;
-      z-index: 1000;
-    }
-  </style>
-
-
-  <style>
-    /* Place and highlight the Logout button on ALL pages (safe, CSS-only) */
+    /* giữ nguyên style nút logout như bản gốc */
     #logoutBtn{
       position: fixed !important;
-      right: 16px;
-      bottom: 16px;
-      z-index: 2000;
-      background: #ef4444 !important; /* red-500 */
-      color: #fff !important;
-      border-color: #dc2626 !important;
-      box-shadow: 0 6px 18px rgba(239,68,68,.35);
-    }
-    #logoutBtn:hover{ filter: brightness(1.05); }
-  </style>
-
-
-  <style>
-    /* --- Override to fix full-screen logout button and place at bottom-right (all pages) --- */
-    body #logoutBtn{
-      position: fixed !important;
-      left: auto !important;
-      top:  auto !important;
       right: 16px !important;
       bottom: 16px !important;
-      width: auto !important;
-      height: auto !important;
-      display: inline-flex !important;
-      align-items: center; justify-content: center;
-      padding: 10px 16px !important;
-      border-radius: 10px !important;
+      z-index: 2000 !important;
       background: #ef4444 !important;
       color: #fff !important;
       border-color: #dc2626 !important;
       box-shadow: 0 6px 18px rgba(239,68,68,.35) !important;
+      border-radius: 10px !important;
+      padding: 10px 16px !important;
     }
     body #logoutBtn:hover{ filter: brightness(1.06); }
+
+    /* Tiny toast (auto-hide ~2s) */
+    #toast{
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.82);
+      color:#fff;
+      padding:6px 10px;
+      border-radius:8px;
+      font-size:13px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease;
+      z-index:3000;
+    }
+    #toast.show{opacity:1}
   </style>
 
 </head>
 <body>
+  <div id="toast" aria-live="polite"></div>
   <!-- Topbar (ẩn trước khi login) -->
   <div id="topbar" class="topbar" hidden>
     <button id="logoutBtn" class="btn" hidden>Đăng xuất</button>
@@ -224,7 +211,7 @@
     </div>
   </div>
 
-  <!-- PAGE: ABA -->
+  <!-- PAGE: ABA (layout giữ nguyên: #appABA là wrapper flex chứa 2 container) -->
   <div id="pageABA" style="margin-top:60px;" hidden>
     <div id="appABA" hidden style="display:none">
       <div class="container">
@@ -243,13 +230,12 @@
         <label>Số lượng:</label>
         <input type="text" id="amountABA" placeholder="VD: 10k, 100.125" oninput="calculateABA()" autocomplete="off" autocapitalize="off" spellcheck="false">
 
-        
         <div class="round-toggle" style="margin:8px 0 4px; display:inline-flex; gap:8px; align-items:center;">
-          <button id="roundIconABA" type="button" title="Chế độ hiện tại: làm tròn xuống&#10;Bấm để đổi (floor → round → ceil)"
-                  style="border:none;background:transparent;font-size:18px;cursor:pointer;line-height:1" data-mode="floor" onclick="cycleRoundModeABA()" onclick="cycleRoundModeABA()">📱</button>
+          <button id="roundIconABA" type="button" title="Chế độ hiện tại: làm tròn xuống&#10;Bấm để đổi (floor → round → ceil)" style="border:none;background:transparent;font-size:18px;cursor:pointer;line-height:1" data-mode="floor">📱</button>
           <span id="roundModeLabelABA" style="font-weight:600;color:#003366">Làm tròn: <b>làm tròn xuống</b></span>
         </div>
-<!-- Bảng 1: USDT -> ABA -->
+
+        <!-- Bảng 1: USDT -> ABA -->
         <div class="btn-container">
           <button class="btn" onclick="copyLog('logABA_u2a')">Copy form USDT→ABA</button>
           <button class="btn" onclick="addToHistoryABA_U2A()">Add vào lịch sử (USDT→ABA)</button>
@@ -275,6 +261,15 @@
 
   <!-- ===== JS tiện ích & tính toán ===== -->
   <script>
+    // === Tiny toast helper ===
+    function showToast(msg){
+      const el=document.getElementById('toast'); if(!el) return;
+      el.textContent = msg || 'Đã sao chép';
+      el.classList.add('show');
+      clearTimeout(showToast._tmr);
+      showToast._tmr = setTimeout(()=>el.classList.remove('show'), 2000);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       try{ setupABRoundToggle(); }catch(e){}
       const sel = [
@@ -290,9 +285,12 @@
         el.setAttribute('spellcheck','false');
         if(!el.getAttribute('name')) el.setAttribute('name', el.id || ('field_'+Math.random().toString(36).slice(2)));
       });
+
+      const ico = document.getElementById('roundIconABA');
+      if(ico) ico.addEventListener('click', cycleRoundModeABA);
     });
 
-    // parseInput dùng chung (k/m/b; tối đa 2 chữ số thập phân) – GIỮ NGUYÊN CHO 3 TRANG TRƯỚC
+    // parseInput dùng chung
     function parseInput(value){
       if(value===undefined||value===null) return NaN;
       let val=String(value).trim(); if(!val) return NaN;
@@ -306,8 +304,7 @@
       return num*mul;
     }
 
-    
-    // === ABA rounding toggle (isolated; safe if AB DOM not present) ===
+    // === ABA rounding toggle ===
     function labelForRoundModeABA(mode){
       if(mode==='ceil')  return 'làm tròn lên';
       if(mode==='round') return 'làm tròn chuẩn';
@@ -324,7 +321,7 @@
       if(ico){ ico.dataset.mode = mode; ico.title = `Chế độ hiện tại: ${text}\nBấm để đổi (floor → round → ceil)`; }
       if(lbl){ lbl.innerHTML = 'Làm tròn: <b>' + text + '</b>'; }
     }
-function cycleRoundModeABA(){
+    function cycleRoundModeABA(){
       const order = ['floor','round','ceil'];
       const cur = getRoundModeABA();
       const next = order[(order.indexOf(cur)+1) % order.length];
@@ -344,19 +341,19 @@ function cycleRoundModeABA(){
     }
     function setupABRoundToggle(){
       const ico = document.getElementById('roundIconABA');
-      if(!ico) return; // not on AB page UI
+      if(!ico) return;
       if(!ico.dataset.mode) ico.dataset.mode='floor';
       ico.addEventListener('click', cycleRoundModeABA);
       setRoundModeABA(getRoundModeABA());
     }
 
-/* ===== HÀM PARSE RIÊNG CHO TRANG ABA (không giới hạn thập phân) ===== */
+    /* ===== HÀM PARSE RIÊNG CHO ABA ===== */
     function parseRateABA(v){
       if(v===undefined||v===null) return NaN;
       let s=String(v).trim(); if(!s) return NaN;
       s=s.replace(/\s/g,'');
-      if(s.includes('.') && s.includes(',')){ s=s.replace(/,/g,''); } // '.' là thập phân
-      else if(s.includes(',') && !s.includes('.')){ s=s.replace(',', '.'); } // ',' là thập phân
+      if(s.includes('.') && s.includes(',')){ s=s.replace(/,/g,''); }
+      else if(s.includes(',') && !s.includes('.')){ s=s.replace(',', '.'); }
       const n=parseFloat(s);
       return isNaN(n)?NaN:n;
     }
@@ -384,7 +381,7 @@ function cycleRoundModeABA(){
     function getToday(){const d=new Date();return`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;}
     function getCurrentTime(){const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 
-    /* ========= IDR (giữ nguyên) ========= */
+    /* ========= IDR ========= */
     function getRates(){const rateU=parseFloat(document.getElementById('rateU').value);const rateABA=parseFloat(document.getElementById('rateABA').value);return{rateU,rateABA};}
     function calculate(){
       const {rateU,rateABA}=getRates();
@@ -400,35 +397,16 @@ function cycleRoundModeABA(){
       if(idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA){const idr=parseFloat(idrAbaRaw);const aba=idr/rateABA;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${formatSmartDecimal(aba)}\n\n`;}
       document.getElementById("log").innerText=log||"Không có dữ liệu.";
     }
-    function copyForm(){const t=document.getElementById("log").innerText;if(t.trim())navigator.clipboard.writeText(t).then(()=>alert("Đã sao chép."));}
-    function addToHistory(){
-      const logText=document.getElementById("log").innerText.trim(); if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.") return;
-      const entry=document.createElement("div"); entry.className="history-entry";
-      const header=document.createElement("div"); header.className="entry-header";
-      const name=document.createElement("input"); name.placeholder="Tên giao dịch"; name.type="text"; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
-      const date=document.createElement("span"); date.textContent=`${getToday()} ${getCurrentTime()}`;
-      const del=document.createElement("button"); del.textContent="Xóa"; del.className="delete-btn"; del.onclick=()=>entry.remove();
-      const doneBtn=document.createElement("button"); doneBtn.textContent="Duyệt"; doneBtn.className="done-btn"; doneBtn.onclick=()=>markAsDone(entry);
-      header.append(name,date,doneBtn,del);
-      const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
-      logText.split('\n').forEach(line=>{if(!line.trim())return;const div=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.addEventListener('change',()=>span.classList.toggle('highlighted',tick.checked));div.append(tick,span);content.appendChild(div);});
-      entry.append(header,content); document.getElementById("history").prepend(entry);
+    function copyForm(){
+      const t=document.getElementById("log").innerText;
+      if(t.trim()) navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép'));
     }
-    function markAsDone(entry){
-      entry.remove();
-      const doneEntry=document.createElement("div"); doneEntry.className="history-entry done-entry";
-      const header=document.createElement("div"); header.className="entry-header";
-      const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
-      const editBtn=document.createElement("button"); editBtn.textContent="Chỉnh sửa"; editBtn.className="edit-btn";
-      const content=document.createElement("textarea"); content.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value=getEntryContentText(entry);
-      const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=content.value;
-      editBtn.onclick=()=>{if(content.style.display==="none"){content.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{content.style.display="none";display.style.display="block";display.textContent=content.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;}};
-      header.append(nameInput,editBtn); doneEntry.append(header,display,content); document.getElementById("doneList").prepend(doneEntry);
-    }
-    function getEntryContentText(entry){return[...entry.querySelectorAll('.entry-content div span')].map(s=>s.textContent).join('\n');}
-    function clearHistory(){if(confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")){document.getElementById("history").innerHTML="";document.getElementById("doneList").innerHTML="";}}
 
-    /* ========= VI (giữ nguyên) ========= */
+    function addToHistory(){
+      // realtime xử lý ở phần Firebase bên dưới
+    }
+
+    /* ========= VI ========= */
     function calculateVI(){
       const rate=parseFloat(document.getElementById('rateVI').value);
       const viVal=document.getElementById('vi_input').value;
@@ -439,34 +417,9 @@ function cycleRoundModeABA(){
       if(uVal){const usdt=parseInput(uVal);if(!isNaN(usdt)){const vnd=usdt*rate;log+=`${today}\nUSDT: ${formatCurrencyVN(usdt)} @ ${formatVNDInt(rate)}\nVND: ${formatVNDInt(vnd)}\n\n`;}}
       document.getElementById("logVI").innerText=log||"Không có dữ liệu.";
     }
-    function copyFormVI(){const t=document.getElementById("logVI").innerText;if(t.trim())navigator.clipboard.writeText(t).then(()=>alert("Đã sao chép."));}
-    window.addToHistoryVI = function(){
-      const logText=document.getElementById("logVI").innerText.trim(); if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.") return;
-      const entry=document.createElement("div"); entry.className="history-entry";
-      const header=document.createElement("div"); header.className="entry-header";
-      const name=document.createElement("input"); name.placeholder="Tên giao dịch"; name.type="text"; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
-      const date=document.createElement("span"); date.textContent=`${getToday()} ${getCurrentTime()}`;
-      const del=document.createElement("button"); del.textContent="Xóa"; del.className="delete-btn"; del.onclick=()=>entry.remove();
-      const doneBtn=document.createElement("button"); doneBtn.textContent="Duyệt"; doneBtn.className="done-btn"; doneBtn.onclick=()=>markAsDoneVI(entry);
-      header.append(name,date,doneBtn,del);
-      const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
-      logText.split('\n').forEach(line=>{if(!line.trim())return;const div=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.addEventListener('change',()=>span.classList.toggle('highlighted',tick.checked));div.append(tick,span);content.appendChild(div);});
-      entry.append(header,content); document.getElementById("historyVI").prepend(entry);
-    };
-    function markAsDoneVI(entry){
-      entry.remove();
-      const doneEntry=document.createElement("div"); doneEntry.className="history-entry done-entry";
-      const header=document.createElement("div"); header.className="entry-header";
-      const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
-      const editBtn=document.createElement("button"); editBtn.textContent="Chỉnh sửa"; editBtn.className="edit-btn";
-      const content=document.createElement("textarea"); content.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value=getEntryContentText(entry);
-      const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=content.value;
-      editBtn.onclick=()=>{if(content.style.display==="none"){content.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{content.style.display="none";display.style.display="block";display.textContent=content.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;}};
-      header.append(nameInput,editBtn); doneEntry.append(header,display,content); document.getElementById("doneListVI").prepend(doneEntry);
-    }
-    function clearHistoryVI(){if(confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")){document.getElementById("historyVI").innerHTML="";document.getElementById("doneListVI").innerHTML="";}}
+    function copyFormVI(){ const t=document.getElementById("logVI").innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép')); }
 
-    /* ========= THB (giữ nguyên) ========= */
+    /* ========= THB ========= */
     function calculateTHB(){
       const rate = parseFloat(document.getElementById('rateTHB').value);
       const thbVal = document.getElementById('thb_input').value;
@@ -477,135 +430,40 @@ function cycleRoundModeABA(){
         const thb = parseInput(thbVal);
         if(!isNaN(thb)){
           const usdt = thb / rate;
-          log += `${today}\nTHB: ${formatTHBInt(thb)} @ ${formatRateTHB(rate)}\nUSDT: ${formatResultByMode(usdt)}\n\n`;
+          log += `${today}\nTHB: ${formatTHBInt(thb)} @ ${rate.toFixed(2)}\nUSDT: ${formatResultByMode(usdt)}\n\n`;
         }
       }
       if(uVal){
         const usdt = parseInput(uVal);
         if(!isNaN(usdt)){
           const thb = usdt * rate;
-          log += `${today}\nUSDT: ${formatResultByMode(usdt)} @ ${formatRateTHB(rate)}\nTHB: ${formatTHBInt(thb)}\n\n`;
+          log += `${today}\nUSDT: ${formatResultByMode(usdt)} @ ${rate.toFixed(2)}\nTHB: ${formatTHBInt(thb)}\n\n`;
         }
       }
       document.getElementById("logTHB").innerText = log || "Không có dữ liệu.";
     }
-    function copyFormTHB(){ const t=document.getElementById("logTHB").innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>alert("Đã sao chép.")); }
-    window.addToHistoryTHB = function(){
-      const logText=document.getElementById("logTHB").innerText.trim();
-      if(!logText || logText==="Không có dữ liệu." || logText==="Không tìm thấy tỷ giá.") return;
-      const entry=document.createElement("div"); entry.className="history-entry";
-      const header=document.createElement("div"); header.className="entry-header";
-      const name=document.createElement("input"); name.placeholder="Tên giao dịch"; name.type="text"; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
-      const date=document.createElement("span"); date.textContent=`${getToday()} ${getCurrentTime()}`;
-      const del=document.createElement("button"); del.textContent="Xóa"; del.className="delete-btn"; del.onclick=()=>entry.remove();
-      const doneBtn=document.createElement("button"); doneBtn.textContent="Duyệt"; doneBtn.className="done-btn"; doneBtn.onclick=()=>markAsDoneTHB(entry);
-      header.append(name,date,doneBtn,del);
-      const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
-      logText.split('\n').forEach(line=>{ if(!line.trim()) return; const div=document.createElement("div"); const tick=document.createElement("input"); tick.type="checkbox"; tick.style.marginRight="8px"; const span=document.createElement("span"); span.textContent=line; tick.addEventListener('change',()=>span.classList.toggle('highlighted',tick.checked)); div.append(tick,span); content.appendChild(div); });
-      entry.append(header,content); document.getElementById("historyTHB").prepend(entry);
-    };
-    function markAsDoneTHB(entry){
-      entry.remove();
-      const doneEntry=document.createElement("div"); doneEntry.className="history-entry done-entry";
-      const header=document.createElement("div"); header.className="entry-header";
-      const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
-      const editBtn=document.createElement("button"); editBtn.textContent="Chỉnh sửa"; editBtn.className="edit-btn";
-      const content=document.createElement("textarea"); content.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value=getEntryContentText(entry);
-      const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=content.value;
-      editBtn.onclick=()=>{if(content.style.display==="none"){content.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{content.style.display="none";display.style.display="block";display.textContent=content.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;}};
-      header.append(nameInput,editBtn); doneEntry.append(header,display,content); document.getElementById("doneListTHB").prepend(doneEntry);
-    }
-    function clearHistoryTHB(){ if(confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")){ document.getElementById("historyTHB").innerHTML=""; document.getElementById("doneListTHB").innerHTML=""; } }
+    function copyFormTHB(){ const t=document.getElementById("logTHB").innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép')); }
 
-    /* ========= ABA (ĐÃ FIX theo yêu cầu) ========= */
+    /* ========= ABA ========= */
     function calculateABA(){
       const rateStr = document.getElementById('rateABA4').value?.trim();
       const amtStr  = document.getElementById('amountABA').value?.trim();
-
       const rate = parseRateABA(rateStr);
       const amt  = parseAmountABA(amtStr);
-
       const today = getToday();
       let log1 = '', log2 = '';
-
       if(!rate){ document.getElementById("logABA_u2a").innerText="Không tìm thấy tỷ giá."; document.getElementById("logABA_a2u").innerText="Không tìm thấy tỷ giá."; return; }
       if(!amtStr){ document.getElementById("logABA_u2a").innerText=""; document.getElementById("logABA_a2u").innerText=""; return; }
-
       if(!isNaN(amt)){
-        // Bảng 1: USDT -> ABA (nhân)
-        const aba = amt * rate;
+        const aba = amt * rate; // USDT -> ABA
         log1 += `${today}\nUSDT: ${amtStr} @ ${rateStr}\nABA: ${formatResultByMode(aba)}\n\n`;
-
-        // Bảng 2: ABA -> USDT (chia)
-        const usdt = rate !== 0 ? (amt / rate) : 0;
+        const usdt = rate !== 0 ? (amt / rate) : 0; // ABA -> USDT
         log2 += `${today}\nABA: ${amtStr} @ ${rateStr}\nUSDT: ${formatResultByMode(usdt)}\n\n`;
       }
-
       document.getElementById("logABA_u2a").innerText = log1 || "";
       document.getElementById("logABA_a2u").innerText = log2 || "";
     }
-    function copyLog(id){ const t=document.getElementById(id).innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>alert("Đã sao chép.")); }
-
-    // Tách 2 nút Add vào lịch sử riêng (ABA – DOM local)
-    function makeHistoryEntryFromText(logText){
-      const entry=document.createElement("div"); entry.className="history-entry";
-      const header=document.createElement("div"); header.className="entry-header";
-      const name=document.createElement("input"); name.placeholder="Tên giao dịch"; name.type="text"; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
-      const date=document.createElement("span"); date.textContent=`${getToday()} ${getCurrentTime()}`;
-      const del=document.createElement("button"); del.textContent="Xóa"; del.className="delete-btn"; del.onclick=()=>entry.remove();
-      const doneBtn=document.createElement("button"); doneBtn.textContent="Duyệt"; doneBtn.className="done-btn"; doneBtn.onclick=()=>markAsDoneABA(entry);
-      header.append(name,date,doneBtn,del);
-      const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
-      logText.split('\n').forEach(line=>{if(!line.trim())return;const div=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.addEventListener('change',()=>span.classList.toggle('highlighted',tick.checked));div.append(tick,span);content.appendChild(div);});
-      entry.append(header,content);
-      return entry;
-    }
-    function addToHistoryABA_U2A(){
-      const l=document.getElementById("logABA_u2a").innerText.trim(); if(!l) return;
-      document.getElementById("historyABA").prepend(makeHistoryEntryFromText(l));
-    }
-    function addToHistoryABA_A2U(){
-      const l=document.getElementById("logABA_a2u").innerText.trim(); if(!l) return;
-      document.getElementById("historyABA").prepend(makeHistoryEntryFromText(l));
-    }
-    function markAsDoneABA(entry){
-      entry.remove();
-      const doneEntry=document.createElement("div"); doneEntry.className="history-entry done-entry";
-      const header=document.createElement("div"); header.className="entry-header";
-      const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=entry.querySelector('.entry-header input[type="text"]').value; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
-      const editBtn=document.createElement("button"); editBtn.textContent="Chỉnh sửa"; editBtn.className="edit-btn";
-      const content=document.createElement("textarea"); content.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; content.value=getEntryContentText(entry);
-      const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=content.value;
-      editBtn.onclick=()=>{if(content.style.display==="none"){content.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{content.style.display="none";display.style.display="block";display.textContent=content.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;}};
-      header.append(nameInput,editBtn); doneEntry.append(header,display,content); document.getElementById("doneListABA").prepend(doneEntry);
-    }
-    function clearHistoryABA(){ if(confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?")){ document.getElementById("historyABA").innerHTML=""; document.getElementById("doneListABA").innerHTML=""; } }
-
-    /* ========= Tabs ========= */
-    const tabIDR=document.getElementById('tabIDR');
-    const tabVI=document.getElementById('tabVI');
-    const tabTHB=document.getElementById('tabTHB');
-    const tabABA=document.getElementById('tabABA');
-    const pageIDR=document.getElementById('pageIDR');
-    const pageVI=document.getElementById('pageVI');
-    const pageTHB=document.getElementById('pageTHB');
-    const pageABA=document.getElementById('pageABA');
-    const topbarEl=document.getElementById('topbar');
-    let isAuthed=false;
-    function showPage(which){
-      if(!isAuthed) return;
-      tabIDR.classList.remove('active'); tabVI.classList.remove('active'); tabTHB.classList.remove('active'); tabABA.classList.remove('active');
-      pageIDR.hidden=true; pageVI.hidden=true; pageTHB.hidden=true; pageABA.hidden=true;
-      if(which==='IDR'){ tabIDR.classList.add('active'); pageIDR.hidden=false; }
-      else if(which==='VI'){ tabVI.classList.add('active'); pageVI.hidden=false; }
-      else if(which==='THB'){ tabTHB.classList.add('active'); pageTHB.hidden=false; }
-      else { tabABA.classList.add('active'); pageABA.hidden=false; }
-      document.body.setAttribute('data-ab-active', which==='ABA' ? '1' : '0');
-    }
-    tabIDR.addEventListener('click',()=>showPage('IDR'));
-    tabVI .addEventListener('click',()=>showPage('VI'));
-    tabTHB.addEventListener('click',()=>showPage('THB'));
-    tabABA.addEventListener('click',()=>showPage('ABA'));
+    function copyLog(id){ const t=document.getElementById(id).innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép')); }
   </script>
 
   <!-- ===== Firebase + Auth + Realtime ===== -->
@@ -651,7 +509,25 @@ function cycleRoundModeABA(){
     let unsubInputs=null,   unsubEntries=null;
     let unsubInputsVI=null, unsubEntriesVI=null;
     let unsubInputsTHB=null,unsubEntriesTHB=null;
-    let unsubInputsABA=null;
+    let unsubInputsABA=null,unsubEntriesABA=null;
+
+    function showPage(which){
+      if(!window.isAuthed) return;
+      document.getElementById('tabIDR').classList.remove('active');
+      document.getElementById('tabVI').classList.remove('active');
+      document.getElementById('tabTHB').classList.remove('active');
+      document.getElementById('tabABA').classList.remove('active');
+      pageIDREl.hidden=true; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
+      if(which==='IDR'){ document.getElementById('tabIDR').classList.add('active'); pageIDREl.hidden=false; }
+      else if(which==='VI'){ document.getElementById('tabVI').classList.add('active'); pageVIEl.hidden=false; }
+      else if(which==='THB'){ document.getElementById('tabTHB').classList.add('active'); pageTHBEl.hidden=false; }
+      else { document.getElementById('tabABA').classList.add('active'); pageABAEl.hidden=false; }
+      document.body.setAttribute('data-ab-active', which==='ABA' ? '1' : '0');
+    }
+    document.getElementById('tabIDR').addEventListener('click',()=>showPage('IDR'));
+    document.getElementById('tabVI').addEventListener('click',()=>showPage('VI'));
+    document.getElementById('tabTHB').addEventListener('click',()=>showPage('THB'));
+    document.getElementById('tabABA').addEventListener('click',()=>showPage('ABA'));
 
     loginBtn.onclick = async () => {
       loginMsg.textContent = "";
@@ -665,15 +541,16 @@ function cycleRoundModeABA(){
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // Show app
-        isAuthed = true;
+        window.isAuthed = true;
         loginWrap.style.display = "none";
         topbarEl2.hidden = false;
 
         pageIDREl.hidden=false; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
-        appEl.hidden=false;  appEl.style.display="flex";
+
+        appEl.hidden=false;   appEl.style.display="flex";
         appVIEl.hidden=false; appVIEl.style.display="flex";
-        appTHBEl.hidden=false; appTHBEl.style.display="flex";
-        appABAEl.hidden=false; appABAEl.style.display="flex";
+        appTHBEl.hidden=false;appTHBEl.style.display="flex";
+        appABAEl.hidden=false;appABAEl.style.display="flex";
         logoutBtn.hidden=false;
 
         statusEl.classList.remove('sync-warn','sync-err'); statusEl.classList.add('sync-ok');
@@ -682,16 +559,17 @@ function cycleRoundModeABA(){
         attachRealtime_IDR(user);
         attachRealtime_VI(user);
         attachRealtime_THB(user);
-        attachRealtime_ABA_inputs(user); // ABA: sync input, lịch sử DOM local
+        attachRealtime_ABA_inputs(user); // ABA: sync input
+        attachRealtime_ABA_entries(user); // ABA: sync lịch sử + done
       } else {
         // Hide app
-        isAuthed = false;
+        window.isAuthed = false;
         topbarEl2.hidden = true;
         pageIDREl.hidden=true; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
-        appEl.hidden=true; appEl.style.display="none";
-        appVIEl.hidden=true; appVIEl.style.display="none";
-        appTHBEl.hidden=true; appTHBEl.style.display="none";
-        appABAEl.hidden=true; appABAEl.style.display="none";
+        appEl.hidden=true;     appEl.style.display="none";
+        appVIEl.hidden=true;   appVIEl.style.display="none";
+        appTHBEl.hidden=true;  appTHBEl.style.display="none";
+        appABAEl.hidden=true;  appABAEl.style.display="none";
         logoutBtn.hidden=true;
         loginWrap.style.display="flex";
 
@@ -703,14 +581,8 @@ function cycleRoundModeABA(){
     });
 
     function detachRealtimeAll(){
-      if (typeof unsubEntries === 'function') unsubEntries();
-      if (typeof unsubInputs  === 'function') unsubInputs();
-      if (typeof unsubEntriesVI === 'function') unsubEntriesVI();
-      if (typeof unsubInputsVI  === 'function') unsubInputsVI();
-      if (typeof unsubEntriesTHB === 'function') unsubEntriesTHB();
-      if (typeof unsubInputsTHB  === 'function') unsubInputsTHB();
-      if (typeof unsubInputsABA  === 'function') unsubInputsABA();
-      unsubEntries=null;unsubInputs=null;unsubEntriesVI=null;unsubInputsVI=null;unsubEntriesTHB=null;unsubInputsTHB=null;unsubInputsABA=null;
+      [unsubEntries,unsubInputs,unsubEntriesVI,unsubInputsVI,unsubEntriesTHB,unsubInputsTHB,unsubInputsABA,unsubEntriesABA].forEach(fn=>{ if(typeof fn==='function') fn(); });
+      unsubEntries=null;unsubInputs=null;unsubEntriesVI=null;unsubInputsVI=null;unsubEntriesTHB=null;unsubInputsTHB=null;unsubInputsABA=null;unsubEntriesABA=null;
     }
 
     /* ==== IDR realtime ==== */
@@ -725,15 +597,9 @@ function cycleRoundModeABA(){
       function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
       function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
       ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
-      unsubInputs = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=='undefined'&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculate==='function')window.calculate();});
+      unsubInputs = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=="undefined"&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculate==='function')window.calculate();});
 
       const historyEl=document.getElementById('history'); const doneEl=document.getElementById('doneList');
-      function renderAll(data){
-        historyEl.innerHTML="";doneEl.innerHTML="";
-        const arr=data?Object.entries(data):[];
-        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
-        for(const[Key,e]of arr){(e.status==='done'?makeDoneEntry:makeActiveEntry)(Key,e);}
-      }
       function makeActiveEntry(key,e){
         const entry=document.createElement("div");entry.className="history-entry";entry.dataset.key=key;
         const header=document.createElement("div");header.className="entry-header";
@@ -762,21 +628,24 @@ function cycleRoundModeABA(){
         editBtn.onclick=()=>{const editing=textarea.style.display==="block";if(!editing){textarea.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{textarea.style.display="none";display.style.display="block";display.textContent=textarea.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:nameInput.value,content:textarea.value});}};
         entry.append(header,display,textarea);document.getElementById('doneList').appendChild(entry);
       }
+      function renderAll(data){
+        const historyEl=document.getElementById('history'); const doneEl=document.getElementById('doneList');
+        historyEl.innerHTML="";doneEl.innerHTML="";
+        const arr=data?Object.entries(data):[];
+        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+        for(const[Key,e]of arr){(e.status==='done'?makeDoneEntry:makeActiveEntry)(Key,e);}
+      }
+      unsubEntries = onValue(entriesRef, s=>renderAll(s.val()));
+
+      // bind push/clear cho IDR
       window.addToHistory=function(){
         const logText=document.getElementById("log").innerText.trim();
         if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
         const lines=logText.split('\n').filter(l=>l.trim()!=="");
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entries`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
+        showToast('Đã thêm vào lịch sử');
       }
       window.clearHistory=function(){if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return;set(ref(db,`users/${user.uid}/rooms/${roomId}/entries`),null);}
-      unsubEntries = onValue(entriesRef, s=>{
-        const data=s.val();
-        const historyEl=document.getElementById('history'); const doneEl=document.getElementById('doneList');
-        historyEl.innerHTML=""; doneEl.innerHTML="";
-        if(!data) return;
-        const arr=Object.entries(data).sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
-        for(const [k,e] of arr){ (e.status==='done'?makeDoneEntry:makeActiveEntry)(k,e); }
-      });
     }
 
     /* ==== VI realtime ==== */
@@ -791,7 +660,7 @@ function cycleRoundModeABA(){
       function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
       function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
       ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
-      unsubInputsVI = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=='undefined'&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculateVI==='function')window.calculateVI();});
+      unsubInputsVI = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=="undefined"&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculateVI==='function')window.calculateVI();});
 
       const historyEl=document.getElementById('historyVI'); const doneEl=document.getElementById('doneListVI');
       function makeActiveEntry(key,e){
@@ -823,6 +692,7 @@ function cycleRoundModeABA(){
         entry.append(header,display,textarea);document.getElementById('doneListVI').appendChild(entry);
       }
       function renderAll(data){
+        const historyEl=document.getElementById('historyVI'); const doneEl=document.getElementById('doneListVI');
         historyEl.innerHTML="";doneEl.innerHTML="";
         const arr=data?Object.entries(data):[];
         arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
@@ -830,12 +700,12 @@ function cycleRoundModeABA(){
       }
       unsubEntriesVI = onValue(entriesRef, s=>renderAll(s.val()));
 
-      // bind push/clear cho VI
       window.addToHistoryVI = function(){
         const logText=document.getElementById("logVI").innerText.trim();
         if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
         const lines=logText.split('\n').filter(l=>l.trim()!=="");
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
+        showToast('Đã thêm vào lịch sử');
       }
       window.clearHistoryVI = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI`),null); }
     }
@@ -852,7 +722,7 @@ function cycleRoundModeABA(){
       function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
       function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
       ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
-      unsubInputsTHB = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=='undefined'&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculateTHB==='function')window.calculateTHB();});
+      unsubInputsTHB = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=="undefined"&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculateTHB==='function')window.calculateTHB();});
 
       const historyEl=document.getElementById('historyTHB'); const doneEl=document.getElementById('doneListTHB');
       function makeActiveEntry(key,e){
@@ -884,6 +754,7 @@ function cycleRoundModeABA(){
         entry.append(header,display,textarea);document.getElementById('doneListTHB').appendChild(entry);
       }
       function renderAll(data){
+        const historyEl=document.getElementById('historyTHB'); const doneEl=document.getElementById('doneListTHB');
         historyEl.innerHTML="";doneEl.innerHTML="";
         const arr=data?Object.entries(data):[];
         arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
@@ -891,26 +762,104 @@ function cycleRoundModeABA(){
       }
       unsubEntriesTHB = onValue(entriesRef, s=>renderAll(s.val()));
 
-      // bind push/clear cho THB
       window.addToHistoryTHB = function(){
         const logText=document.getElementById("logTHB").innerText.trim();
         if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
         const lines=logText.split('\n').filter(l=>l.trim()!=="");
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
+        showToast('Đã thêm vào lịch sử');
       }
       window.clearHistoryTHB = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB`),null); }
     }
 
-    /* ==== ABA: chỉ đồng bộ INPUT để tiện đa thiết bị; lịch sử để DOM local ==== */
+    /* ==== ABA realtime: inputs (giữ nguyên) ==== */
     function attachRealtime_ABA_inputs(user){
       if (typeof unsubInputsABA === 'function') unsubInputsABA();
-      const inputsRef = ref(db, `users/${user.uid}/rooms/${roomId}/inputsABA`);
-      const ids = ['rateABA4','amountABA'];
+      const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputsABA`);
+      const ids=['rateABA4','amountABA'];
       let applying=false;
       function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
       function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
       ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
-      unsubInputsABA = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=='undefined'&&el.value!==v[id])el.value=v[id]??"";});applying=false; if(typeof window.calculateABA==='function')window.calculateABA();});
+      unsubInputsABA = onValue(inputsRef,s=>{const v=s.val(); if(!v) return; applying=true; ids.forEach(id=>{const el=document.getElementById(id); if(el && typeof v[id]!=="undefined" && el.value!==v[id]) el.value=v[id]??"";}); applying=false; if(typeof window.calculateABA==='function') window.calculateABA();});
+    }
+
+    /* ==== ABA realtime (entries) ==== */
+    function attachRealtime_ABA_entries(user){
+      if (typeof unsubEntriesABA === 'function') unsubEntriesABA();
+
+      const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entriesABA`);
+      const historyEl=document.getElementById('historyABA');
+      const doneEl=document.getElementById('doneListABA');
+
+      function makeActiveEntry(key,e){
+        const entry=document.createElement("div"); entry.className="history-entry"; entry.dataset.key=key;
+        const header=document.createElement("div"); header.className="entry-header";
+        const name=document.createElement("input"); name.type="text"; name.placeholder="Tên giao dịch"; name.value=e.name||""; name.autocomplete="off"; name.spellcheck=false; name.autocapitalize="off";
+        let tmr=null;
+        name.addEventListener('input',()=>{ clearTimeout(tmr); tmr=setTimeout(()=>{ update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {name:name.value}); },600); });
+        name.addEventListener('blur',()=>{ update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {name:name.value}); });
+        const date=document.createElement("span"); date.textContent=e.date||"";
+        const doneBtn=document.createElement("button"); doneBtn.className="done-btn"; doneBtn.textContent="Duyệt";
+        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`));
+        doneBtn.onclick=()=>{ const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent); update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {status:'done', name:name.value||"", content:(e.content||lines.join("\n"))}); };
+        header.append(name,date,doneBtn,del);
+
+        const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
+        (e.lines||[]).forEach((line,i)=>{ 
+          if(!line?.trim()) return;
+          const lc=document.createElement("div");
+          const tick=document.createElement("input"); tick.type="checkbox"; tick.style.marginRight="8px";
+          const span=document.createElement("span"); span.textContent=line;
+          tick.checked=!!(e.ticks&&e.ticks[i]); if(tick.checked) span.classList.add('highlighted');
+          tick.addEventListener('change',()=>{ 
+            const ticks=[]; content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));
+            update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {ticks});
+            span.classList.toggle('highlighted',tick.checked);
+          });
+          lc.append(tick,span); content.appendChild(lc);
+        });
+        entry.append(header,content); historyEl.appendChild(entry);
+      }
+
+      function makeDoneEntry(key,e){
+        const entry=document.createElement("div"); entry.className="history-entry done-entry"; entry.dataset.key=key;
+        const header=document.createElement("div"); header.className="entry-header";
+        const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=e.name||""; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
+        const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.textContent="Chỉnh sửa";
+        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`));
+        header.append(nameInput,editBtn,del);
+        const textarea=document.createElement("textarea"); textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; textarea.value=e.content||(e.lines||[]).join("\n");
+        const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=textarea.value;
+        editBtn.onclick=()=>{ 
+          const editing=textarea.style.display==="block";
+          if(!editing){ textarea.style.display="block"; display.style.display="none"; editBtn.textContent="Lưu"; nameInput.readOnly=false; nameInput.focus(); }
+          else{ textarea.style.display="none"; display.style.display="block"; display.textContent=textarea.value; editBtn.textContent="Chỉnh sửa"; nameInput.readOnly=true; update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {name:nameInput.value, content:textarea.value}); }
+        };
+        entry.append(header,display,textarea); doneEl.appendChild(entry);
+      }
+
+      function renderAll(data){
+        historyEl.innerHTML=""; doneEl.innerHTML="";
+        const arr=data?Object.entries(data):[];
+        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+        for(const [k,e] of arr){ (e.status==='done'?makeDoneEntry:makeActiveEntry)(k,e); }
+      }
+      unsubEntriesABA = onValue(entriesRef, s=>renderAll(s.val()));
+
+      window.addToHistoryABA_U2A = function(){
+        const l=document.getElementById("logABA_u2a").innerText.trim(); if(!l) return;
+        const lines=l.split('\n').filter(x=>x.trim()!=='');
+        push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA`), {name:"", date:`${getToday()} ${getCurrentTime()}`, lines, ticks:new Array(lines.length).fill(false), status:"active", createdAt:Date.now(), direction:'U2A'});
+        showToast('Đã thêm vào lịch sử');
+      };
+      window.addToHistoryABA_A2U = function(){
+        const l=document.getElementById("logABA_a2u").innerText.trim(); if(!l) return;
+        const lines=l.split('\n').filter(x=>x.trim()!=='');
+        push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA`), {name:"", date:`${getToday()} ${getCurrentTime()}`, lines, ticks:new Array(lines.length).fill(false), status:"active", createdAt:Date.now(), direction:'A2U'});
+        showToast('Đã thêm vào lịch sử');
+      };
+      window.clearHistoryABA = function(){ if(!confirm('Bạn có chắc muốn xóa toàn bộ lịch sử?')) return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA`), null); };
     }
   </script>
 </body>
