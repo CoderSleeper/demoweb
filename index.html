@@ -286,9 +286,21 @@
         if(!el.getAttribute('name')) el.setAttribute('name', el.id || ('field_'+Math.random().toString(36).slice(2)));
       });
 
-      const ico = document.getElementById('roundIconABA');
-      if(ico) ico.addEventListener('click', cycleRoundModeABA);
-    });
+      });
+
+    // Clipboard fallback helper: dùng Clipboard API nếu có, nếu không rơi về textarea + execCommand
+    function copyTextSafe(t){
+      if(!t) return;
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép'), ()=>fallback());
+      } else { fallback(); }
+      function fallback(){
+        const ta=document.createElement('textarea'); ta.value=t;
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showToast('Đã sao chép'); }
+        finally { ta.remove(); }
+      }
+    }
 
     // parseInput dùng chung
     function parseInput(value){
@@ -370,10 +382,41 @@
     }
 
     // Định dạng
-    function formatCurrencyVN(n){const r=Math.round(n*100)/100;return Number.isInteger(r)?r.toLocaleString('de-DE').replace(/\./g,','):r.toString();}
-    function formatSmartDecimal(n){const r=Math.round(n*100)/100;return Number.isInteger(r)?r.toLocaleString('en-US',{minimumFractionDigits:0}):r.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2});}
-    function formatUSDT2(n){ return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-    function formatGeneric(n){ return Number(n).toLocaleString('en-US',{maximumFractionDigits:8}); }
+    
+    // Định dạng — rebuilt clean to avoid any syntax glitches
+    function formatCurrencyVN(n){
+      if(!Number.isFinite(Number(n))) return '';
+      const r = Number(n);
+      // Dùng chuẩn Đức cho dấu phẩy thập phân như VND/IDR mẫu gốc
+      return r.toLocaleString('de-DE').replace(/\./g, ',');
+    }
+    function formatSmartDecimal(n){
+      const x = Number(n);
+      if(!Number.isFinite(x)) return '';
+      const q = Math.round((x + Number.EPSILON) * 100) / 100;
+      const isInt = Math.abs(q - Math.round(q)) < 1e-9;
+      return isInt
+        ? Math.round(q).toLocaleString('en-US', { maximumFractionDigits: 0 })
+        : q.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    // THB: formatter độc lập (không phụ thuộc mode ABA)
+    function formatUSDT_THB(n){
+      if(!Number.isFinite(Number(n))) return '';
+      return Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
+    }
+    function formatUSDT2(n){
+      if(!Number.isFinite(Number(n))) return '';
+      return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    function formatGeneric(n){
+      if(!Number.isFinite(Number(n))) return '';
+      return Number(n).toLocaleString('en-US',{maximumFractionDigits:8});
+    }
+    function formatIDR(n){ return Math.round(Number(n)).toLocaleString('de-DE').replace(/\./g,','); }
+    function formatVNDInt(n){ return Math.round(Number(n)).toLocaleString('de-DE').replace(/\./g,','); }
+    function formatRateTHB(n){ if(isNaN(n)) return ''; return Number(n).toFixed(2); }
+    function formatTHBInt(n){ return Math.round(Number(n)).toLocaleString('en-US'); }
+
     function formatIDR(n){return Math.round(n).toLocaleString('de-DE').replace(/\./g,',');}
     function formatVNDInt(n){return Math.round(n).toLocaleString('de-DE').replace(/\./g,',');}
     function formatRateTHB(n){ if(isNaN(n)) return ''; return Number(n).toFixed(2); }
@@ -394,12 +437,12 @@
       if(usdtVal){const usdt=parseInput(usdtVal);if(!isNaN(usdt)&&rateU){const fee=usdt<5000?7:0;const total=usdt+fee;const idr=total*rateU;log+=`${today}\nUSDT: ${formatCurrencyVN(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`;}}
       if(abaVal){const aba=parseInput(abaVal);if(!isNaN(aba)&&rateABA){const fee=aba<5000?10:0;const total=aba+fee;const idr=total*rateABA;log+=`${today}\nABA: ${formatCurrencyVN(aba)}${fee>0?` + ${fee} (fee)`:''} @ ${rateABA}\nIDR: ${formatIDR(idr)}\n\n`;}}
       if(idrUsdtRaw && !isNaN(parseFloat(idrUsdtRaw)) && rateU){const idr=parseFloat(idrUsdtRaw);const usdt=idr/rateU;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateU}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;}
-      if(idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA){const idr=parseFloat(idrAbaRaw);const aba=idr/rateABA;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${formatSmartDecimal(aba)}\n\n`;}
+      if(idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA){const idr=parseFloat(idrAbaRaw);const aba=idr/rateABA;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${Math.round(aba).toLocaleString('en-US')}\n\n`;}
       document.getElementById("log").innerText=log||"Không có dữ liệu.";
     }
     function copyForm(){
       const t=document.getElementById("log").innerText;
-      if(t.trim()) navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép'));
+      if(t.trim()) copyTextSafe(t);
     }
 
     function addToHistory(){
@@ -417,7 +460,7 @@
       if(uVal){const usdt=parseInput(uVal);if(!isNaN(usdt)){const vnd=usdt*rate;log+=`${today}\nUSDT: ${formatCurrencyVN(usdt)} @ ${formatVNDInt(rate)}\nVND: ${formatVNDInt(vnd)}\n\n`;}}
       document.getElementById("logVI").innerText=log||"Không có dữ liệu.";
     }
-    function copyFormVI(){ const t=document.getElementById("logVI").innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép')); }
+    function copyFormVI(){ const t=document.getElementById("logVI").innerText; if(t.trim()) copyTextSafe(t); }
 
     /* ========= THB ========= */
     function calculateTHB(){
@@ -430,19 +473,19 @@
         const thb = parseInput(thbVal);
         if(!isNaN(thb)){
           const usdt = thb / rate;
-          log += `${today}\nTHB: ${formatTHBInt(thb)} @ ${rate.toFixed(2)}\nUSDT: ${formatResultByMode(usdt)}\n\n`;
+          log += `${today}\nTHB: ${formatTHBInt(thb)} @ ${rate.toFixed(2)}\nUSDT: ${formatUSDT_THB(usdt)}\n\n`;
         }
       }
       if(uVal){
         const usdt = parseInput(uVal);
         if(!isNaN(usdt)){
           const thb = usdt * rate;
-          log += `${today}\nUSDT: ${formatResultByMode(usdt)} @ ${rate.toFixed(2)}\nTHB: ${formatTHBInt(thb)}\n\n`;
+          log += `${today}\nUSDT: ${formatUSDT_THB(usdt)} @ ${rate.toFixed(2)}\nTHB: ${formatTHBInt(thb)}\n\n`;
         }
       }
       document.getElementById("logTHB").innerText = log || "Không có dữ liệu.";
     }
-    function copyFormTHB(){ const t=document.getElementById("logTHB").innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép')); }
+    function copyFormTHB(){ const t=document.getElementById("logTHB").innerText; if(t.trim()) copyTextSafe(t); }
 
     /* ========= ABA ========= */
     function calculateABA(){
@@ -463,7 +506,7 @@
       document.getElementById("logABA_u2a").innerText = log1 || "";
       document.getElementById("logABA_a2u").innerText = log2 || "";
     }
-    function copyLog(id){ const t=document.getElementById(id).innerText; if(t.trim()) navigator.clipboard.writeText(t).then(()=>showToast('Đã sao chép')); }
+    function copyLog(id){ const t=document.getElementById(id).innerText; if(t.trim()) copyTextSafe(t); }
   </script>
 
   <!-- ===== Firebase + Auth + Realtime ===== -->
@@ -536,7 +579,7 @@
         await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value);
       } catch (e) { loginMsg.textContent = e?.code?.replace("auth/","") || "Đăng nhập thất bại"; }
     };
-    logoutBtn.onclick = () => { if(document.body.getAttribute('data-ab-active')==='1'){ if(!confirm('Bạn có chắc muốn đăng xuất?')) return; } signOut(auth); };
+    logoutBtn.onclick = () => { const email=(auth&&auth.currentUser&&auth.currentUser.email)?` (${auth.currentUser.email})`:''; if(!confirm(`Đăng xuất${email}?`)) return; signOut(auth); };
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -609,8 +652,8 @@
         name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:name.value});});
         const date=document.createElement("span");date.textContent=e.date||"";
         const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`));
-        doneBtn.onclick=()=>{const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
         header.append(name,date,doneBtn,del);
         const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
         (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
@@ -621,7 +664,7 @@
         const header=document.createElement("div");header.className="entry-header";
         const nameInput=document.createElement("input");nameInput.type="text";nameInput.value=e.name||"";nameInput.style.fontWeight="bold";nameInput.style.color="#155724";nameInput.readOnly=true;nameInput.autocomplete="off";nameInput.spellcheck=false;nameInput.autocapitalize="off";
         const editBtn=document.createElement("button");editBtn.className="edit-btn";editBtn.textContent="Chỉnh sửa";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`));
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`)) };
         header.append(nameInput,editBtn,del);
         const textarea=document.createElement("textarea");textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";textarea.value=e.content||(e.lines||[]).join("\n");
         const display=document.createElement("div");display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;";display.textContent=textarea.value;
@@ -672,8 +715,8 @@
         name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{name:name.value});});
         const date=document.createElement("span");date.textContent=e.date||"";
         const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`));
-        doneBtn.onclick=()=>{const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
         header.append(name,date,doneBtn,del);
         const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
         (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
@@ -684,7 +727,7 @@
         const header=document.createElement("div");header.className="entry-header";
         const nameInput=document.createElement("input");nameInput.type="text";nameInput.value=e.name||"";nameInput.style.fontWeight="bold";nameInput.style.color="#155724";nameInput.readOnly=true;nameInput.autocomplete="off";nameInput.spellcheck=false;nameInput.autocapitalize="off";
         const editBtn=document.createElement("button");editBtn.className="edit-btn";editBtn.textContent="Chỉnh sửa";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`));
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`)) };
         header.append(nameInput,editBtn,del);
         const textarea=document.createElement("textarea");textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";textarea.value=e.content||(e.lines||[]).join("\n");
         const display=document.createElement("div");display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;";display.textContent=textarea.value;
@@ -734,8 +777,8 @@
         name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{name:name.value});});
         const date=document.createElement("span");date.textContent=e.date||"";
         const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`));
-        doneBtn.onclick=()=>{const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
         header.append(name,date,doneBtn,del);
         const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
         (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
@@ -746,7 +789,7 @@
         const header=document.createElement("div");header.className="entry-header";
         const nameInput=document.createElement("input");nameInput.type="text";nameInput.value=e.name||"";nameInput.style.fontWeight="bold";nameInput.style.color="#155724";nameInput.readOnly=true;nameInput.autocomplete="off";nameInput.spellcheck=false;nameInput.autocapitalize="off";
         const editBtn=document.createElement("button");editBtn.className="edit-btn";editBtn.textContent="Chỉnh sửa";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`));
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`)) };
         header.append(nameInput,editBtn,del);
         const textarea=document.createElement("textarea");textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";textarea.value=e.content||(e.lines||[]).join("\n");
         const display=document.createElement("div");display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;";display.textContent=textarea.value;
@@ -801,8 +844,8 @@
         name.addEventListener('blur',()=>{ update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {name:name.value}); });
         const date=document.createElement("span"); date.textContent=e.date||"";
         const doneBtn=document.createElement("button"); doneBtn.className="done-btn"; doneBtn.textContent="Duyệt";
-        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`));
-        doneBtn.onclick=()=>{ const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent); update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {status:'done', name:name.value||"", content:(e.content||lines.join("\n"))}); };
+        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return;  const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent); update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {status:'done', name:name.value||"", content:(e.content||lines.join("\n"))}); };
         header.append(name,date,doneBtn,del);
 
         const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
@@ -827,7 +870,7 @@
         const header=document.createElement("div"); header.className="entry-header";
         const nameInput=document.createElement("input"); nameInput.type="text"; nameInput.value=e.name||""; nameInput.style.fontWeight="bold"; nameInput.style.color="#155724"; nameInput.readOnly=true; nameInput.autocomplete="off"; nameInput.spellcheck=false; nameInput.autocapitalize="off";
         const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.textContent="Chỉnh sửa";
-        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`));
+        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`)) };
         header.append(nameInput,editBtn,del);
         const textarea=document.createElement("textarea"); textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;"; textarea.value=e.content||(e.lines||[]).join("\n");
         const display=document.createElement("div"); display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;"; display.textContent=textarea.value;
