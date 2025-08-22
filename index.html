@@ -9,7 +9,7 @@
     body{font-family:Arial,sans-serif;margin:20px;background:#f0f8ff;color:#222}
     #app,#appVI,#appTHB,#appABA{display:flex;gap:30px;align-items:flex-start}
     #app[hidden],#appVI[hidden],#appTHB[hidden],#appABA[hidden]{display:none!important}
-    .container{width:48%;background:#fff;border-radius:8px;box-shadow:0 0 8px rgba(0,0,0,.1);padding:20px 25px;box-sizing:border-box}
+    .container{width:48%;background:#fff;border-radius:8px;box-shadow: 0 3px 8px rgba(0,0,0,.25);padding:20px 25px;box-sizing:border-box}
     h2,h3{margin-bottom:15px;color:#004080;border-bottom:2px solid #0080ff;padding-bottom:5px}
     label{font-weight:600;display:block;margin:15px 0 5px;color:#003366}
     input[type="text"],input[type="number"],textarea{width:100%;padding:8px 12px;border-radius:5px;border:1px solid #ccc;font-family:monospace;font-size:14px;box-sizing:border-box;transition:border-color .3s}
@@ -45,10 +45,10 @@
     .tab{padding:8px 14px;border:none;background:transparent;cursor:pointer;font-weight:600;color:#334155}
     .tab.active{background:#0b73ff;color:#fff}
     .topbar{position:fixed;left:16px;top:12px;display:flex;gap:8px;align-items:center;z-index:9999}
-    .sync-badge{position:fixed;right:16px;top:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.15);font-size:16px;color:#111;z-index:9999}
+    .sync-badge{position:fixed;right:16px;top:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow: 0 3px 8px rgba(0,0,0,.25);font-size:16px;color:#111;z-index:9999}
     .sync-ok{background:#e6ffed}.sync-warn{background:#fff7e6}.sync-err{background:#ffe6e6}
     .auth-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f0f8ff}
-    .auth-card{width:360px;max-width:92vw;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:20px}
+    .auth-card{width:360px;max-width:92vw;background:#fff;border-radius:12px;box-shadow: 0 3px 8px rgba(0,0,0,.25);padding:20px}
     .auth-card h2{margin:0 0 12px;border:none;color:#0b4aa7}
     .auth-card .row{margin-bottom:10px}
     .auth-card input{width:100%;padding:10px 12px;border:1px solid #cdd6e0;border-radius:8px;font-size:14px}
@@ -122,7 +122,7 @@
     padding:8px 10px;
     border-radius: 999px;
     background: rgba(15,23,42,.65);
-    backdrop-filter: blur(10px);
+    
     box-shadow: var(--shadow);
   }
   .tabs{
@@ -229,7 +229,7 @@
     color: var(--ink) !important;
     border-radius: 16px !important;
     box-shadow: var(--shadow) !important;
-    backdrop-filter: blur(10px) saturate(140%);
+    
   }
   .auth-card h2{ color:#bfdbfe !important; }
   .auth-card input{ font-size:16px !important; }
@@ -292,7 +292,7 @@
     padding:8px 12px; border-radius:999px;
     background: linear-gradient(180deg,#60a5fa,#2563eb);
     color:#0b1220; font-weight:900; letter-spacing:.3px;
-    box-shadow: 0 10px 18px rgba(37,99,235,.35);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
     margin-right:10px;
   }
   .brand-pill svg{ width:18px; height:18px; }
@@ -305,7 +305,7 @@
     width:20px; height:20px; display:grid; place-items:center;
     background:#0b1220; color:#93c5fd; border:1px solid rgba(148,163,184,.25);
     border-radius:6px; font-size:12px; font-weight:900;
-    box-shadow: inset 0 0 12px rgba(59,130,246,.25);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
   }
 
   /* --- High-contrast highlight chips (for inline values) --- */
@@ -341,7 +341,7 @@
   .historyVI > div::before, .historyTHB > div::before, .historyABA > div::before{
     content:""; position:absolute; left: -17px; top: 16px;
     width:10px; height:10px; border-radius:50%;
-    background:#3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.25);
+    background:#3b82f6; box-shadow: 0 3px 8px rgba(0,0,0,.25);
   }
   /* Completed items glow green */
   .done-entry::before{ background:#22c55e !important; box-shadow:0 0 0 3px rgba(34,197,94,.25) !important; }
@@ -417,7 +417,7 @@
   }
   .container::after, .card::after{
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
   }
 
   /* Button icons + ripple */
@@ -569,7 +569,7 @@
     font-weight: 800;
     letter-spacing: .1px;
     border: 1px solid rgba(161,98,7,.45);
-    box-shadow: 0 8px 18px rgba(245,158,11,.25), inset 0 1px 0 rgba(255,255,255,.35);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
     line-height: 1.2;
     width: fit-content;
   }
@@ -578,18 +578,128 @@
 
 
 <!-- SCROLL PATCH: force internal scroll for History/Done (viewport-aware) -->
-<style id="scrollpatch-css">
-  .sb-unclip { overflow: visible !important; contain: initial !important; }
-  .sb-scroll{
+
+
+
+<style id="done-boost-css">
+  /* Container theme for Đã xong (all 4 tabs) */
+  #doneList, #doneListVI, #doneListTHB, #doneListABA {
+    background: linear-gradient(180deg, rgba(6,78,59,.18), rgba(6,78,59,.06));
+    border: 1px solid rgba(16,185,129,.28);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
+    border-radius: 14px;
+    padding: 12px 12px 18px;
+  }
+  /* Each done card */
+  #doneList > div, #doneListVI > div, #doneListTHB > div, #doneListABA > div {
+    position: relative;
+    margin: 12px 6px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(2,6,23,.85), rgba(2,6,23,.7));
+    border: 1px solid rgba(148,163,184,.18);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
+    padding: 10px;
+  }
+  /* Green accent bar + check icon */
+  #doneList > div::before, #doneListVI > div::before, #doneListTHB > div::before, #doneListABA > div::before {
+    content: "";
+    position: absolute; left: -2px; top: 10px; bottom: 10px;
+    width: 4px; border-radius: 4px;
+    background: linear-gradient(180deg, #34d399, #10b981);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
+  }
+  #doneList > div::after, #doneListVI > div::after, #doneListTHB > div::after, #doneListABA > div::after {
+    content: "✓";
+    position: absolute; left: 6px; top: -10px;
+    font-weight: 900; font-size: 12px;
+    color: #10b981; text-shadow: 0 2px 8px rgba(16,185,129,.75);
+  }
+  /* Title/input row inside done card remains readable */
+  #doneList input, #doneListVI input, #doneListTHB input, #doneListABA input,
+  #doneList .title, #doneListVI .title, #doneListTHB .title, #doneListABA .title {
+    color: #e2f7ef;
+  }
+  /* Buttons look consistent but a hair smaller to signal finalized state */
+  #doneList .btn, #doneListVI .btn, #doneListTHB .btn, #doneListABA .btn {
+    transform: translateZ(0);
+    font-weight: 700;
+    opacity: .95;
+  }
+  /* Sticky subheader with count (created by JS) */
+  .done-sticky {
+    position: sticky; top: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 10px 8px; margin: -12px -12px 6px;
+    background: linear-gradient(180deg, rgba(6,78,59,.45), rgba(6,78,59,.2));
+    border-bottom: 1px dashed rgba(16,185,129,.35);
+    z-index: 2; 
+    border-top-left-radius: 14px; border-top-right-radius: 14px;
+  }
+  .done-sticky .count {
+    font-size: 12px; font-weight: 800; letter-spacing: .02em;
+    color: #d1fae5; background: rgba(16,185,129,.18);
+    border: 1px solid rgba(16,185,129,.35); padding: 4px 8px; border-radius: 999px;
+  }
+  .done-sticky .tools { display: flex; gap: 6px; }
+  .done-sticky .mini {
+    padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 800;
+    background: rgba(2,6,23,.7); color: #e5e7eb; border: 1px solid rgba(148,163,184,.35);
+  }
+</style>
+
+
+
+
+
+<style id="stable-scroll-css">
+  /* Baseline: make lists scrollable and prevent layout shift when scrollbars appear */
+  .history, .historyVI, .historyTHB, .historyABA,
+  #doneList, #doneListVI, #doneListTHB, #doneListABA {
     overflow: auto !important;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    scroll-behavior: smooth;
-    padding-right: 6px;
-    border-radius: inherit;
+    scrollbar-gutter: stable both-edges;
+    overflow-anchor: none; /* avoid anchor jitter while content grows */
+    max-height: clamp(320px, 52vh, 640px); /* safe default; JS will refine */
+    padding-right: 6px; /* reserve space if gutter unsupported */
   }
-  /* keep page itself scrollable */
   html, body { height: auto !important; overflow-y: auto !important; }
+</style>
+
+
+<style id="ultrastable-scroll-css">
+  /* Scroll-only, no JS required */
+  .history, .historyVI, .historyTHB, .historyABA,
+  #doneList, #doneListVI, #doneListTHB, #doneListABA{
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable both-edges;
+    overflow-anchor: none;
+    max-height: clamp(360px, 52vh, 680px);
+    padding-right: 6px;
+    contain: content; /* isolate paints */
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+  }
+  @media (max-width: 520px){
+    .history, .historyVI, .historyTHB, .historyABA,
+    #doneList, #doneListVI, #doneListTHB, #doneListABA{
+      max-height: clamp(300px, 50vh, 560px);
+    }
+  }
+  /* Lighten 'Đã xong' visuals to avoid GPU-heavy effects */
+  #doneList, #doneListVI, #doneListTHB, #doneListABA{
+    background: linear-gradient(180deg, rgba(6,78,59,.12), rgba(6,78,59,.04));
+    border: 1px solid rgba(16,185,129,.22);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
+  }
+  #doneList > div, #doneListVI > div, #doneListTHB > div, #doneListABA > div{
+    background: rgba(2,6,23,.78);
+    border: 1px solid rgba(148,163,184,.18);
+    box-shadow: 0 3px 8px rgba(0,0,0,.25);
+  }
 </style>
 
 </head>
@@ -1834,42 +1944,16 @@
 
 
 <!-- SCROLL PATCH JS -->
-<script id="scrollpatch-js">
-(function(){
-  const TARGETS = ['#history','#doneList','#historyVI','#doneListVI','#historyTHB','#doneListTHB','#historyABA','#doneListABA'];
 
-  function unclipAncestors(el){
-    let p = el.parentElement, steps=0;
-    while (p && steps<6 && p!==document.body){
-      p.classList.add('sb-unclip');
-      p = p.parentElement; steps++;
-    }
-  }
 
-  function autosize(el){
-    const rect = el.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    const bottomPad = 16;
-    const max = Math.max(160, Math.floor(vh - rect.top - bottomPad));
-    el.style.maxHeight = max + 'px';
-  }
 
-  function init(){
-    TARGETS.forEach(sel => {
-      document.querySelectorAll(sel).forEach(box => {
-        box.classList.add('sb-scroll');
-        unclipAncestors(box);
-        autosize(box);
-      });
-    });
-  }
 
-  init();
-  addEventListener('resize', () => TARGETS.forEach(sel => document.querySelectorAll(sel).forEach(autosize)));
-  addEventListener('orientationchange', () => TARGETS.forEach(sel => document.querySelectorAll(sel).forEach(autosize)));
-  new MutationObserver(init).observe(document.body, {childList:true, subtree:true});
-})();
-</script>
+
+
+
+
+
+
 
 </body>
 </html>
