@@ -576,6 +576,22 @@
   .rounding-hint-line .emoji{ display:inline-grid; place-items:center; width:20px; height:20px; border-radius:6px; background: rgba(2,6,23,.12); border:1px solid rgba(0,0,0,.12); font-size:14px; }
 </style>
 
+
+<!-- SCROLL PATCH: force internal scroll for History/Done (viewport-aware) -->
+<style id="scrollpatch-css">
+  .sb-unclip { overflow: visible !important; contain: initial !important; }
+  .sb-scroll{
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    padding-right: 6px;
+    border-radius: inherit;
+  }
+  /* keep page itself scrollable */
+  html, body { height: auto !important; overflow-y: auto !important; }
+</style>
+
 </head>
 <body>
   <div id="toast" aria-live="polite"></div>
@@ -1813,6 +1829,45 @@
     if (need) requestAnimationFrame(enhance);
   });
   mo.observe(document.body, { childList:true, subtree:true });
+})();
+</script>
+
+
+<!-- SCROLL PATCH JS -->
+<script id="scrollpatch-js">
+(function(){
+  const TARGETS = ['#history','#doneList','#historyVI','#doneListVI','#historyTHB','#doneListTHB','#historyABA','#doneListABA'];
+
+  function unclipAncestors(el){
+    let p = el.parentElement, steps=0;
+    while (p && steps<6 && p!==document.body){
+      p.classList.add('sb-unclip');
+      p = p.parentElement; steps++;
+    }
+  }
+
+  function autosize(el){
+    const rect = el.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const bottomPad = 16;
+    const max = Math.max(160, Math.floor(vh - rect.top - bottomPad));
+    el.style.maxHeight = max + 'px';
+  }
+
+  function init(){
+    TARGETS.forEach(sel => {
+      document.querySelectorAll(sel).forEach(box => {
+        box.classList.add('sb-scroll');
+        unclipAncestors(box);
+        autosize(box);
+      });
+    });
+  }
+
+  init();
+  addEventListener('resize', () => TARGETS.forEach(sel => document.querySelectorAll(sel).forEach(autosize)));
+  addEventListener('orientationchange', () => TARGETS.forEach(sel => document.querySelectorAll(sel).forEach(autosize)));
+  new MutationObserver(init).observe(document.body, {childList:true, subtree:true});
 })();
 </script>
 
