@@ -90,6 +90,492 @@
     #toast.show{opacity:1}
   </style>
 
+
+<!-- === WOW THEME OVERRIDES (UI only, no logic changes) === -->
+<style id="wow-theme">
+  :root{
+    --bg1:#0f172a; --bg2:#0b1220;
+    --ink:#e5e7eb; --ink-dim:#9ca3af;
+    --card:rgba(255,255,255,0.06);
+    --brand:#60a5fa; --brand-2:#3b82f6; --brand-3:#2563eb;
+    --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+    --ring: rgba(96,165,250,.35);
+    --shadow: 0 12px 30px rgba(0,0,0,.25);
+    --radius:14px;
+  }
+  html,body{height:100%;}
+  body{
+    background: linear-gradient(135deg,var(--bg1),var(--bg2)) fixed !important;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  /* Topbar */
+  .topbar{
+    position: sticky !important;
+    top: 8px !important;
+    left: auto !important;
+    right: auto !important;
+    gap:10px !important;
+    padding:8px 10px;
+    border-radius: 999px;
+    background: rgba(15,23,42,.65);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+  }
+  .tabs{
+    border: 1px solid rgba(148,163,184,.25) !important;
+    background: rgba(2,6,23,.45) !important;
+  }
+  .tab{
+    padding:10px 16px !important;
+    font-weight:700 !important;
+    letter-spacing:.2px;
+    color:#cbd5e1 !important;
+  }
+  .tab.active{
+    background: linear-gradient(180deg,var(--brand),var(--brand-3)) !important;
+    color:#0b1220 !important;
+  }
+
+  /* Cards / containers */
+  .container{
+    background: var(--card) !important;
+    border: 1px solid rgba(148,163,184,.18) !important;
+    color: var(--ink) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow) !important;
+  }
+  h2,h3{
+    color: #bfdbfe !important;
+    border: none !important;
+    margin-top: 4px !important;
+  }
+  label{
+    color:#cbd5e1 !important;
+    font-weight:700 !important;
+    letter-spacing:.2px;
+  }
+
+  /* Inputs: mobile-friendly */
+  input[type="text"], input[type="number"], textarea{
+    background: rgba(255,255,255,.06) !important;
+    border: 1px solid rgba(148,163,184,.28) !important;
+    color: var(--ink) !important;
+    border-radius: 12px !important;
+    font-size: 16px !important; /* avoid iOS zoom */
+    padding: 12px 14px !important;
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
+  input:focus, textarea:focus{
+    outline: none !important;
+    box-shadow: 0 0 0 4px var(--ring) !important;
+    border-color: var(--brand-2) !important;
+    background: rgba(255,255,255,.10) !important;
+  }
+  ::placeholder{ color: #94a3b8 !important; }
+
+  /* Buttons */
+  .btn{
+    background: linear-gradient(180deg,var(--brand),var(--brand-3)) !important;
+    border: none !important;
+    color: #0b1220 !important;
+    padding: 12px 18px !important;
+    border-radius: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing:.2px;
+    box-shadow: 0 10px 18px rgba(37,99,235,.25) !important;
+    transition: transform .06s ease, filter .2s ease;
+    min-height: 44px;
+  }
+  .btn:hover{ filter: brightness(1.04); }
+  .btn:active{ transform: translateY(1px) scale(.99); }
+  .btn-red{ background: linear-gradient(180deg,#f87171,#ef4444) !important; color: #111 !important; }
+  .done-btn{ background: linear-gradient(180deg,#86efac,#22c55e) !important; color:#052e16 !important; }
+  .delete-btn{ background: linear-gradient(180deg,#fecaca,#ef4444) !important; color:#111 !important; }
+  .edit-btn{ background: linear-gradient(180deg,#fde68a,#f59e0b) !important; color:#111 !important; }
+
+  /* Tables */
+  table{
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(148,163,184,.22) !important;
+  }
+  table th{
+    background: rgba(30,41,59,.65) !important;
+    color: #cbd5e1 !important;
+  }
+  table td{ color:#e5e7eb !important; border-color: rgba(148,163,184,.18) !important; }
+  table input{ color:#e5e7eb !important; }
+
+  /* Toast */
+  #toast{
+    background: rgba(2,6,23,.9) !important;
+    color:#fff !important;
+    border: 1px solid rgba(148,163,184,.25) !important;
+    padding: 8px 12px !important;
+    border-radius: 999px !important;
+    font-weight:800 !important;
+  }
+
+  /* Auth card */
+  .auth-wrap{ background: linear-gradient(135deg,var(--bg1),var(--bg2)) !important; }
+  .auth-card{
+    background: rgba(255,255,255,.06) !important;
+    border: 1px solid rgba(148,163,184,.25) !important;
+    color: var(--ink) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--shadow) !important;
+    backdrop-filter: blur(10px) saturate(140%);
+  }
+  .auth-card h2{ color:#bfdbfe !important; }
+  .auth-card input{ font-size:16px !important; }
+
+  /* History entries */
+  .history,.historyVI,.historyTHB,.historyABA,
+  #doneList,#doneListVI,#doneListTHB,#doneListABA{
+    background: rgba(2,6,23,.35) !important;
+    border: 1px solid rgba(148,163,184,.22) !important;
+    color: var(--ink) !important;
+  }
+  .history-entry{
+    background: rgba(255,255,255,.06) !important;
+    border: 1px solid rgba(148,163,184,.22) !important;
+    border-radius: 12px !important;
+  }
+  .done-entry{
+    border-left: 4px solid var(--ok) !important;
+    background: rgba(22,163,74,.12) !important;
+    color:#bbf7d0 !important;
+  }
+
+  /* Logout button retains float but with glow */
+  #logoutBtn{
+    box-shadow: 0 14px 24px rgba(239,68,68,.45) !important;
+    border: none !important;
+    font-weight: 800 !important;
+    min-height: 44px;
+  }
+
+  /* Better spacing on mobile */
+  @media (max-width: 992px){
+    body{ padding: 8px !important; }
+    .container{ padding: 16px 14px !important; }
+    .btn{ width: auto; }
+    .btn-container{ display: flex; flex-wrap: wrap; gap: 8px; }
+  }
+
+  /* Touch polish */
+  * { -webkit-tap-highlight-color: transparent; }
+  input, textarea, button { touch-action: manipulation; }
+</style>
+
+
+<!-- === WOW+ BRAND + TIMELINE & CONTRAST FIX (UI-only) === -->
+<style id="wow-contrast">
+  :root{
+    /* Accessible token colors */
+    --token-bg:#fef3c7;      /* amber-100 (for light tokens) */
+    --token-fg:#78350f;      /* on-amber */
+    --token-bg2:#d1fae5;     /* emerald-100 */
+    --token-fg2:#065f46;
+    --chip-bg: rgba(148,163,184,.16);
+    --chip-fg: #e5e7eb;
+  }
+
+  /* --- Brand pill in topbar (injected via JS) --- */
+  .brand-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 12px; border-radius:999px;
+    background: linear-gradient(180deg,#60a5fa,#2563eb);
+    color:#0b1220; font-weight:900; letter-spacing:.3px;
+    box-shadow: 0 10px 18px rgba(37,99,235,.35);
+    margin-right:10px;
+  }
+  .brand-pill svg{ width:18px; height:18px; }
+
+  /* --- Tab icons --- */
+  .tab{ position: relative; padding-left: 36px !important; }
+  .tab::before{
+    content: attr(data-ico);
+    position:absolute; left:12px; top:50%; transform: translateY(-50%);
+    width:20px; height:20px; display:grid; place-items:center;
+    background:#0b1220; color:#93c5fd; border:1px solid rgba(148,163,184,.25);
+    border-radius:6px; font-size:12px; font-weight:900;
+    box-shadow: inset 0 0 12px rgba(59,130,246,.25);
+  }
+
+  /* --- High-contrast highlight chips (for inline values) --- */
+  mark, .highlight, .hl, .chip{
+    background: var(--token-bg);
+    color: var(--token-fg);
+    padding: 2px 6px; border-radius: 8px; font-weight: 800;
+  }
+  .chip-2{ background: var(--token-bg2); color: var(--token-fg2); }
+  /* If previous theme added low-contrast highlights, neutralize then reapply readable style */
+  .history .highlight, .history mark{ filter: none !important; mix-blend-mode: normal !important; }
+
+  /* --- Buttons subtle palette harmonization --- */
+  .btn{ text-shadow: none !important; }
+  .btn.warn{ background: linear-gradient(180deg,#fde68a,#f59e0b) !important; color:#111827 !important; }
+  #logoutBtn{ filter: drop-shadow(0 12px 24px rgba(239,68,68,.35)); }
+
+  /* --- Timeline styling for history sections (no markup changes) --- */
+  .history, .historyVI, .historyTHB, .historyABA{
+    position: relative; padding-left: 24px !important;
+  }
+  .history::before, .historyVI::before, .historyTHB::before, .historyABA::before{
+    content:""; position:absolute; left: 10px; top: 12px; bottom: 12px;
+    width:2px; background: rgba(148,163,184,.35);
+    border-radius:2px;
+  }
+  /* Try to match common child blocks as items */
+  .history > div, .history > li, .history .history-entry,
+  .historyVI > div, .historyTHB > div, .historyABA > div{
+    position: relative; margin-left: 0;
+  }
+  .history > div::before, .history > li::before, .history .history-entry::before,
+  .historyVI > div::before, .historyTHB > div::before, .historyABA > div::before{
+    content:""; position:absolute; left: -17px; top: 16px;
+    width:10px; height:10px; border-radius:50%;
+    background:#3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.25);
+  }
+  /* Completed items glow green */
+  .done-entry::before{ background:#22c55e !important; box-shadow:0 0 0 3px rgba(34,197,94,.25) !important; }
+
+  /* --- Chips for timestamps --- */
+  .time-chip{
+    display:inline-block; padding:2px 8px; border-radius:999px;
+    background: var(--chip-bg); color: var(--chip-fg);
+    font-weight:700; font-size:12px; letter-spacing:.2px;
+  }
+
+  /* --- Improve checkbox label contrast inside history --- */
+  .history label, .historyVI label, .historyTHB label, .historyABA label{
+    color:#e5e7eb !important;
+  }
+  .history input[type="checkbox"] + label, 
+  .historyVI input[type="checkbox"] + label,
+  .historyTHB input[type="checkbox"] + label,
+  .historyABA input[type="checkbox"] + label{
+    background: transparent !important;
+  }
+</style>
+
+
+<!-- === ULTRA WOW SKIN (UI-only; no logic changes) === -->
+<style id="wow-ultra">
+  :root{
+    --accent1:#7dd3fc; /* sky-300 */
+    --accent2:#60a5fa; /* blue-400 */
+    --accent3:#a78bfa; /* violet-400 */
+    --success:#22c55e;
+    --danger:#ef4444;
+    --panel:#0b1220;
+    --glass: rgba(255,255,255,.06);
+  }
+
+  /* Aurora background */
+  body::before{
+    content:""; position: fixed; inset:-20%; z-index:-1;
+    background:
+      radial-gradient(45% 35% at 20% 20%, rgba(96,165,250,.25), transparent 60%),
+      radial-gradient(40% 30% at 80% 10%, rgba(167,139,250,.22), transparent 60%),
+      radial-gradient(50% 40% at 50% 90%, rgba(125,211,252,.15), transparent 60%);
+    filter: blur(40px);
+    opacity:.9; pointer-events:none;
+    animation: float-aurora 18s ease-in-out infinite alternate;
+  }
+  @keyframes float-aurora{
+    from { transform: translateY(0) rotate(0deg) scale(1); }
+    to   { transform: translateY(-2%) rotate(2deg) scale(1.02); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    body::before{ animation:none; }
+  }
+
+  /* Neon gradient frame for containers */
+  .container, .card, .history, .historyVI, .historyTHB, .historyABA, #doneList, #doneListVI, #doneListTHB, #doneListABA{
+    position: relative;
+    border-radius: 16px !important;
+    overflow: hidden;
+  }
+  .container::before, .card::before, .history::before, .historyVI::before, .historyTHB::before, .historyABA::before,
+  #doneList::before, #doneListVI::before, #doneListTHB::before, #doneListABA::before{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    padding:1px; border-radius: inherit;
+    background: conic-gradient(from 180deg, var(--accent1), var(--accent2), var(--accent3), var(--accent2), var(--accent1));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box, 
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity:.35;
+  }
+  .container::after, .card::after{
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  /* Button icons + ripple */
+  .btn{ position: relative; overflow: hidden; }
+  .btn[data-icon]::before{
+    content: attr(data-icon);
+    display:inline-block; margin-right:8px; font-weight:900;
+    background: rgba(2,6,23,.2); border:1px solid rgba(148,163,184,.25);
+    width:22px; height:22px; border-radius:6px; line-height:22px; text-align:center;
+  }
+  .ripple{
+    position:absolute; border-radius:50%; transform:scale(0);
+    opacity:.35; pointer-events:none;
+    background: radial-gradient(circle at center, rgba(255,255,255,.6), rgba(255,255,255,0) 60%);
+    animation: ripple .6s ease-out forwards;
+  }
+  @keyframes ripple{ to { transform: scale(8); opacity:0; } }
+
+  /* Button palette tweaks for readability */
+  .btn.ok, .done-btn{ color:#052e16 !important; }
+  .btn.danger, .delete-btn{ color:#111 !important; }
+
+  /* Checkbox prettify */
+  input[type="checkbox"]{
+    width: 18px; height:18px; appearance: none;
+    border-radius:6px; border:1px solid rgba(148,163,184,.4);
+    background: rgba(255,255,255,.05);
+    display:inline-grid; place-items:center;
+  }
+  input[type="checkbox"]::after{
+    content:""; width:12px; height:12px; border-radius:3px; transform: scale(0);
+    background: linear-gradient(180deg,var(--accent2),var(--accent3));
+    transition: transform .12s ease;
+  }
+  input[type="checkbox"]:checked::after{ transform: scale(1); }
+
+  /* Timeline polish (reuse existing) */
+  .history.timeline, .historyVI.timeline, .historyTHB.timeline, .historyABA.timeline{
+    padding-left: 24px !important;
+  }
+  .history.timeline > div::before, .history.timeline > li::before,
+  .historyVI.timeline > div::before, .historyTHB.timeline > div::before, .historyABA.timeline > div::before{
+    background: linear-gradient(180deg,var(--accent2),var(--accent3)) !important;
+    box-shadow: 0 0 0 3px rgba(96,165,250,.25) !important;
+  }
+
+  /* Done cards legibility */
+  .done-entry, #doneList, #doneListVI, #doneListTHB, #doneListABA{
+    background: rgba(16,185,129,.09) !important;
+    border: 1px solid rgba(16,185,129,.35) !important;
+    color: #d1fae5 !important;
+  }
+  .done-entry *, #doneList *, #doneListVI *, #doneListTHB *, #doneListABA *{
+    color: #d1fae5 !important;
+  }
+
+  /* High-contrast inline tokens */
+  mark, .highlight, .hl{ 
+    background: #fef3c7 !important; color:#78350f !important;
+    padding: 2px 6px; border-radius: 8px; font-weight: 800;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar{ width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb{ background: rgba(148,163,184,.35); border-radius: 999px; }
+  ::-webkit-scrollbar-track{ background: transparent; }
+
+  /* Inputs contrast inside dark panels */
+  .history input[type="text"], .history textarea,
+  .historyVI input[type="text"], .historyTHB input[type="text"], .historyABA input[type="text"]{
+    background: rgba(255,255,255,.06) !important;
+    color: #e5e7eb !important;
+    border: 1px solid rgba(148,163,184,.25) !important;
+  }
+</style>
+
+
+<style id="wow-patch-icons-off">
+  /* Remove pseudo icon before tabs */
+  .tab::before { content: none !important; display: none !important; }
+</style>
+
+
+<style id="wow-checked-contrast">
+  /* High-contrast chip for checked lines (mobile-friendly) */
+  .history input[type="checkbox"]:checked + label,
+  .historyVI input[type="checkbox"]:checked + label,
+  .historyTHB input[type="checkbox"]:checked + label,
+  .historyABA input[type="checkbox"]:checked + label,
+  /* Fallback: if the text node is not a <label> but any inline element */
+  .history input[type="checkbox"]:checked + *:not(input):not(button),
+  .historyVI input[type="checkbox"]:checked + *:not(input):not(button),
+  .historyTHB input[type="checkbox"]:checked + *:not(input):not(button),
+  .historyABA input[type="checkbox"]:checked + *:not(input):not(button) {
+    background: #f0fdf4 !important;   /* emerald-50 */
+    color: #052e16 !important;         /* deep green for contrast */
+    border: 1px solid rgba(16,185,129,.55) !important;
+    border-radius: 8px !important;
+    padding: 2px 8px !important;
+    font-weight: 800 !important;
+    box-shadow: 0 0 0 3px rgba(16,185,129,.15) inset;
+  }
+
+  /* Ensure previous low-contrast highlight tokens don't override */
+  .history mark, .history .highlight, .history .hl,
+  .historyVI mark, .historyVI .highlight, .historyVI .hl,
+  .historyTHB mark, .historyTHB .highlight, .historyTHB .hl,
+  .historyABA mark, .historyABA .highlight, .historyABA .hl{
+    background: transparent !important;
+    color: inherit !important;
+  }
+</style>
+
+
+<!-- Vietnamese-safe font: Be Vietnam Pro -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<style id="wow-vn-font">
+  :root{ --ui-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Liberation Sans", "Noto Sans", sans-serif; }
+  html, body{ font-family: var(--ui-font) !important; font-synthesis: none; text-rendering: optimizeLegibility; }
+  .btn{ letter-spacing: 0.05px !important; line-height: 1.15 !important; }
+  .tab{ letter-spacing: 0.05px !important; }
+  /* Keep monospaced areas intact */
+  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace !important; }
+</style>
+
+
+<!-- Add Noto Sans (Vietnamese-safe) and prefer it over others -->
+
+<style id="wow-vn-font-2">
+  :root{ --ui-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Liberation Sans", "Noto Sans", sans-serif; }
+  html, body{ font-family: var(--ui-font) !important; font-synthesis: none; text-rendering: optimizeLegibility; }
+  .btn{ letter-spacing: 0 !important; line-height: 1.2 !important; font-weight: 700 !important; }
+  .tab{ letter-spacing: 0 !important; font-weight: 700 !important; }
+</style>
+
+
+<style id="wow-rounding-safe-css">
+  /* Safer: style the whole line via a class without replacing inner HTML */
+  .rounding-hint-line{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: linear-gradient(180deg,#fde68a,#f59e0b);
+    color: #0b1220 !important;
+    font-weight: 800;
+    letter-spacing: .1px;
+    border: 1px solid rgba(161,98,7,.45);
+    box-shadow: 0 8px 18px rgba(245,158,11,.25), inset 0 1px 0 rgba(255,255,255,.35);
+    line-height: 1.2;
+    width: fit-content;
+  }
+  .rounding-hint-line .emoji{ display:inline-grid; place-items:center; width:20px; height:20px; border-radius:6px; background: rgba(2,6,23,.12); border:1px solid rgba(0,0,0,.12); font-size:14px; }
+</style>
+
 </head>
 <body>
   <div id="toast" aria-live="polite"></div>
@@ -905,5 +1391,430 @@
       window.clearHistoryABA = function(){ if(!confirm('Bạn có chắc muốn xóa toàn bộ lịch sử?')) return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA`), null); };
     }
   </script>
+
+<!-- === MOBILE TYPING STABILITY HELPERS (no logic change) === -->
+<script>
+  (function(){
+    // 1) Keep cursor stable on remote updates: if focused, don't force set .value
+    const protectors = new Set();
+    function markTyping(e){
+      const el = e.target;
+      protectors.add(el);
+      clearTimeout(el._typingTmr);
+      el._typingTmr = setTimeout(()=>protectors.delete(el), 900); // release 0.9s sau lần gõ cuối
+    }
+    document.addEventListener('input', markTyping, true);
+    // Monkey-patch Element.prototype.value setter? Too invasive.
+    // Instead, observe all programmatic value sets via attribute change + focus check:
+    const origSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    Object.defineProperty(HTMLInputElement.prototype, 'value', {
+      set: function(v){
+        // If this input is currently protected (user đang gõ), ignore identical set to avoid caret jump
+        if (document.activeElement === this && protectors.has(this)) {
+          if (String(this.value) === String(v)) return; // skip no-op
+        }
+        return origSet.call(this, v);
+      }
+    });
+
+    // 2) Center focused input to avoid keyboard che đè & mất focus
+    function scrollIntoViewCentered(el){
+      try{
+        const r = el.getBoundingClientRect();
+        if (r.top < 80 || r.bottom > (window.innerHeight - 120)) {
+          el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+      }catch{}
+    }
+    document.addEventListener('focus', (e)=>{
+      const el = e.target;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+        setTimeout(()=>scrollIntoViewCentered(el), 220);
+      }
+    }, true);
+
+    // 3) Prevent iOS auto-zoom by ensuring font-size >= 16px (already in CSS), and lock viewport fit
+    try {
+      const vp = document.querySelector('meta[name="viewport"]');
+      if (vp && !/viewport-fit=cover/.test(vp.content)) {
+        vp.content = vp.content + ', viewport-fit=cover';
+      }
+    } catch {}
+
+  })();
+</script>
+
+
+<!-- === Inject brand pill + tab icons; keep logic intact === -->
+<script id="wow-brand-js">
+(function(){
+  // 1) Brand pill
+  try{
+    const topbar = document.querySelector('.topbar') || document.querySelector('header');
+    if (topbar && !topbar.querySelector('.brand-pill')){
+      const pill = document.createElement('div');
+      pill.className = 'brand-pill';
+      pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h18M12 3v18" stroke="#0b1220" stroke-opacity=".25" stroke-width="3"/><circle cx="12" cy="12" r="7" fill="white" fill-opacity=".9"/></svg><span>FX • Ledger</span>';
+      topbar.prepend(pill);
+    }
+  }catch{}
+
+  // 2) Icons per tab by text content
+  const ICONS = { "IDR":"Rp", "VI":"₫", "VND":"₫", "THB":"฿", "ABA":"A" };
+  document.querySelectorAll('.tab').forEach(el => {
+    const text = (el.textContent || '').trim().toUpperCase();
+    const key = ICONS[text] ? text : (["IDR","VI","VND","THB","ABA"].find(k => text.includes(k)) || "");
+    if (key && !el.dataset.ico){
+      el.dataset.ico = ICONS[key];
+    }
+  });
+
+  // 3) Add timeline class to known history blocks (purely cosmetic)
+  document.querySelectorAll('.history, .historyVI, .historyTHB, .historyABA').forEach(h => {
+    h.classList.add('timeline');
+  });
+})();
+</script>
+
+
+<!-- === ULTRA WOW JS helpers (decorative only) === -->
+<script id="wow-ultra-js">
+(function(){
+  // 1) Ripple effect on buttons (purely visual)
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.btn');
+    if(!btn) return;
+    // Create ripple
+    const r = btn.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    const rip = document.createElement('span');
+    rip.className = 'ripple';
+    rip.style.left = (x-10)+'px';
+    rip.style.top = (y-10)+'px';
+    btn.appendChild(rip);
+    setTimeout(()=>rip.remove(), 650);
+  }, true);
+
+  // 2) Add icons to typical buttons by their text content (non-invasive)
+  const MAP = [
+    { text: "Duyệt", icon: "✓" },
+    { text: "Xóa", icon: "🗑" },
+    { text: "Xoá", icon: "🗑" },
+    { text: "Chỉnh sửa", icon: "✎" },
+    { text: "Đăng xuất", icon: "↩" },
+  ];
+  function decorate(){
+    document.querySelectorAll('.btn').forEach(b=>{
+      const t = (b.textContent||"").trim();
+      const m = MAP.find(x=> t === x.text);
+      if(m && !b.dataset.icon){ b.dataset.icon = m.icon; }
+    });
+  }
+  decorate();
+  const mo = new MutationObserver(decorate);
+  mo.observe(document.body, { childList:true, subtree:true, characterData:true });
+
+  // 3) Vibrate subtly on destructive action on mobile (UI feedback; safe & optional)
+  document.addEventListener('click', function(e){
+    const danger = e.target.closest('.btn.danger, .delete-btn');
+    if(danger && navigator.vibrate){ navigator.vibrate(10); }
+  }, true);
+})();
+</script>
+
+
+<script id="wow-patch-brand-tabs">
+(function(){
+  // 1) Rename brand pill text to "Calculator"
+  try{
+    var pill = document.querySelector('.brand-pill');
+    if (pill){
+      pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h16v16H4z" stroke="#0b1220" stroke-opacity=".25" stroke-width="2"/><path d="M7 8h10M7 12h10M7 16h6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg><span>Calculator</span>';
+    }
+  }catch(e){}
+  // 2) Remove dataset icons from tabs (cleanup)
+  document.querySelectorAll('.tab').forEach(function(el){
+    if (el.hasAttribute('data-ico')) el.removeAttribute('data-ico');
+  });
+})();
+</script>
+
+
+<script id="wow-strong-focus-lock">
+(function(){
+  // Detect "user is intentionally changing focus"
+  let userPointer = false, pointerTimer = 0;
+  function allowBlurFor(){ userPointer = true; clearTimeout(pointerTimer); pointerTimer = setTimeout(()=>userPointer=false, 450); }
+  document.addEventListener('mousedown', allowBlurFor, true);
+  document.addEventListener('touchstart', allowBlurFor, {passive:true, capture:true});
+  document.addEventListener('keydown', (e)=>{ if (e.key === 'Tab' || e.key === 'Escape') allowBlurFor(); }, true);
+
+  // Track current editable and caret
+  let current = null;
+  let caret = null; // [start,end] for inputs, Range for contenteditable
+
+  function isEditable(el){
+    if (!el) return false;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return true;
+    if (el.isContentEditable) return true;
+    return false;
+  }
+
+  function saveCaret(){
+    if (!current) return;
+    if (current.tagName === 'INPUT' || current.tagName === 'TEXTAREA'){
+      try { caret = [current.selectionStart, current.selectionEnd]; } catch {}
+    } else if (current.isContentEditable){
+      try {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount) caret = sel.getRangeAt(0).cloneRange();
+      } catch {}
+    }
+  }
+
+  function restoreCaret(el){
+    try{
+      if (!el) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'){
+        el.focus({preventScroll:true});
+        if (caret && typeof caret[0] === 'number' && typeof el.setSelectionRange === 'function'){
+          el.setSelectionRange(caret[0], caret[1] ?? caret[0]);
+        }
+      } else if (el.isContentEditable){
+        el.focus({preventScroll:true});
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        if (caret && caret.cloneRange){
+          // Try existing saved range
+          try { sel.addRange(caret.cloneRange()); return; } catch {}
+        }
+        // Fallback: place at end
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.addRange(range);
+      }
+    }catch{}
+  }
+
+  document.addEventListener('focusin', (e)=>{
+    if (!isEditable(e.target)) return;
+    current = e.target;
+    saveCaret();
+  }, true);
+
+  document.addEventListener('selectionchange', ()=>{
+    if (document.activeElement === current) saveCaret();
+  });
+
+  document.addEventListener('compositionstart', ()=>{ if(current) current.dataset.typing = "1"; }, true);
+  document.addEventListener('compositionend',   ()=>{ if(current) delete current.dataset.typing; }, true);
+
+  // If blur happens without user intent, immediately restore focus
+  document.addEventListener('blur', (e)=>{
+    const el = e.target;
+    if (!isEditable(el)) return;
+    // If user clicked elsewhere or tabbed, allow blur
+    if (userPointer) return;
+    // If tab lost visibility (e.g., switch apps), don't fight it
+    if (document.visibilityState === 'hidden') return;
+
+    // Refocus shortly after potential DOM diff
+    setTimeout(()=>{
+      if (document.activeElement && document.activeElement !== document.body) return;
+      // Find equivalent element
+      let target = el.isConnected ? el : (el.id && document.getElementById(el.id)) ||
+                  (el.name && document.querySelector(`[name="${el.name}"]`)) ||
+                  null;
+      if (!target && current) target = current.isConnected ? current : target;
+      if (target) restoreCaret(target);
+    }, 60);
+  }, true);
+
+  // Observe DOM mutations; if current editable disappears due to re-render, restore
+  const mo = new MutationObserver(()=>{
+    if (!current || userPointer) return;
+    if (!current.isConnected || document.activeElement === document.body){
+      let target = current.isConnected ? current : (current.id && document.getElementById(current.id)) ||
+                  (current.name && document.querySelector(`[name="${current.name}"]`)) || null;
+      if (target) restoreCaret(target);
+    }
+  });
+  mo.observe(document.body, { childList:true, subtree:true });
+})();
+</script>
+
+
+<script id="wow-strong-focus-lock-v2">
+(function(){
+  // ----- user intent detector -----
+  let userIntent = false, intentTimer = 0;
+  function markIntent(){ userIntent = true; clearTimeout(intentTimer); intentTimer = setTimeout(()=>userIntent=false, 500); }
+  document.addEventListener('mousedown', markIntent, true);
+  document.addEventListener('touchstart', markIntent, {passive:true, capture:true});
+  document.addEventListener('keydown', (e)=>{ if (e.key === 'Tab' || e.key === 'Escape') markIntent(); }, true);
+
+  // ----- track focused element and caret -----
+  let current = null;
+  let caret = null;
+
+  function isEditable(el){
+    return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+  }
+
+  function saveCaret(){
+    if (!current) return;
+    if (current.tagName === 'INPUT' || current.tagName === 'TEXTAREA'){
+      try { caret = [current.selectionStart, current.selectionEnd]; } catch {}
+    } else if (current.isContentEditable){
+      try { const sel = getSelection(); if (sel && sel.rangeCount) caret = sel.getRangeAt(0).cloneRange(); } catch {}
+    }
+  }
+
+  function restoreCaret(el){
+    if (!el) return;
+    try{
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'){
+        el.focus({preventScroll:true});
+        if (caret && typeof caret[0] === 'number' && typeof el.setSelectionRange === 'function'){
+          el.setSelectionRange(caret[0], caret[1] ?? caret[0]);
+        }
+      } else if (el.isContentEditable){
+        el.focus({preventScroll:true});
+        const sel = getSelection();
+        sel.removeAllRanges();
+        if (caret && caret.cloneRange){ try{ sel.addRange(caret.cloneRange()); return; }catch{} }
+        const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); sel.addRange(r);
+      }
+    }catch{}
+  }
+
+  // fingerprint via path for locating equivalent element after rerender
+  function pathFor(el){
+    if (!el) return "";
+    if (el.id) return `#${CSS.escape(el.id)}`;
+    if (el.name) return `${el.tagName.toLowerCase()}[name="${el.name}"]`;
+    // build nth-child path up to the nearest form/section/container
+    let node = el, parts = [];
+    let depth = 0;
+    while (node && node !== document.body && depth < 6){
+      let idx = 1, sib = node;
+      while (sib = sib.previousElementSibling){ if (sib.tagName === node.tagName) idx++; }
+      parts.unshift(`${node.tagName.toLowerCase()}:nth-of-type(${idx})`);
+      node = node.parentElement;
+      depth++;
+      if (node && (node.tagName === 'FORM' || node.classList.contains('container') || node.classList.contains('card'))) break;
+    }
+    return parts.length ? parts.join(" > ") : "";
+  }
+
+  let focusPath = "";
+  document.addEventListener('focusin', (e)=>{
+    if (!isEditable(e.target)) return;
+    current = e.target;
+    focusPath = pathFor(current);
+    saveCaret();
+  }, true);
+
+  document.addEventListener('selectionchange', ()=>{
+    if (document.activeElement === current) saveCaret();
+  });
+
+  // preserve caret across programmatic value sets while typing
+  try{
+    const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+    const origSet = desc && desc.set;
+    if (origSet){
+      Object.defineProperty(HTMLInputElement.prototype, 'value', {
+        set: function(v){
+          const active = (document.activeElement === this);
+          let hadCaret = null;
+          if (active){
+            try{ hadCaret = [this.selectionStart, this.selectionEnd]; }catch{}
+          }
+          const out = origSet.call(this, v);
+          if (active && hadCaret && typeof this.setSelectionRange === 'function'){
+            try{ this.setSelectionRange(hadCaret[0], hadCaret[1] ?? hadCaret[0]); }catch{}
+          }
+          return out;
+        }
+      });
+    }
+  }catch{}
+
+  // resist unwanted blur
+  document.addEventListener('blur', (e)=>{
+    const el = e.target;
+    if (!isEditable(el)) return;
+    if (userIntent) return;
+    if (document.visibilityState === 'hidden') return;
+
+    setTimeout(()=>{
+      if (document.activeElement && document.activeElement !== document.body) return;
+      let target = (el.isConnected ? el : null);
+      if (!target && focusPath){
+        try{ target = document.querySelector(focusPath); }catch{}
+      }
+      if (!target && el.id) target = document.getElementById(el.id);
+      if (!target && el.name) target = document.querySelector(`[name="${el.name}"]`);
+      if (target) restoreCaret(target);
+    }, 120);
+  }, true);
+
+  const mo = new MutationObserver(()=>{
+    if (!current || userIntent) return;
+    if (!current.isConnected || document.activeElement === document.body){
+      let target = current.isConnected ? current : null;
+      if (!target && focusPath){
+        try{ target = document.querySelector(focusPath); }catch{}
+      }
+      if (!target && current.id) target = document.getElementById(current.id);
+      if (!target && current.name) target = document.querySelector(`[name="${current.name}"]`);
+      if (target) restoreCaret(target);
+    }
+  });
+  mo.observe(document.body, { childList:true, subtree:true });
+})();
+</script>
+
+
+<script id="wow-rounding-safe-js">
+(function(){
+  // Only add a class to the element that *only* contains the hint text.
+  const SELECTORS = ['.small', '.muted', 'label', 'p', 'span'];
+  const KEY = 'Làm tròn:';
+  function looksLikeHint(el){
+    if (!el) return false;
+    if (el.childElementCount > 1) return false;     // avoid big containers
+    const t = (el.textContent || '').trim();
+    if (!t.includes(KEY)) return false;
+    if (t.length > 40) return false;                // too long -> likely container, skip
+    return true;
+  }
+  function enhance(){
+    document.querySelectorAll(SELECTORS.join(',')).forEach(el => {
+      if (el.classList && (el.classList.contains('rounding-hint') || el.classList.contains('rounding-hint-line'))) return;
+      if (looksLikeHint(el)){
+        el.classList.add('rounding-hint-line');
+        // If line starts with 📱, keep it; else prepend a small emoji box for affordance
+        const txt = (el.textContent || '').trim();
+        if (!/^📱/.test(txt)){
+          el.innerHTML = '<span class="emoji">📱</span> ' + el.innerHTML;
+        }
+      }
+    });
+  }
+  enhance();
+  const mo = new MutationObserver((ms)=>{
+    let need = false;
+    for (const m of ms){
+      if (m.addedNodes && m.addedNodes.length) { need = true; break; }
+    }
+    if (need) requestAnimationFrame(enhance);
+  });
+  mo.observe(document.body, { childList:true, subtree:true });
+})();
+</script>
+
 </body>
 </html>
