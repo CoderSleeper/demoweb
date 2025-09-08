@@ -1006,10 +1006,7 @@
       const x = Number(n);
       if(!Number.isFinite(x)) return '';
       const q = Math.round((x + Number.EPSILON) * 100) / 100;
-      const isInt = Math.abs(q - Math.round(q)) < 1e-9;
-      return isInt
-        ? Math.round(q).toLocaleString('en-US', { maximumFractionDigits: 0 })
-        : q.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return q.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
     }
     // THB: formatter độc lập (không phụ thuộc mode ABA)
     function formatUSDT_THB(n){
@@ -1046,7 +1043,7 @@
       const idrAbaRaw=document.getElementById('idr_aba_input').value.trim();
       let log='', today=getToday();
       if(!rateU && !rateABA){document.getElementById("log").innerText="Không tìm thấy tỷ giá.";return;}
-      if(usdtVal){const usdt=parseInput(usdtVal);if(!isNaN(usdt)&&rateU){const fee=usdt<5000?7:0;const total=usdt+fee;const idr=total*rateU;log+=`${today}\nUSDT: ${formatCurrencyVN(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`;}}
+      if(usdtVal){const usdt=parseInput(usdtVal);if(!isNaN(usdt)&&rateU){const fee=usdt<5000?7:0;const total=usdt+fee;const idr=total*rateU;log+=`${today}\nUSDT: ${formatSmartDecimal(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`;}}
       if(abaVal){const aba=parseInput(abaVal);if(!isNaN(aba)&&rateABA){const fee=aba<5000?10:0;const total=aba+fee;const idr=total*rateABA;log+=`${today}\nABA: ${formatCurrencyVN(aba)}${fee>0?` + ${fee} (fee)`:''} @ ${rateABA}\nIDR: ${formatIDR(idr)}\n\n`;}}
       if(idrUsdtRaw && !isNaN(parseFloat(idrUsdtRaw)) && rateU){const idr=parseFloat(idrUsdtRaw);const usdt=idr/rateU;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateU}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;}
       if(idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA){const idr=parseFloat(idrAbaRaw);const aba=idr/rateABA;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${Math.round(aba).toLocaleString('en-US')}\n\n`;}
@@ -1069,7 +1066,7 @@
       let log='', today=getToday();
       if(!rate){document.getElementById("logVI").innerText="Không tìm thấy tỷ giá.";return;}
       if(viVal){const vnd=parseInput(viVal);if(!isNaN(vnd)){const usdt=vnd/rate;log+=`${today}\nVND: ${formatVNDInt(vnd)} @ ${formatVNDInt(rate)}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;}}
-      if(uVal){const usdt=parseInput(uVal);if(!isNaN(usdt)){const vnd=usdt*rate;log+=`${today}\nUSDT: ${formatCurrencyVN(usdt)} @ ${formatVNDInt(rate)}\nVND: ${formatVNDInt(vnd)}\n\n`;}}
+      if(uVal){const usdt=parseInput(uVal);if(!isNaN(usdt)){const vnd=usdt*rate;log+=`${today}\nUSDT: ${formatSmartDecimal(usdt)} @ ${formatVNDInt(rate)}\nVND: ${formatVNDInt(vnd)}\n\n`;}}
       document.getElementById("logVI").innerText=log||"Không có dữ liệu.";
     }
     function copyFormVI(){ const t=document.getElementById("logVI").innerText; if(t.trim()) copyTextSafe(t); }
