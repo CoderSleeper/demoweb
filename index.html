@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Caculator</title>
+  <title>Calculator</title>
   <style>
     [hidden]{display:none!important}
     body{font-family:Arial,sans-serif;margin:20px;background:#f0f8ff;color:#222}
@@ -702,6 +702,104 @@
   }
 </style>
 
+
+
+<style id="history-mobile-fix">
+  /* Fix history cards: keep Duyệt/Xóa visible, no horizontal drag needed */
+  .history, .historyVI, .historyTHB, .historyABA,
+  #doneList, #doneListVI, #doneListTHB, #doneListABA{
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .history-entry{
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .entry-header{
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .entry-header input[type="text"]{
+    flex: 1 1 150px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .entry-header span{
+    flex: 1 1 100% !important;
+    order: 4 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .entry-header button{
+    flex: 0 0 auto !important;
+    min-height: 36px !important;
+    padding: 8px 12px !important;
+    white-space: nowrap !important;
+    margin-left: 0 !important;
+  }
+
+  .entry-content{
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .entry-content div{
+    max-width: 100% !important;
+    align-items: flex-start !important;
+  }
+
+  .entry-content span{
+    min-width: 0 !important;
+    max-width: calc(100% - 30px) !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    line-height: 1.45 !important;
+  }
+
+  @media (max-width: 520px){
+    .entry-header{
+      display: grid !important;
+      grid-template-columns: minmax(0,1fr) auto auto !important;
+      grid-template-areas:
+        "name done del"
+        "date date date" !important;
+    }
+    .entry-header input[type="text"]{ grid-area: name !important; width: 100% !important; }
+    .entry-header span{ grid-area: date !important; }
+    .entry-header .done-btn, .entry-header .edit-btn{ grid-area: done !important; }
+    .entry-header .delete-btn{ grid-area: del !important; }
+  }
+</style>
+
+
+<style id="idr-pgw-css">
+  .idr-log-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .mini-log-title{font-size:14px;margin:0 0 6px;color:#bfdbfe!important;border:none!important;padding:0!important}
+  .idr-log-grid .log{min-height:140px}
+  @media (max-width:720px){.idr-log-grid{grid-template-columns:1fr}}
+</style>
+<style id="idr-select-css">
+  .mini-log-title{display:flex;align-items:center;gap:8px;margin:10px 0 8px;}
+  .log-pick{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;color:#cfe3ff;font-weight:800;}
+  .log-pick input[type="checkbox"]{width:18px;height:18px;min-width:18px;appearance:auto;}
+</style>
+
 </head>
 <body>
   <div id="toast" aria-live="polite"></div>
@@ -735,24 +833,36 @@
   <div id="pageIDR" style="margin-top:60px;" hidden>
     <div id="app" hidden style="display:none">
       <div class="container">
-        <h2>Caculator — Trang "I"</h2>
+        <h2>Calculator — Trang "I"</h2>
         <label>Tỷ giá:</label>
         <table>
           <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
           <tbody>
-            <tr><td>IDR / U</td><td><input type="number" id="rateU" placeholder="U" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
-            <tr><td>IDR / ABA</td><td><input type="number" id="rateABA" placeholder="ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR / U</td><td><input type="text" id="rateU" placeholder="U" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR / ABA</td><td><input type="text" id="rateABA" placeholder="ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR PGW / U</td><td><input type="text" id="rateUPGW" placeholder="U PGW" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR PGW / ABA</td><td><input type="text" id="rateABAPGW" placeholder="ABA PGW" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
           </tbody>
         </table>
         <label>USDT:</label><input type="text" id="usdt_input" placeholder="VD: 1k, 1.2k, 1350.5" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
         <label>ABA:</label><input type="text" id="aba_input" placeholder="VD: 2k, 5000" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <label>IDR ➝ USDT:</label><input type="number" id="idr_usdt_input" placeholder="Nhập IDR đổi USDT" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <label>IDR ➝ ABA:</label><input type="number" id="idr_aba_input" placeholder="Nhập IDR đổi ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label>IDR ➝ USDT:</label><input type="text" id="idr_usdt_input" placeholder="Nhập IDR đổi USDT" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label>IDR ➝ ABA:</label><input type="text" id="idr_aba_input" placeholder="Nhập IDR đổi ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
         <div class="btn-container">
           <button class="btn" onclick="copyForm()">Copy Form</button>
+          <button class="btn" onclick="copyExcelIDR()">Copy Excel</button>
           <button class="btn" onclick="addToHistory()">Add vào lịch sử</button>
         </div>
-        <div class="log" id="log"></div>
+        <div class="idr-log-grid">
+          <div>
+            <h3 class="mini-log-title"><label class="log-pick"><input type="checkbox" id="pickNormalIDR" checked> IDR thường</label></h3>
+            <div class="log" id="log"></div>
+          </div>
+          <div>
+            <h3 class="mini-log-title"><label class="log-pick"><input type="checkbox" id="pickPGWIDR"> IDR PGW</label></h3>
+            <div class="log" id="logPGW"></div>
+          </div>
+        </div>
       </div>
       <div class="container">
         <h3>Lịch sử <button class="btn btn-red" style="float:right" onclick="clearHistory()">Xóa toàn bộ lịch sử</button></h3>
@@ -767,18 +877,19 @@
   <div id="pageVI" style="margin-top:60px;" hidden>
     <div id="appVI" hidden style="display:none">
       <div class="container">
-        <h2>Caculator — Trang "VI"</h2>
+        <h2>Calculator — Trang "VI"</h2>
         <label>Tỷ giá VI:</label>
         <table>
           <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
           <tbody>
-            <tr><td>VND / USDT</td><td><input type="number" id="rateVI" placeholder="V" oninput="calculateVI()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>VND / USDT</td><td><input type="text" id="rateVI" placeholder="V" oninput="calculateVI()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
           </tbody>
         </table>
         <label>Vi (VND ➝ USDT):</label><input type="text" id="vi_input" placeholder="VD: 1B, 5m, 2,5m" oninput="calculateVI()" autocomplete="off" autocapitalize="off" spellcheck="false">
         <label>U (USDT ➝ VND):</label><input type="text" id="u_input_vi" placeholder="VD: 100, 1.2k, 3m" oninput="calculateVI()" autocomplete="off" autocapitalize="off" spellcheck="false">
         <div class="btn-container">
           <button class="btn" onclick="copyFormVI()">Copy Form</button>
+          <button class="btn" onclick="copyExcel('logVI')">Copy Excel</button>
           <button class="btn" onclick="addToHistoryVI()">Add vào lịch sử</button>
         </div>
         <div class="log" id="logVI"></div>
@@ -796,12 +907,12 @@
   <div id="pageTHB" style="margin-top:60px;" hidden>
     <div id="appTHB" hidden style="display:none">
       <div class="container">
-        <h2>Caculator — Trang "Tê"</h2>
+        <h2>Calculator — Trang "Tê"</h2>
         <label>Tỷ giá THB:</label>
         <table>
           <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
           <tbody>
-            <tr><td>THB / USDT</td><td><input type="number" id="rateTHB" placeholder="VD: 33.25" step="0.01" oninput="calculateTHB()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>THB / USDT</td><td><input type="text" id="rateTHB" placeholder="VD: 33.25" step="0.01" oninput="calculateTHB()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
           </tbody>
         </table>
         <label>Tê (THB ➝ USDT):</label>
@@ -810,6 +921,7 @@
         <input type="text" id="u_input_thb" placeholder="VD: 100, 2.5 (giữ số thập phân)" oninput="calculateTHB()" autocomplete="off" autocapitalize="off" spellcheck="false">
         <div class="btn-container">
           <button class="btn" onclick="copyFormTHB()">Copy Form</button>
+          <button class="btn" onclick="copyExcel('logTHB')">Copy Excel</button>
           <button class="btn" onclick="addToHistoryTHB()">Add vào lịch sử</button>
         </div>
         <div class="log" id="logTHB"></div>
@@ -827,7 +939,7 @@
   <div id="pageABA" style="margin-top:60px;" hidden>
     <div id="appABA" hidden style="display:none">
       <div class="container">
-        <h2>Caculator — Trang "ABA"</h2>
+        <h2>Calculator — Trang "ABA"</h2>
         <label>Tỷ giá ABA:</label>
         <table>
           <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
@@ -850,6 +962,7 @@
         <!-- Bảng 1: USDT -> ABA -->
         <div class="btn-container">
           <button class="btn" onclick="copyLog('logABA_u2a')">Copy form USDT→ABA</button>
+          <button class="btn" onclick="copyExcel('logABA_u2a')">Copy Excel</button>
           <button class="btn" onclick="addToHistoryABA_U2A()">Add vào lịch sử (USDT→ABA)</button>
         </div>
         <div class="log" id="logABA_u2a"></div>
@@ -857,6 +970,7 @@
         <!-- Bảng 2: ABA -> USDT -->
         <div class="btn-container">
           <button class="btn" onclick="copyLog('logABA_a2u')">Copy form ABA→USDT</button>
+          <button class="btn" onclick="copyExcel('logABA_a2u')">Copy Excel</button>
           <button class="btn" onclick="addToHistoryABA_A2U()">Add vào lịch sử (ABA→USDT)</button>
         </div>
         <div class="log" id="logABA_a2u"></div>
@@ -885,7 +999,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       try{ setupABRoundToggle(); }catch(e){}
       const sel = [
-        '#rateU','#rateABA','#usdt_input','#aba_input','#idr_usdt_input','#idr_aba_input',
+        '#rateU','#rateABA','#rateUPGW','#rateABAPGW','#usdt_input','#aba_input','#idr_usdt_input','#idr_aba_input',
         '#rateVI','#vi_input','#u_input_vi',
         '#rateTHB','#thb_input','#u_input_thb',
         '#rateABA4','#amountABA',
@@ -916,17 +1030,61 @@
 
     // parseInput dùng chung
     function parseInput(value){
-      if(value===undefined||value===null) return NaN;
-      let val=String(value).trim(); if(!val) return NaN;
-      let mul=1; const suf=val.match(/([kmbKMB])\s*$/);
-      if(suf){ const c=suf[1].toLowerCase(); if(c==='k') mul=1e3; else if(c==='m') mul=1e6; else if(c==='b') mul=1e9; val=val.replace(/([kmbKMB])\s*$/,'').trim(); }
-      let s=val.replace(/\s/g,'');
-      if(s.includes('.') && s.includes(',')){ s=s.replace(/\./g,'').replace(',', '.'); }
-      else if(s.includes(',')){ const p=s.split(','); if(p.length===2 && p[1].length<=2) s=p[0]+'.'+p[1]; else s=s.replace(/,/g,''); }
-      else if(s.includes('.')){ const p=s.split('.'); if(!(p.length===2 && p[1].length<=2)) s=s.replace(/\./g,''); }
-      const num=parseFloat(s); if(isNaN(num)) return NaN;
-      return num*mul;
+  if(value===undefined||value===null) return NaN;
+  let val = String(value).trim(); 
+  if(!val) return NaN;
+
+  // handle suffix k/m/b
+  let mul = 1;
+  const suf = val.match(/([kmbKMB])\s*$/);
+  if(suf){
+    const c = suf[1].toLowerCase();
+    if(c==='k') mul=1e3; else if(c==='m') mul=1e6; else if(c==='b') mul=1e9;
+    val = val.replace(/([kmbKMB])\s*$/,'').trim();
+  }
+
+  // remove spaces
+  let s = val.replace(/\s/g,'');
+
+  const hasDot   = s.includes('.');
+  const hasComma = s.includes(',');
+
+  if(hasDot && hasComma){
+    // choose the last symbol as decimal
+    const lastDot = s.lastIndexOf('.');
+    const lastComma = s.lastIndexOf(',');
+    if(lastDot > lastComma){
+      // US style: comma thousands, dot decimal
+      s = s.replace(/,/g,'');
+    }else{
+      // EU style: dot thousands, comma decimal
+      s = s.replace(/\./g,'').replace(',', '.');
     }
+  }else if(hasComma){
+    const p = s.split(',');
+    if(p.length===2 && p[1].length<=2){
+      s = p[0] + '.' + p[1];
+    }else{
+      s = s.replace(/,/g,'');
+    }
+  }else if(hasDot){
+    const p = s.split('.');
+    if(!(p.length===2 && p[1].length<=2)){
+      s = s.replace(/\./g,'');
+    }
+  }
+
+  // keep digits, one minus and one dot
+  s = s.replace(/[^0-9.\-]/g,'');
+  const parts = s.split('.');
+  if(parts.length>2){
+    const dec = parts.pop();
+    s = parts.join('') + '.' + dec;
+  }
+
+  const num = Number(s);
+  return Number.isFinite(num) ? num * mul : NaN;
+}
 
     // === ABA rounding toggle ===
     function labelForRoundModeABA(mode){
@@ -1006,7 +1164,10 @@
       const x = Number(n);
       if(!Number.isFinite(x)) return '';
       const q = Math.round((x + Number.EPSILON) * 100) / 100;
-      return q.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+      const isInt = Math.abs(q - Math.round(q)) < 1e-9;
+      return isInt
+        ? Math.round(q).toLocaleString('en-US', { maximumFractionDigits: 0 })
+        : q.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
     // THB: formatter độc lập (không phụ thuộc mode ABA)
     function formatUSDT_THB(n){
@@ -1034,24 +1195,69 @@
     function getCurrentTime(){const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 
     /* ========= IDR ========= */
-    function getRates(){const rateU=parseFloat(document.getElementById('rateU').value);const rateABA=parseFloat(document.getElementById('rateABA').value);return{rateU,rateABA};}
-    function calculate(){
-      const {rateU,rateABA}=getRates();
+    function getRates(){
+      return {
+        rateU: parseInput(document.getElementById('rateU').value),
+        rateABA: parseInput(document.getElementById('rateABA').value),
+        rateUPGW: parseInput(document.getElementById('rateUPGW').value),
+        rateABAPGW: parseInput(document.getElementById('rateABAPGW').value)
+      };
+    }
+    function buildIDRLog(rateU, rateABA){
       const usdtVal=document.getElementById('usdt_input').value;
       const abaVal=document.getElementById('aba_input').value;
       const idrUsdtRaw=document.getElementById('idr_usdt_input').value.trim();
       const idrAbaRaw=document.getElementById('idr_aba_input').value.trim();
       let log='', today=getToday();
-      if(!rateU && !rateABA){document.getElementById("log").innerText="Không tìm thấy tỷ giá.";return;}
-      if(usdtVal){const usdt=parseInput(usdtVal);if(!isNaN(usdt)&&rateU){const fee=usdt<5000?7:0;const total=usdt+fee;const idr=total*rateU;log+=`${today}\nUSDT: ${formatSmartDecimal(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}\nIDR: ${formatIDR(idr)}\n\n`;}}
-      if(abaVal){const aba=parseInput(abaVal);if(!isNaN(aba)&&rateABA){const fee=aba<5000?10:0;const total=aba+fee;const idr=total*rateABA;log+=`${today}\nABA: ${formatCurrencyVN(aba)}${fee>0?` + ${fee} (fee)`:''} @ ${rateABA}\nIDR: ${formatIDR(idr)}\n\n`;}}
-      if(idrUsdtRaw && !isNaN(parseFloat(idrUsdtRaw)) && rateU){const idr=parseFloat(idrUsdtRaw);const usdt=idr/rateU;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateU}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;}
-      if(idrAbaRaw && !isNaN(parseFloat(idrAbaRaw)) && rateABA){const idr=parseFloat(idrAbaRaw);const aba=idr/rateABA;log+=`${today}:\nIDR: ${formatIDR(idr)} @ ${rateABA}\nABA: ${Math.round(aba).toLocaleString('en-US')}\n\n`;}
-      document.getElementById("log").innerText=log||"Không có dữ liệu.";
+      if(!rateU && !rateABA) return 'Không tìm thấy tỷ giá.';
+      if(usdtVal){const usdt=parseInput(usdtVal);if(!isNaN(usdt)&&rateU){const fee=usdt<5000?7:0;const total=usdt+fee;const idr=total*rateU;log+=`${today}
+USDT: ${formatSmartDecimal(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}
+IDR: ${formatIDR(idr)}
+
+`;}}
+      if(abaVal){const aba=parseInput(abaVal);if(!isNaN(aba)&&rateABA){const fee=aba<5000?10:0;const total=aba+fee;const idr=total*rateABA;log+=`${today}
+ABA: ${formatCurrencyVN(aba)}${fee>0?` + ${fee} (fee)`:''} @ ${rateABA}
+IDR: ${formatIDR(idr)}
+
+`;}}
+      if(idrUsdtRaw && !isNaN(parseInput(idrUsdtRaw)) && rateU){const idr=parseInput(idrUsdtRaw);const usdt=idr/rateU;log+=`${today}:
+IDR: ${formatIDR(idr)} @ ${rateU}
+USDT: ${formatSmartDecimal(usdt)}
+
+`;}
+      if(idrAbaRaw && !isNaN(parseInput(idrAbaRaw)) && rateABA){const idr=parseInput(idrAbaRaw);const aba=idr/rateABA;log+=`${today}:
+IDR: ${formatIDR(idr)} @ ${rateABA}
+ABA: ${Math.round(aba).toLocaleString('en-US')}
+
+`;}
+      return log||'Không có dữ liệu.';
+    }
+    function calculate(){
+      const {rateU,rateABA,rateUPGW,rateABAPGW}=getRates();
+      document.getElementById('log').innerText = buildIDRLog(rateU, rateABA);
+      const pgwLog = buildIDRLog(rateUPGW, rateABAPGW);
+      document.getElementById('logPGW').innerText = (!rateUPGW && !rateABAPGW) ? 'Nhập tỷ giá PGW để xem kết quả.' : pgwLog;
+    }
+    function isGoodIDRLog(t){
+      const bad = new Set(['Không có dữ liệu.','Không tìm thấy tỷ giá.','Nhập tỷ giá PGW để xem kết quả.']);
+      const v = (t || '').trim();
+      return v && !bad.has(v);
+    }
+    function getSelectedIDRLogs(){
+      const logs = [];
+      const normal = (document.getElementById('log')?.innerText || '').trim();
+      const pgw = (document.getElementById('logPGW')?.innerText || '').trim();
+      if(document.getElementById('pickNormalIDR')?.checked && isGoodIDRLog(normal)) logs.push(normal);
+      if(document.getElementById('pickPGWIDR')?.checked && isGoodIDRLog(pgw)) logs.push(pgw);
+      return logs;
+    }
+    function getCombinedIDRLog(){
+      return getSelectedIDRLogs().join('\n\n');
     }
     function copyForm(){
-      const t=document.getElementById("log").innerText;
+      const t=getCombinedIDRLog();
       if(t.trim()) copyTextSafe(t);
+      else showToast('Hãy tick ô cần copy');
     }
 
     function addToHistory(){
@@ -1060,7 +1266,7 @@
 
     /* ========= VI ========= */
     function calculateVI(){
-      const rate=parseFloat(document.getElementById('rateVI').value);
+      const rate=parseInput(document.getElementById('rateVI').value);
       const viVal=document.getElementById('vi_input').value;
       const uVal=document.getElementById('u_input_vi').value;
       let log='', today=getToday();
@@ -1073,7 +1279,7 @@
 
     /* ========= THB ========= */
     function calculateTHB(){
-      const rate = parseFloat(document.getElementById('rateTHB').value);
+      const rate = parseInput(document.getElementById('rateTHB').value);
       const thbVal = document.getElementById('thb_input').value;
       const uVal   = document.getElementById('u_input_thb').value;
       let log='', today=getToday();
@@ -1100,6 +1306,7 @@
     function calculateABA(){
       const rateStr = document.getElementById('rateABA4').value?.trim();
       const amtStr  = document.getElementById('amountABA').value?.trim();
+      // ABA rate must keep decimals like 0.993. Do NOT use parseInput here because parseInput treats 0.993 as thousands-format and turns it into 993.
       const rate = parseRateABA(rateStr);
       const amt  = parseAmountABA(amtStr);
       const today = getToday();
@@ -1116,6 +1323,69 @@
       document.getElementById("logABA_a2u").innerText = log2 || "";
     }
     function copyLog(id){ const t=document.getElementById(id).innerText; if(t.trim()) copyTextSafe(t); }
+
+    // Copy ngang cho Excel/Google Sheet.
+    // Mỗi phép tính thành 1 dòng TSV: KẾT QUẢ | TỶ GIÁ | SỐ LƯỢNG GỐC
+    // Ví dụ log:
+    // 13/07
+    // USDT: 10,000 @ 18150
+    // IDR: 181,500,000
+    // => dán vào Excel thành: 181,500,000 | 18,150 | 10,000
+    function formatExcelCellValue(raw){
+      const txt = String(raw || '').trim();
+      if(!txt) return '';
+      const n = parseInput(txt);
+      if(!Number.isFinite(n)) return txt;
+      const hasDecimal = Math.abs(n - Math.round(n)) > 1e-9;
+      return n.toLocaleString('en-US', {
+        minimumFractionDigits: hasDecimal ? 2 : 0,
+        maximumFractionDigits: hasDecimal ? 2 : 0
+      });
+    }
+    function logToExcelRows(text){
+      const rows = [];
+      const blocks = String(text || '')
+        .split(/\n\s*\n+/)
+        .map(b => b.trim())
+        .filter(Boolean);
+
+      blocks.forEach(block => {
+        const lines = block.split(/\n+/).map(x => x.trim()).filter(Boolean);
+        if(lines.length < 3) return;
+        const source = lines.find(line => line.includes('@'));
+        const result = [...lines].reverse().find(line => !line.includes('@') && line.includes(':'));
+        if(!source || !result) return;
+
+        const sourceMatch = source.match(/^[^:]+:\s*(.*?)\s*@\s*(.+)$/);
+        const resultMatch = result.match(/^[^:]+:\s*(.+)$/);
+        if(!sourceMatch || !resultMatch) return;
+
+        const rawAmount = sourceMatch[1].replace(/\+.*$/,'').trim();
+        const rawRate = sourceMatch[2].trim();
+        const rawOutput = resultMatch[1].trim();
+        const amount = formatExcelCellValue(rawAmount);
+        const rateNum = parseRateABA(rawRate);
+        const rate = Number.isFinite(rateNum) && /[.,]/.test(rawRate) && Math.abs(rateNum) < 10
+          ? rateNum.toLocaleString('en-US', { maximumFractionDigits: 8 })
+          : formatExcelCellValue(rawRate);
+        const output = formatExcelCellValue(rawOutput);
+        rows.push([output, rate, amount].join('\t'));
+      });
+
+      return rows.join('\n');
+    }
+    function copyExcel(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      const t = logToExcelRows(el.innerText);
+      if(t.trim()) copyTextSafe(t);
+    }
+    function copyExcelIDR(){
+      const t = getSelectedIDRLogs().map(logToExcelRows).filter(Boolean).join('\n');
+      if(t.trim()) copyTextSafe(t);
+      else showToast('Hãy tick ô cần copy');
+    }
+
   </script>
 
   <!-- ===== Firebase + Auth + Realtime ===== -->
@@ -1156,7 +1426,52 @@
     const logoutBtn = document.getElementById('logoutBtn');
     const topbarEl2 = document.getElementById('topbar');
 
-    const roomId = location.hash?.slice(1) || "global";
+    function safeFirebaseKey(raw){
+      return String(raw || "global")
+        .trim()
+        .replace(/[.#$\[\]/]/g, "_")
+        .replace(/\s+/g, "_")
+        .slice(0, 80) || "global";
+    }
+    const roomId = safeFirebaseKey(location.hash?.slice(1));
+
+    function attachInputSync(inputsRef, ids, calcFnName){
+      let applying = false;
+      let saveTimer = null;
+      const readInputs = () => {
+        const o = {};
+        ids.forEach(id => o[id] = document.getElementById(id)?.value || "");
+        return o;
+      };
+      const saveInputs = () => {
+        if (applying) return;
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => set(inputsRef, readInputs()), 120);
+      };
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.dataset.syncBound === '1') return;
+        el.dataset.syncBound = '1';
+        el.addEventListener('input', saveInputs);
+        el.addEventListener('change', saveInputs);
+        el.addEventListener('blur', saveInputs);
+      });
+      return onValue(inputsRef, s => {
+        const v = s.val();
+        if (!v) return;
+        applying = true;
+        ids.forEach(id => {
+          const el = document.getElementById(id);
+          if (!el || typeof v[id] === "undefined") return;
+          const next = v[id] ?? "";
+          // Không ghi đè khi người dùng đang gõ để tránh nhảy con trỏ/mất số.
+          if (document.activeElement === el) return;
+          if (el.value !== next) el.value = next;
+        });
+        applying = false;
+        if (typeof window[calcFnName] === 'function') window[calcFnName]();
+      });
+    }
 
     let unsubInputs=null,   unsubEntries=null;
     let unsubInputsVI=null, unsubEntriesVI=null;
@@ -1244,12 +1559,8 @@
 
       const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputs`);
       const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entries`);
-      const ids=['rateU','rateABA','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
-      let applying=false;
-      function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
-      function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
-      ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
-      unsubInputs = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=="undefined"&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculate==='function')window.calculate();});
+      const ids=['rateU','rateABA','rateUPGW','rateABAPGW','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
+      unsubInputs = attachInputSync(inputsRef, ids, 'calculate');
 
       const historyEl=document.getElementById('history'); const doneEl=document.getElementById('doneList');
       function makeActiveEntry(key,e){
@@ -1291,8 +1602,8 @@
 
       // bind push/clear cho IDR
       window.addToHistory=function(){
-        const logText=document.getElementById("log").innerText.trim();
-        if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
+        const logText=getCombinedIDRLog().trim();
+        if(!logText){ showToast('Hãy tick ô cần thêm'); return; }
         const lines=logText.split('\n').filter(l=>l.trim()!=="");
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entries`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
         showToast('Đã thêm vào lịch sử');
@@ -1308,11 +1619,7 @@
       const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputsVI`);
       const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entriesVI`);
       const ids=['rateVI','vi_input','u_input_vi'];
-      let applying=false;
-      function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
-      function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
-      ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
-      unsubInputsVI = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=="undefined"&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculateVI==='function')window.calculateVI();});
+      unsubInputsVI = attachInputSync(inputsRef, ids, 'calculateVI');
 
       const historyEl=document.getElementById('historyVI'); const doneEl=document.getElementById('doneListVI');
       function makeActiveEntry(key,e){
@@ -1370,11 +1677,7 @@
       const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputsTHB`);
       const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entriesTHB`);
       const ids=['rateTHB','thb_input','u_input_thb'];
-      let applying=false;
-      function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
-      function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
-      ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
-      unsubInputsTHB = onValue(inputsRef,s=>{const v=s.val();if(!v)return;applying=true;ids.forEach(id=>{const el=document.getElementById(id);if(el&&typeof v[id]!=="undefined"&&el.value!==v[id])el.value=v[id]??"";});applying=false;if(typeof window.calculateTHB==='function')window.calculateTHB();});
+      unsubInputsTHB = attachInputSync(inputsRef, ids, 'calculateTHB');
 
       const historyEl=document.getElementById('historyTHB'); const doneEl=document.getElementById('doneListTHB');
       function makeActiveEntry(key,e){
@@ -1429,11 +1732,7 @@
       if (typeof unsubInputsABA === 'function') unsubInputsABA();
       const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputsABA`);
       const ids=['rateABA4','amountABA'];
-      let applying=false;
-      function readInputs(){const o={};ids.forEach(id=>o[id]=document.getElementById(id)?.value||"");return o;}
-      function saveInputs(){if(applying)return;set(inputsRef,readInputs());}
-      ids.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>setTimeout(saveInputs,120));});
-      unsubInputsABA = onValue(inputsRef,s=>{const v=s.val(); if(!v) return; applying=true; ids.forEach(id=>{const el=document.getElementById(id); if(el && typeof v[id]!=="undefined" && el.value!==v[id]) el.value=v[id]??"";}); applying=false; if(typeof window.calculateABA==='function') window.calculateABA();});
+      unsubInputsABA = attachInputSync(inputsRef, ids, 'calculateABA');
     }
 
     /* ==== ABA realtime (entries) ==== */
