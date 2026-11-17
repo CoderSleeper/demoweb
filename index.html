@@ -7,8 +7,8 @@
   <style>
     [hidden]{display:none!important}
     body{font-family:Arial,sans-serif;margin:20px;background:#f0f8ff;color:#222}
-    #app,#appVI,#appTHB,#appABA{display:flex;gap:30px;align-items:flex-start}
-    #app[hidden],#appVI[hidden],#appTHB[hidden],#appABA[hidden]{display:none!important}
+    #app,#appVI,#appTHB,#appABA,#appFX{display:flex;gap:30px;align-items:flex-start}
+    #app[hidden],#appVI[hidden],#appTHB[hidden],#appABA[hidden],#appFX[hidden]{display:none!important}
     .container{width:48%;background:#fff;border-radius:8px;box-shadow: 0 3px 8px rgba(0,0,0,.25);padding:20px 25px;box-sizing:border-box}
     h2,h3{margin-bottom:15px;color:#004080;border-bottom:2px solid #0080ff;padding-bottom:5px}
     label{font-weight:600;display:block;margin:15px 0 5px;color:#003366}
@@ -54,7 +54,7 @@
     .auth-card input{width:100%;padding:10px 12px;border:1px solid #cdd6e0;border-radius:8px;font-size:14px}
     .auth-card button{width:100%;padding:10px 12px;border:none;border-radius:8px;background:#0b73ff;color:#fff;font-weight:600;cursor:pointer}
     .auth-msg{margin-top:8px;font-size:13px;color:#a11;min-height:18px}
-    @media (max-width:992px){#app,#appVI,#appTHB,#appABA{flex-direction:column}.container{width:100%}}
+    @media (max-width:992px){#app,#appVI,#appTHB,#appABA,#appFX{flex-direction:column}.container{width:100%}}
 
     /* giữ nguyên style nút logout như bản gốc */
     #logoutBtn{
@@ -800,6 +800,61 @@
   .log-pick input[type="checkbox"]{width:18px;height:18px;min-width:18px;appearance:auto;}
 </style>
 
+  <style id="number-format-and-fee-css">
+    .number-format-hint{padding:11px 13px;margin:4px 0 14px;border:1px solid rgba(125,211,252,.42);border-radius:12px;background:rgba(12,74,110,.25);color:#e0f2fe;font-size:13px;line-height:1.6}
+    .number-format-hint code{color:#fff;font-weight:800;background:rgba(15,23,42,.65);padding:2px 5px;border-radius:5px}
+    .number-format-hint span{display:block;color:#bfdbfe}
+    label.no-fee-wrap{display:flex!important;gap:10px;align-items:flex-start;padding:12px;margin:15px 0;border:1px solid rgba(52,211,153,.55);border-radius:12px;background:rgba(6,78,59,.3);font-size:13px;line-height:1.5;cursor:pointer;color:#e2f7ef!important}
+    #noFeeIDR{appearance:auto!important;accent-color:#10b981;width:20px!important;height:20px!important;min-width:20px;flex-shrink:0;margin:1px 0 0;cursor:pointer}
+    .fx-exchange-section{margin-top:20px;border-top:1px solid rgba(148,163,184,.25);padding-top:12px}
+    .fx-exchange-section h3{margin:2px 0 10px}
+    .fx-hint{display:block;font-size:12px;line-height:1.5;color:#bfdbfe;margin:5px 0 12px}
+    .fx-locations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+    .fx-location{background:rgba(15,23,42,.55);padding:12px;border:1px solid rgba(148,163,184,.24);border-radius:12px;min-width:0}
+    .fx-location h3{margin:0 0 10px;padding:0;color:#bfdbfe!important}
+    .fx-location label{margin:8px 0 4px!important;font-size:13px}
+    .fx-location input[type=text]{min-width:0}
+    @media(max-width:720px){.fx-locations{grid-template-columns:1fr}}
+    /* Tab PHP/MYR tách riêng, tương thích màn hình nhỏ. */
+    #topbar{max-width:calc(100vw - 72px);box-sizing:border-box;flex-wrap:wrap;border-radius:16px}
+    #topbar .tabs{flex-wrap:wrap;min-width:0}
+    #tabFX{white-space:nowrap}
+    #pageFX .fx-exchange-section:first-of-type{margin-top:12px}
+    #doneListFX{max-height:clamp(360px,52vh,680px);overflow-y:auto;overflow-x:hidden;
+      padding:12px;border:1px solid rgba(16,185,129,.28);border-radius:14px;
+      background:rgba(6,78,59,.12);overscroll-behavior:contain}
+    #pageFX .history-entry{overflow-wrap:anywhere}
+    @media(max-width:600px){
+      #topbar{gap:4px!important;padding:7px!important}
+      #topbar .brand-pill{margin-right:0}
+      #topbar .tab{padding:8px 9px!important;font-size:12px}
+      #pageFX{margin-top:24px!important}
+    }
+  </style>
+
+  <!-- Khu vực phân biệt tỷ giá: thường = xanh, PGW = vàng; không tác động công thức -->
+  <style id="fx-stable-rate-colors">
+    html{background-color:#0b1220!important;}
+    :root{--fx-normal:#60a5fa;--fx-normal-tint:#eaf3ff;--fx-pgw:#fbbf24;--fx-pgw-tint:#fff8e6}
+    body input[type="text"].rate-normal-input{border:2px solid var(--fx-normal)!important;background:rgba(59,130,246,.13)!important;box-shadow:0 0 0 1px rgba(96,165,250,.12)!important;color:#eff6ff!important}
+    body input[type="text"].rate-pgw-input{border:2px solid var(--fx-pgw)!important;background:rgba(251,191,36,.14)!important;box-shadow:0 0 0 1px rgba(251,191,36,.12)!important;color:#fff7d6!important}
+    body input[type="text"].rate-pgw-input:focus{border-color:#fcd34d!important;box-shadow:0 0 0 3px rgba(251,191,36,.24)!important}
+    body input[type="text"].rate-normal-input:focus{box-shadow:0 0 0 3px rgba(96,165,250,.24)!important}
+    tr:has(> td > input.rate-pgw-input) td:first-child{color:#fde68a!important;font-weight:800!important}
+    tr:has(> td > input.rate-normal-input) td:first-child{color:#bfdbfe!important}
+    label[for="rateMYRPenangPGW"],label[for="rateMYRKuchingPGW"]{color:#fde68a!important}
+    label[for="rateMYRPenang"],label[for="rateMYRKuching"]{color:#bfdbfe!important}
+    #log,#logFX{background:var(--fx-normal-tint)!important;color:#183b72!important;border:2px solid #7db1ff!important}
+    #logPGW,#logFXPGW{background:var(--fx-pgw-tint)!important;color:#713e12!important;border:2px solid #f0b840!important}
+    .log-pick.normal-pick,.log-pick.pgw-pick{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:9px;min-height:38px}
+    .log-pick.normal-pick{color:#bfdbfe!important;background:rgba(37,99,235,.20);border:1px solid rgba(96,165,250,.50)}
+    .log-pick.pgw-pick{color:#fde68a!important;background:rgba(245,158,11,.17);border:1px solid rgba(251,191,36,.58)}
+    .log-pick.normal-pick input[type="checkbox"]{accent-color:#3b82f6!important;appearance:auto!important}
+    .log-pick.pgw-pick input[type="checkbox"]{accent-color:#d97706!important;appearance:auto!important}
+    .log-pick:has(input:checked){font-weight:900;box-shadow:0 0 0 2px rgba(255,255,255,.10) inset}
+    #roundModeLabelABA{color:#e5e7eb!important}
+    @media(max-width:720px){.idr-log-grid{grid-template-columns:1fr!important}}
+  </style>
 </head>
 <body>
   <div id="toast" aria-live="polite"></div>
@@ -808,6 +863,7 @@
     <button id="logoutBtn" class="btn" hidden>Đăng xuất</button>
     <div class="tabs" style="margin-left:8px;">
       <button class="tab active" id="tabIDR">I</button>
+      <button class="tab" id="tabFX" title="PHP C / MYR Cash">PHP / MYR</button>
       <button class="tab" id="tabVI">V</button>
       <button class="tab" id="tabTHB">Tê</button>
       <button class="tab" id="tabABA">AB</button>
@@ -834,32 +890,34 @@
     <div id="app" hidden style="display:none">
       <div class="container">
         <h2>Calculator — Trang "I"</h2>
+        <div class="number-format-hint" role="note"><b>Quy ước nhập số:</b> <code>1,000</code> = 1 nghìn &nbsp;·&nbsp; <code>1.000</code> = 1 &nbsp;·&nbsp; <code>1,234.56</code> = 1234,56. <span>Chỉ dùng dấu phẩy (,) ngăn cách hàng nghìn và dấu chấm (.) cho phần thập phân. Nhập sai định dạng sẽ bị từ chối.</span></div>
         <label>Tỷ giá:</label>
         <table>
           <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
           <tbody>
-            <tr><td>IDR / U</td><td><input type="text" id="rateU" placeholder="U" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
-            <tr><td>IDR / ABA</td><td><input type="text" id="rateABA" placeholder="ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
-            <tr><td>IDR PGW / U</td><td><input type="text" id="rateUPGW" placeholder="U PGW" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
-            <tr><td>IDR PGW / ABA</td><td><input type="text" id="rateABAPGW" placeholder="ABA PGW" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR / U</td><td><input type="text" id="rateU" class="rate-normal-input" placeholder="U" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR / ABA</td><td><input type="text" id="rateABA" class="rate-normal-input" placeholder="ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR PGW / U</td><td><input type="text" id="rateUPGW" class="rate-pgw-input" placeholder="U PGW" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR PGW / ABA</td><td><input type="text" id="rateABAPGW" class="rate-pgw-input" placeholder="ABA PGW" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false" /></td></tr>
           </tbody>
         </table>
         <label>USDT:</label><input type="text" id="usdt_input" placeholder="VD: 1k, 1.2k, 1350.5" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
         <label>ABA:</label><input type="text" id="aba_input" placeholder="VD: 2k, 5000" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
         <label>IDR ➝ USDT:</label><input type="text" id="idr_usdt_input" placeholder="Nhập IDR đổi USDT" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
         <label>IDR ➝ ABA:</label><input type="text" id="idr_aba_input" placeholder="Nhập IDR đổi ABA" oninput="calculate()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label class="no-fee-wrap" for="noFeeIDR"><input id="noFeeIDR" type="checkbox" onchange="calculate()"><span><b>Không phí USDT / ABA</b> — tick để miễn phí cho hai loại này khi dưới 5,000 (tỷ giá thường và PGW). Khi không tick: USDT +7, ABA +10.</span></label>
         <div class="btn-container">
           <button class="btn" onclick="copyForm()">Copy Form</button>
-          <button class="btn" onclick="copyExcelIDR()">Copy Excel</button>
+          <button class="btn" onclick="copyExcelIDR()" title="Copy Excel: IDR và USDT luôn là số âm; tỷ giá giữ nguyên dương">Copy Excel</button>
           <button class="btn" onclick="addToHistory()">Add vào lịch sử</button>
         </div>
         <div class="idr-log-grid">
           <div>
-            <h3 class="mini-log-title"><label class="log-pick"><input type="checkbox" id="pickNormalIDR" checked> IDR thường</label></h3>
+            <h3 class="mini-log-title"><label class="log-pick normal-pick"><input type="checkbox" id="pickNormalIDR" checked> IDR thường</label></h3>
             <div class="log" id="log"></div>
           </div>
           <div>
-            <h3 class="mini-log-title"><label class="log-pick"><input type="checkbox" id="pickPGWIDR"> IDR PGW</label></h3>
+            <h3 class="mini-log-title"><label class="log-pick pgw-pick"><input type="checkbox" id="pickPGWIDR"> IDR PGW</label></h3>
             <div class="log" id="logPGW"></div>
           </div>
         </div>
@@ -873,11 +931,76 @@
     </div>
   </div>
 
+  <!-- PAGE: PHP C / MYR Cash -->
+  <div id="pageFX" style="margin-top:60px;" hidden>
+    <div id="appFX" hidden style="display:none">
+      <div class="container">
+        <h2>Calculator — PHP C / MYR Cash</h2>
+        <div class="number-format-hint" role="note"><b>Quy ước nhập số:</b> <code>1,000</code> = 1 nghìn &nbsp;·&nbsp; <code>1.000</code> = 1 &nbsp;·&nbsp; <code>1,234.56</code> = 1234,56. <span>Chỉ dùng dấu phẩy (,) ngăn cách hàng nghìn và dấu chấm (.) cho phần thập phân. Nhập sai định dạng sẽ bị từ chối.</span></div>
+        <label>Tỷ giá PHP C:</label>
+        <table>
+          <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
+          <tbody>
+            <tr><td>IDR / PHP C</td><td><input type="text" id="ratePHPC" class="rate-normal-input" placeholder="VD: 292.3" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false" /></td></tr>
+            <tr><td>IDR PGW / PHP C</td><td><input type="text" id="ratePHPCPGW" class="rate-pgw-input" placeholder="VD: 292.3" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false" /></td></tr>
+          </tbody>
+        </table>
+
+        <div class="fx-exchange-section">
+          <h3>PHP C — Quy đổi hai chiều</h3>
+          <span class="fx-hint">PHP C × tỷ giá = IDR; IDR ÷ tỷ giá = PHP C. Riêng tỷ giá PHP C bắt buộc dùng dấu chấm thập phân (ví dụ <b>292.3</b>), không chấp nhận dấu phẩy.</span>
+          <label>IDR ➝ PHP C:</label><input type="text" id="idr_phpc_input" placeholder="VD: 58,500,000 IDR ÷ 292.5 = 200,000 PHP C" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false">
+          <label>PHP C ➝ IDR:</label><input type="text" id="phpc_idr_input" placeholder="VD: 200k PHP C × 292.5 = 58,500,000 IDR" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="fx-exchange-section">
+          <h3>MYR Cash — Penang / Kuching</h3>
+          <span class="fx-hint">Mỗi địa điểm dùng tỷ giá thường và PGW riêng. Công thức: <b>(MYR Cash + 100 MYR phí) × tỷ giá = IDR</b>. Phí 100 MYR luôn áp dụng, không phụ thuộc ô Không phí ở tab I.</span>
+          <div class="fx-locations">
+            <div class="fx-location">
+              <h3>Penang</h3>
+              <label for="myrCashPenang">MYR Cash (Penang)</label><input type="text" id="myrCashPenang" placeholder="VD: 1,000" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false">
+              <label for="rateMYRPenang">IDR / MYR C</label><input type="text" id="rateMYRPenang" class="rate-normal-input" placeholder="Tỷ giá thường" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false">
+              <label for="rateMYRPenangPGW">IDR PGW / MYR C</label><input type="text" id="rateMYRPenangPGW" class="rate-pgw-input" placeholder="Tỷ giá PGW" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="fx-location">
+              <h3>Kuching</h3>
+              <label for="myrCashKuching">MYR Cash (Kuching)</label><input type="text" id="myrCashKuching" placeholder="VD: 1,000" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false">
+              <label for="rateMYRKuching">IDR / MYR C</label><input type="text" id="rateMYRKuching" class="rate-normal-input" placeholder="Tỷ giá thường" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false">
+              <label for="rateMYRKuchingPGW">IDR PGW / MYR C</label><input type="text" id="rateMYRKuchingPGW" class="rate-pgw-input" placeholder="Tỷ giá PGW" oninput="calculateFX()" inputmode="decimal" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+        </div>
+        <div class="btn-container">
+          <button class="btn" onclick="copyFormFX()">Copy Form</button>
+          <button class="btn" onclick="copyExcelFX()" title="Copy Excel: IDR xuất số âm; tỷ giá vẫn dương">Copy Excel</button>
+          <button class="btn" onclick="addToHistoryFX()">Add vào lịch sử</button>
+        </div>
+        <div class="idr-log-grid">
+          <div>
+            <h3 class="mini-log-title"><label class="log-pick normal-pick"><input type="checkbox" id="pickNormalFX" checked> Tỷ giá thường</label></h3>
+            <div class="log" id="logFX"></div>
+          </div>
+          <div>
+            <h3 class="mini-log-title"><label class="log-pick pgw-pick"><input type="checkbox" id="pickPGWFX"> Tỷ giá PGW</label></h3>
+            <div class="log" id="logFXPGW"></div>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <h3>Lịch sử <button class="btn btn-red" style="float:right" onclick="clearHistoryFX()">Xóa toàn bộ lịch sử</button></h3>
+        <div class="history historyFX" id="historyFX"></div>
+        <h3>Đã xong</h3>
+        <div id="doneListFX"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- PAGE: VI -->
   <div id="pageVI" style="margin-top:60px;" hidden>
     <div id="appVI" hidden style="display:none">
       <div class="container">
         <h2>Calculator — Trang "VI"</h2>
+        <div class="number-format-hint" role="note"><b>Quy ước nhập số:</b> <code>1,000</code> = 1 nghìn &nbsp;·&nbsp; <code>1.000</code> = 1 &nbsp;·&nbsp; <code>1,234.56</code> = 1234,56. <span>Chỉ dùng dấu phẩy (,) ngăn cách hàng nghìn và dấu chấm (.) cho phần thập phân. Nhập sai định dạng sẽ bị từ chối.</span></div>
         <label>Tỷ giá VI:</label>
         <table>
           <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
@@ -908,6 +1031,7 @@
     <div id="appTHB" hidden style="display:none">
       <div class="container">
         <h2>Calculator — Trang "Tê"</h2>
+        <div class="number-format-hint" role="note"><b>Quy ước nhập số:</b> <code>1,000</code> = 1 nghìn &nbsp;·&nbsp; <code>1.000</code> = 1 &nbsp;·&nbsp; <code>1,234.56</code> = 1234,56. <span>Chỉ dùng dấu phẩy (,) ngăn cách hàng nghìn và dấu chấm (.) cho phần thập phân. Nhập sai định dạng sẽ bị từ chối.</span></div>
         <label>Tỷ giá THB:</label>
         <table>
           <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
@@ -940,6 +1064,7 @@
     <div id="appABA" hidden style="display:none">
       <div class="container">
         <h2>Calculator — Trang "ABA"</h2>
+        <div class="number-format-hint" role="note"><b>Quy ước nhập số:</b> <code>1,000</code> = 1 nghìn &nbsp;·&nbsp; <code>1.000</code> = 1 &nbsp;·&nbsp; <code>1,234.56</code> = 1234,56. <span>Chỉ dùng dấu phẩy (,) ngăn cách hàng nghìn và dấu chấm (.) cho phần thập phân. Nhập sai định dạng sẽ bị từ chối.</span></div>
         <label>Tỷ giá ABA:</label>
         <table>
           <thead><tr><th>Loại</th><th>Tỷ giá</th></tr></thead>
@@ -999,7 +1124,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       try{ setupABRoundToggle(); }catch(e){}
       const sel = [
-        '#rateU','#rateABA','#rateUPGW','#rateABAPGW','#usdt_input','#aba_input','#idr_usdt_input','#idr_aba_input',
+        '#rateU','#rateABA','#rateUPGW','#rateABAPGW','#ratePHPC','#ratePHPCPGW','#usdt_input','#aba_input','#idr_usdt_input','#idr_aba_input','#idr_phpc_input','#phpc_idr_input','#myrCashPenang','#rateMYRPenang','#rateMYRPenangPGW','#myrCashKuching','#rateMYRKuching','#rateMYRKuchingPGW',
         '#rateVI','#vi_input','#u_input_vi',
         '#rateTHB','#thb_input','#u_input_thb',
         '#rateABA4','#amountABA',
@@ -1023,68 +1148,46 @@
       function fallback(){
         const ta=document.createElement('textarea'); ta.value=t;
         document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); showToast('Đã sao chép'); }
+        try { if(document.execCommand('copy'))showToast('Đã sao chép'); else showToast('Không sao chép được, hãy kiểm tra quyền clipboard'); }
+        catch(e){ showToast('Không sao chép được, hãy kiểm tra quyền clipboard'); }
         finally { ta.remove(); }
       }
     }
 
-    // parseInput dùng chung
+    // CỐ ĐỊNH ĐỊNH DẠNG (EN): 1,000 = 1000, 1.000 = 1, 1,234.56 = 1234.56.
+    // Chỉ chấp nhận dấu phẩy theo nhóm 3 chữ số và dấu chấm thập phân.
+    // Không tự suy luận định dạng, không loại bỏ ký tự lạ, không biến chữ thành 0.
     function parseInput(value){
-  if(value===undefined||value===null) return NaN;
-  let val = String(value).trim(); 
-  if(!val) return NaN;
-
-  // handle suffix k/m/b
-  let mul = 1;
-  const suf = val.match(/([kmbKMB])\s*$/);
-  if(suf){
-    const c = suf[1].toLowerCase();
-    if(c==='k') mul=1e3; else if(c==='m') mul=1e6; else if(c==='b') mul=1e9;
-    val = val.replace(/([kmbKMB])\s*$/,'').trim();
-  }
-
-  // remove spaces
-  let s = val.replace(/\s/g,'');
-
-  const hasDot   = s.includes('.');
-  const hasComma = s.includes(',');
-
-  if(hasDot && hasComma){
-    // choose the last symbol as decimal
-    const lastDot = s.lastIndexOf('.');
-    const lastComma = s.lastIndexOf(',');
-    if(lastDot > lastComma){
-      // US style: comma thousands, dot decimal
-      s = s.replace(/,/g,'');
-    }else{
-      // EU style: dot thousands, comma decimal
-      s = s.replace(/\./g,'').replace(',', '.');
+      if(value===undefined || value===null) return NaN;
+      let s=String(value).trim();
+      if(!s) return NaN;
+      let factor=1;
+      const suff=s.match(/([kKmMbB])$/);
+      if(suff){
+        const unit=suff[1].toLowerCase();
+        factor=unit==='k'?1e3:unit==='m'?1e6:1e9;
+        s=s.slice(0,-1).trim();
+      }
+      // Dấu phẩy chỉ dùng ngăn nghìn, dấu chấm chỉ dùng thập phân.
+      const valid=/^[+-]?(?:(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?|\.\d+)$/;
+      if(!valid.test(s)) return NaN;
+      const result=Number(s.replace(/,/g,''))*factor;
+      return Number.isFinite(result) && Math.abs(result)<=Number.MAX_SAFE_INTEGER ? result : NaN;
     }
-  }else if(hasComma){
-    const p = s.split(',');
-    if(p.length===2 && p[1].length<=2){
-      s = p[0] + '.' + p[1];
-    }else{
-      s = s.replace(/,/g,'');
+    function invalidNumber(v){ return String(v||'').trim() && !Number.isFinite(parseInput(v)); }
+    // Tỷ giá PHP C KHÔNG được dùng dấu phẩy: 292.3 hợp lệ, 292,3 không hợp lệ.
+    // Trả NaN cho chuỗi sai để không có phép nhân/chia sai âm thầm.
+    function parseRatePHPC(value){
+      const raw=String(value??'').trim();
+      if(!/^(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)$/.test(raw)) return NaN;
+      const n=Number(raw);
+      return Number.isFinite(n) && n>0 ? n : NaN;
     }
-  }else if(hasDot){
-    const p = s.split('.');
-    if(!(p.length===2 && p[1].length<=2)){
-      s = s.replace(/\./g,'');
+    function validConvertedMoney(n){ return Number.isFinite(n) && n>=0 && n<=Number.MAX_SAFE_INTEGER; }
+    function formatRate(n){
+      if(!Number.isFinite(Number(n))) return '';
+      return Number(n).toLocaleString('en-US',{maximumFractionDigits:12});
     }
-  }
-
-  // keep digits, one minus and one dot
-  s = s.replace(/[^0-9.\-]/g,'');
-  const parts = s.split('.');
-  if(parts.length>2){
-    const dec = parts.pop();
-    s = parts.join('') + '.' + dec;
-  }
-
-  const num = Number(s);
-  return Number.isFinite(num) ? num * mul : NaN;
-}
 
     // === ABA rounding toggle ===
     function labelForRoundModeABA(mode){
@@ -1108,6 +1211,8 @@
       const cur = getRoundModeABA();
       const next = order[(order.indexOf(cur)+1) % order.length];
       setRoundModeABA(next);
+      const icon=document.getElementById('roundIconABA');
+      if(icon)icon.dispatchEvent(new Event('change',{bubbles:true}));
       if (typeof calculateABA === 'function') try { calculateABA(); } catch (e) {}
     }
     function roundByModeABA(n, mode){
@@ -1118,7 +1223,7 @@
     }
     function formatResultByMode(n){
       const mode = getRoundModeABA();
-      if(mode==='round'){ return Number(n).toLocaleString('en-US',{ maximumFractionDigits: 2 }); }
+      if(mode==='round'){ return Math.round(Number(n)).toLocaleString('en-US'); }
       return roundByModeABA(n, mode).toLocaleString('en-US');
     }
     function setupABRoundToggle(){
@@ -1129,27 +1234,9 @@
       setRoundModeABA(getRoundModeABA());
     }
 
-    /* ===== HÀM PARSE RIÊNG CHO ABA ===== */
-    function parseRateABA(v){
-      if(v===undefined||v===null) return NaN;
-      let s=String(v).trim(); if(!s) return NaN;
-      s=s.replace(/\s/g,'');
-      if(s.includes('.') && s.includes(',')){ s=s.replace(/,/g,''); }
-      else if(s.includes(',') && !s.includes('.')){ s=s.replace(',', '.'); }
-      const n=parseFloat(s);
-      return isNaN(n)?NaN:n;
-    }
-    function parseAmountABA(v){
-      if(v===undefined||v===null) return NaN;
-      let s=String(v).trim(); if(!s) return NaN;
-      let mul=1; const suf=s.match(/([kmbKMB])\s*$/);
-      if(suf){ const c=suf[1].toLowerCase(); if(c==='k') mul=1e3; else if(c==='m') mul=1e6; else if(c==='b') mul=1e9; s=s.replace(/([kmbKMB])\s*$/,'').trim(); }
-      s=s.replace(/\s/g,'');
-      if(s.includes('.') && s.includes(',')){ s=s.replace(/,/g,''); }
-      else if(s.includes(',') && !s.includes('.')){ s=s.replace(',', '.'); }
-      const n=parseFloat(s);
-      return isNaN(n)?NaN:n*mul;
-    }
+    /* Dùng chung một quy ước cho rate và amount của ABA. */
+    function parseRateABA(v){ return parseInput(v); }
+    function parseAmountABA(v){ return parseInput(v); }
 
     // Định dạng
     
@@ -1157,8 +1244,7 @@
     function formatCurrencyVN(n){
       if(!Number.isFinite(Number(n))) return '';
       const r = Number(n);
-      // Dùng chuẩn Đức cho dấu phẩy thập phân như VND/IDR mẫu gốc
-      return r.toLocaleString('de-DE').replace(/\./g, ',');
+      return r.toLocaleString('en-US', {maximumFractionDigits:8});
     }
     function formatSmartDecimal(n){
       const x = Number(n);
@@ -1182,73 +1268,158 @@
       if(!Number.isFinite(Number(n))) return '';
       return Number(n).toLocaleString('en-US',{maximumFractionDigits:8});
     }
-    function formatIDR(n){ return Math.round(Number(n)).toLocaleString('de-DE').replace(/\./g,','); }
-    function formatVNDInt(n){ return Math.round(Number(n)).toLocaleString('de-DE').replace(/\./g,','); }
-    function formatRateTHB(n){ if(isNaN(n)) return ''; return Number(n).toFixed(2); }
-    function formatTHBInt(n){ return Math.round(Number(n)).toLocaleString('en-US'); }
-
-    function formatIDR(n){return Math.round(n).toLocaleString('de-DE').replace(/\./g,',');}
-    function formatVNDInt(n){return Math.round(n).toLocaleString('de-DE').replace(/\./g,',');}
-    function formatRateTHB(n){ if(isNaN(n)) return ''; return Number(n).toFixed(2); }
+    function formatIDR(n){ return Math.round(Number(n)).toLocaleString('en-US'); }
+    function formatVNDInt(n){ return Math.round(Number(n)).toLocaleString('en-US'); }
+    function formatRateTHB(n){ if(!Number.isFinite(Number(n))) return ''; return formatRate(n); }
     function formatTHBInt(n){ return Math.round(Number(n)).toLocaleString('en-US'); }
     function getToday(){const d=new Date();return`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;}
     function getCurrentTime(){const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 
-    /* ========= IDR ========= */
+    /* ========= IDR — USDT/ABA ========= */
     function getRates(){
+      const value=id=>document.getElementById(id).value;
       return {
-        rateU: parseInput(document.getElementById('rateU').value),
-        rateABA: parseInput(document.getElementById('rateABA').value),
-        rateUPGW: parseInput(document.getElementById('rateUPGW').value),
-        rateABAPGW: parseInput(document.getElementById('rateABAPGW').value)
+        rateU:parseInput(value('rateU')),
+        rateABA:parseInput(value('rateABA')),
+        rateUPGW:parseInput(value('rateUPGW')),
+        rateABAPGW:parseInput(value('rateABAPGW')),
+        ratePHPC:parseRatePHPC(value('ratePHPC')),
+        ratePHPCPGW:parseRatePHPC(value('ratePHPCPGW')),
+        rateMYRPenang:parseInput(value('rateMYRPenang')),
+        rateMYRPenangPGW:parseInput(value('rateMYRPenangPGW')),
+        rateMYRKuching:parseInput(value('rateMYRKuching')),
+        rateMYRKuchingPGW:parseInput(value('rateMYRKuchingPGW'))
       };
     }
-    function buildIDRLog(rateU, rateABA){
-      const usdtVal=document.getElementById('usdt_input').value;
-      const abaVal=document.getElementById('aba_input').value;
-      const idrUsdtRaw=document.getElementById('idr_usdt_input').value.trim();
-      const idrAbaRaw=document.getElementById('idr_aba_input').value.trim();
-      let log='', today=getToday();
-      if(!rateU && !rateABA) return 'Không tìm thấy tỷ giá.';
-      if(usdtVal){const usdt=parseInput(usdtVal);if(!isNaN(usdt)&&rateU){const fee=usdt<5000?7:0;const total=usdt+fee;const idr=total*rateU;log+=`${today}
-USDT: ${formatSmartDecimal(usdt)}${fee>0?` + ${fee} (fee)`:''} @ ${rateU}
-IDR: ${formatIDR(idr)}
-
-`;}}
-      if(abaVal){const aba=parseInput(abaVal);if(!isNaN(aba)&&rateABA){const fee=aba<5000?10:0;const total=aba+fee;const idr=total*rateABA;log+=`${today}
-ABA: ${formatCurrencyVN(aba)}${fee>0?` + ${fee} (fee)`:''} @ ${rateABA}
-IDR: ${formatIDR(idr)}
-
-`;}}
-      if(idrUsdtRaw && !isNaN(parseInput(idrUsdtRaw)) && rateU){const idr=parseInput(idrUsdtRaw);const usdt=idr/rateU;log+=`${today}:
-IDR: ${formatIDR(idr)} @ ${rateU}
-USDT: ${formatSmartDecimal(usdt)}
-
-`;}
-      if(idrAbaRaw && !isNaN(parseInput(idrAbaRaw)) && rateABA){const idr=parseInput(idrAbaRaw);const aba=idr/rateABA;log+=`${today}:
-IDR: ${formatIDR(idr)} @ ${rateABA}
-ABA: ${Math.round(aba).toLocaleString('en-US')}
-
-`;}
+    function buildIDRLog(rateU,rateABA){
+      const value=id=>document.getElementById(id).value.trim();
+      const usdtVal=value('usdt_input');
+      const abaVal=value('aba_input');
+      const idrUsdtRaw=value('idr_usdt_input');
+      const idrAbaRaw=value('idr_aba_input');
+      const noFee=!!document.getElementById('noFeeIDR')?.checked;
+      let log='',today=getToday();
+      const validRate=n=>Number.isFinite(n)&&n>0;
+      const rateUOK=validRate(rateU),rateABAOK=validRate(rateABA);
+      function addError(label,reason){log+=`⚠ ${label}: ${reason}\n\n`;}
+      function addBlock(srcName,srcAmount,rate,dstName,dstAmount,dateSuffix=''){
+        log+=`${today}${dateSuffix}\n${srcName}: ${srcAmount} @ ${formatRate(rate)}\n${dstName}: ${dstAmount}\n\n`;
+      }
+      if(usdtVal){
+        const usdt=parseInput(usdtVal);
+        if(!Number.isFinite(usdt)||usdt<=0)addError('USDT','Số lượng không hợp lệ (phải lớn hơn 0).');
+        else if(!rateUOK)addError('USDT','Thiếu tỷ giá USDT hợp lệ.');
+        else {
+          const fee=!noFee&&usdt<5000?7:0;
+          const idr=(usdt+fee)*rateU;
+          if(!validConvertedMoney(idr))addError('USDT','Kết quả vượt phạm vi tính toán an toàn.');
+          else addBlock('USDT',`${formatGeneric(usdt)}${fee?` + ${fee} (fee)`:''}`,rateU,'IDR',formatIDR(idr));
+        }
+      }
+      if(abaVal){
+        const aba=parseInput(abaVal);
+        if(!Number.isFinite(aba)||aba<=0)addError('ABA','Số lượng không hợp lệ (phải lớn hơn 0).');
+        else if(!rateABAOK)addError('ABA','Thiếu tỷ giá ABA hợp lệ.');
+        else {
+          const fee=!noFee&&aba<5000?10:0;
+          const idr=(aba+fee)*rateABA;
+          if(!validConvertedMoney(idr))addError('ABA','Kết quả vượt phạm vi tính toán an toàn.');
+          else addBlock('ABA',`${formatGeneric(aba)}${fee?` + ${fee} (fee)`:''}`,rateABA,'IDR',formatIDR(idr));
+        }
+      }
+      if(idrUsdtRaw){
+        const idr=parseInput(idrUsdtRaw);
+        if(!Number.isFinite(idr)||idr<=0)addError('IDR ➝ USDT','Số lượng không hợp lệ.');
+        else if(!rateUOK)addError('IDR ➝ USDT','Thiếu tỷ giá USDT hợp lệ.');
+        else if(!validConvertedMoney(idr/rateU))addError('IDR ➝ USDT','Kết quả vượt phạm vi tính toán an toàn.');
+        else addBlock('IDR',formatIDR(idr),rateU,'USDT',formatSmartDecimal(idr/rateU),':');
+      }
+      if(idrAbaRaw){
+        const idr=parseInput(idrAbaRaw);
+        if(!Number.isFinite(idr)||idr<=0)addError('IDR ➝ ABA','Số lượng không hợp lệ.');
+        else if(!rateABAOK)addError('IDR ➝ ABA','Thiếu tỷ giá ABA hợp lệ.');
+        else if(!validConvertedMoney(idr/rateABA))addError('IDR ➝ ABA','Kết quả vượt phạm vi tính toán an toàn.');
+        else addBlock('IDR',formatIDR(idr),rateABA,'ABA',Math.round(idr/rateABA).toLocaleString('en-US'),':');
+      }
       return log||'Không có dữ liệu.';
     }
     function calculate(){
-      const {rateU,rateABA,rateUPGW,rateABAPGW}=getRates();
-      document.getElementById('log').innerText = buildIDRLog(rateU, rateABA);
-      const pgwLog = buildIDRLog(rateUPGW, rateABAPGW);
-      document.getElementById('logPGW').innerText = (!rateUPGW && !rateABAPGW) ? 'Nhập tỷ giá PGW để xem kết quả.' : pgwLog;
+      const r=getRates();
+      document.getElementById('log').innerText=buildIDRLog(r.rateU,r.rateABA);
+      document.getElementById('logPGW').innerText=buildIDRLog(r.rateUPGW,r.rateABAPGW);
     }
-    function isGoodIDRLog(t){
-      const bad = new Set(['Không có dữ liệu.','Không tìm thấy tỷ giá.','Nhập tỷ giá PGW để xem kết quả.']);
-      const v = (t || '').trim();
-      return v && !bad.has(v);
+    /* ========= PHP C / MYR Cash — tab riêng ========= */
+    function buildFXLog(ratePHPC,rateMYRPenang,rateMYRKuching){
+      const value=id=>document.getElementById(id).value.trim();
+      const idrPHPC=value('idr_phpc_input');
+      const phpcIDR=value('phpc_idr_input');
+      const today=getToday();
+      let log='';
+      const validRate=n=>Number.isFinite(n)&&n>0;
+      const ratePHPCOK=validRate(ratePHPC);
+      function addError(label,reason){log+=`⚠ ${label}: ${reason}\n\n`;}
+      function addBlock(srcName,srcAmount,rate,dstName,dstAmount,dateSuffix=''){
+        log+=`${today}${dateSuffix}\n${srcName}: ${srcAmount} @ ${formatRate(rate)}\n${dstName}: ${dstAmount}\n\n`;
+      }
+      // PHP C: phép tính nhân/chia theo yêu cầu, không thêm bất kỳ phí nào.
+      if(idrPHPC){
+        const idr=parseInput(idrPHPC);
+        if(!Number.isFinite(idr)||idr<=0)addError('IDR ➝ PHP C','Số lượng IDR không hợp lệ.');
+        else if(!ratePHPCOK)addError('IDR ➝ PHP C','Tỷ giá PHP C phải lớn hơn 0 và chỉ dùng dấu chấm (ví dụ 292.3).');
+        else {
+          // IDR -> PHP C: chia cho tỷ giá (IDR trên mỗi 1 PHP C).
+          const phpc=idr/ratePHPC;
+          if(!validConvertedMoney(phpc))addError('IDR ➝ PHP C','Kết quả vượt phạm vi số an toàn.');
+          else addBlock('IDR',formatIDR(idr),ratePHPC,'PHP C',formatGeneric(phpc),':');
+        }
+      }
+      if(phpcIDR){
+        const phpc=parseInput(phpcIDR);
+        if(!Number.isFinite(phpc)||phpc<=0)addError('PHP C ➝ IDR','Số lượng PHP C không hợp lệ.');
+        else if(!ratePHPCOK)addError('PHP C ➝ IDR','Tỷ giá PHP C phải lớn hơn 0 và chỉ dùng dấu chấm (ví dụ 292.3).');
+        else {
+          // PHP C -> IDR: nhân tỷ giá. Ví dụ: 200,000 * 292.5 = 58,500,000.
+          const idr=phpc*ratePHPC;
+          if(!validConvertedMoney(idr))addError('PHP C ➝ IDR','Kết quả vượt phạm vi số an toàn.');
+          else addBlock('PHP C',formatGeneric(phpc),ratePHPC,'IDR',formatIDR(idr),':');
+        }
+      }
+      // MYR Cash: 100 MYR phí cố định, bất kể lượng tiền và tick Không phí.
+      function addMYR(location,inputId,rate){
+        const raw=value(inputId);if(!raw)return;
+        const myr=parseInput(raw);
+        if(!Number.isFinite(myr)||myr<=0){addError(`MYR Cash ${location}`,'Số lượng MYR không hợp lệ.');return;}
+        if(!validRate(rate)){addError(`MYR Cash ${location}`,'Thiếu tỷ giá IDR / MYR C hợp lệ.');return;}
+        const idr=(myr+100)*rate;
+        if(!validConvertedMoney(idr)){addError(`MYR Cash ${location}`,'Kết quả vượt phạm vi số an toàn.');return;}
+        addBlock('MYR C',`${formatGeneric(myr)} + 100 (fee)`,rate,'IDR',formatIDR(idr),` (${location})`);
+      }
+      addMYR('Penang','myrCashPenang',rateMYRPenang);
+      addMYR('Kuching','myrCashKuching',rateMYRKuching);
+      return log||'Không có dữ liệu.';
     }
+    function calculateFX(){
+      const r=getRates();
+      document.getElementById('logFX').innerText=buildFXLog(r.ratePHPC,r.rateMYRPenang,r.rateMYRKuching);
+      document.getElementById('logFXPGW').innerText=buildFXLog(r.ratePHPCPGW,r.rateMYRPenangPGW,r.rateMYRKuchingPGW);
+    }
+    // The old Firebase 'inputs' tree is deliberately reused so existing saved rates persist.
+    function calculateAllIDRAndFX(){calculate();calculateFX();}
+    function extractValidIDRBlocks(logText){
+      // Loại thông báo lỗi khỏi nội dung Copy Form/Copy Excel/Lịch sử,
+      // nhưng vẫn hiển thị lỗi trong bảng tính để người dùng sửa tỷ giá.
+      return String(logText||'').split(/\n\s*\n+/).map(s=>s.trim()).filter(block=>{
+        const lines=block.split(/\n+/).map(x=>x.trim());
+        return lines.length>=3 && !block.startsWith('⚠') && lines.some(x=>x.includes('@'));
+      }).join('\n\n');
+    }
+    function isGoodIDRLog(t){return !!extractValidIDRBlocks(t);}
     function getSelectedIDRLogs(){
-      const logs = [];
-      const normal = (document.getElementById('log')?.innerText || '').trim();
-      const pgw = (document.getElementById('logPGW')?.innerText || '').trim();
-      if(document.getElementById('pickNormalIDR')?.checked && isGoodIDRLog(normal)) logs.push(normal);
-      if(document.getElementById('pickPGWIDR')?.checked && isGoodIDRLog(pgw)) logs.push(pgw);
+      const logs=[];
+      const normal=extractValidIDRBlocks(document.getElementById('log')?.innerText);
+      const pgw=extractValidIDRBlocks(document.getElementById('logPGW')?.innerText);
+      if(document.getElementById('pickNormalIDR')?.checked && normal)logs.push(normal);
+      if(document.getElementById('pickPGWIDR')?.checked && pgw)logs.push(pgw);
       return logs;
     }
     function getCombinedIDRLog(){
@@ -1263,44 +1434,71 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
     function addToHistory(){
       // realtime xử lý ở phần Firebase bên dưới
     }
+    function getSelectedFXLogs(){
+      const logs=[];
+      const normal=extractValidIDRBlocks(document.getElementById('logFX')?.innerText);
+      const pgw=extractValidIDRBlocks(document.getElementById('logFXPGW')?.innerText);
+      if(document.getElementById('pickNormalFX')?.checked && normal)logs.push(normal);
+      if(document.getElementById('pickPGWFX')?.checked && pgw)logs.push(pgw);
+      return logs;
+    }
+    function getCombinedFXLog(){return getSelectedFXLogs().join('\n\n');}
+    function copyFormFX(){
+      const t=getCombinedFXLog();
+      if(t.trim())copyTextSafe(t);else showToast('Hãy tick ô cần copy');
+    }
+    function copyExcelFX(){
+      const t=getSelectedFXLogs().map(log=>logToExcelRows(log,true)).filter(Boolean).join('\n');
+      if(t.trim())copyTextSafe(t);else showToast('Hãy tick ô cần copy');
+    }
+    function addToHistoryFX(){ /* Gắn sau khi đăng nhập Firebase */ }
 
     /* ========= VI ========= */
     function calculateVI(){
-      const rate=parseInput(document.getElementById('rateVI').value);
+      const rawRate=document.getElementById('rateVI').value;
+      const rate=parseInput(rawRate);
       const viVal=document.getElementById('vi_input').value;
       const uVal=document.getElementById('u_input_vi').value;
       let log='', today=getToday();
-      if(!rate){document.getElementById("logVI").innerText="Không tìm thấy tỷ giá.";return;}
-      if(viVal){const vnd=parseInput(viVal);if(!isNaN(vnd)){const usdt=vnd/rate;log+=`${today}\nVND: ${formatVNDInt(vnd)} @ ${formatVNDInt(rate)}\nUSDT: ${formatSmartDecimal(usdt)}\n\n`;}}
-      if(uVal){const usdt=parseInput(uVal);if(!isNaN(usdt)){const vnd=usdt*rate;log+=`${today}\nUSDT: ${formatSmartDecimal(usdt)} @ ${formatVNDInt(rate)}\nVND: ${formatVNDInt(vnd)}\n\n`;}}
-      document.getElementById("logVI").innerText=log||"Không có dữ liệu.";
+      if(!Number.isFinite(rate)||rate<=0){ document.getElementById('logVI').innerText='Không tìm thấy tỷ giá hợp lệ. Tỷ giá phải lớn hơn 0.'; return; }
+      if(viVal){
+        const vnd=parseInput(viVal);
+        if(!Number.isFinite(vnd)||vnd<=0)log+='⚠ Số tiền VND không hợp lệ.\n\n';
+        else if(!validConvertedMoney(vnd/rate)) log+='⚠ Kết quả USDT vượt phạm vi an toàn.\n\n';
+        else log+=`${today}\nVND: ${formatVNDInt(vnd)} @ ${formatRate(rate)}\nUSDT: ${formatSmartDecimal(vnd/rate)}\n\n`;
+      }
+      if(uVal){
+        const usdt=parseInput(uVal);
+        if(!Number.isFinite(usdt)||usdt<=0)log+='⚠ Số USDT không hợp lệ.\n\n';
+        else if(!validConvertedMoney(usdt*rate)) log+='⚠ Kết quả VND vượt phạm vi an toàn.\n\n';
+        else log+=`${today}\nUSDT: ${formatSmartDecimal(usdt)} @ ${formatRate(rate)}\nVND: ${formatVNDInt(usdt*rate)}\n\n`;
+      }
+      document.getElementById('logVI').innerText=log||'Không có dữ liệu.';
     }
-    function copyFormVI(){ const t=document.getElementById("logVI").innerText; if(t.trim()) copyTextSafe(t); }
+    function copyFormVI(){ const t=extractValidIDRBlocks(document.getElementById("logVI").innerText); if(t)copyTextSafe(t); else showToast('Không có phép tính hợp lệ để copy'); }
 
     /* ========= THB ========= */
     function calculateTHB(){
-      const rate = parseInput(document.getElementById('rateTHB').value);
-      const thbVal = document.getElementById('thb_input').value;
-      const uVal   = document.getElementById('u_input_thb').value;
-      let log='', today=getToday();
-      if(!rate){ document.getElementById("logTHB").innerText="Không tìm thấy tỷ giá."; return; }
+      const rate=parseInput(document.getElementById('rateTHB').value);
+      const thbVal=document.getElementById('thb_input').value;
+      const uVal=document.getElementById('u_input_thb').value;
+      let log='',today=getToday();
+      if(!Number.isFinite(rate)||rate<=0){document.getElementById('logTHB').innerText='Không tìm thấy tỷ giá hợp lệ. Tỷ giá phải lớn hơn 0.';return;}
       if(thbVal){
-        const thb = parseInput(thbVal);
-        if(!isNaN(thb)){
-          const usdt = thb / rate;
-          log += `${today}\nTHB: ${formatTHBInt(thb)} @ ${rate.toFixed(2)}\nUSDT: ${formatUSDT_THB(usdt)}\n\n`;
-        }
+        const thb=parseInput(thbVal);
+        if(!Number.isFinite(thb)||thb<=0) log+='⚠ Số THB không hợp lệ.\n\n';
+        else if(!validConvertedMoney(thb/rate)) log+='⚠ Kết quả USDT vượt phạm vi an toàn.\n\n';
+        else log+=`${today}\nTHB: ${formatTHBInt(thb)} @ ${formatRate(rate)}\nUSDT: ${formatUSDT_THB(thb/rate)}\n\n`;
       }
       if(uVal){
-        const usdt = parseInput(uVal);
-        if(!isNaN(usdt)){
-          const thb = usdt * rate;
-          log += `${today}\nUSDT: ${formatUSDT_THB(usdt)} @ ${rate.toFixed(2)}\nTHB: ${formatTHBInt(thb)}\n\n`;
-        }
+        const usdt=parseInput(uVal);
+        if(!Number.isFinite(usdt)||usdt<=0) log+='⚠ Số USDT không hợp lệ.\n\n';
+        else if(!validConvertedMoney(usdt*rate)) log+='⚠ Kết quả THB vượt phạm vi an toàn.\n\n';
+        else log+=`${today}\nUSDT: ${formatUSDT_THB(usdt)} @ ${formatRate(rate)}\nTHB: ${formatTHBInt(usdt*rate)}\n\n`;
       }
-      document.getElementById("logTHB").innerText = log || "Không có dữ liệu.";
+      document.getElementById('logTHB').innerText=log||'Không có dữ liệu.';
     }
-    function copyFormTHB(){ const t=document.getElementById("logTHB").innerText; if(t.trim()) copyTextSafe(t); }
+    function copyFormTHB(){ const t=extractValidIDRBlocks(document.getElementById("logTHB").innerText); if(t)copyTextSafe(t); else showToast('Không có phép tính hợp lệ để copy'); }
 
     /* ========= ABA ========= */
     function calculateABA(){
@@ -1311,18 +1509,18 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
       const amt  = parseAmountABA(amtStr);
       const today = getToday();
       let log1 = '', log2 = '';
-      if(!rate){ document.getElementById("logABA_u2a").innerText="Không tìm thấy tỷ giá."; document.getElementById("logABA_a2u").innerText="Không tìm thấy tỷ giá."; return; }
+      if(!Number.isFinite(rate)||rate<=0){ document.getElementById("logABA_u2a").innerText="Không tìm thấy tỷ giá hợp lệ. Tỷ giá phải lớn hơn 0."; document.getElementById("logABA_a2u").innerText="Không tìm thấy tỷ giá hợp lệ. Tỷ giá phải lớn hơn 0."; return; }
       if(!amtStr){ document.getElementById("logABA_u2a").innerText=""; document.getElementById("logABA_a2u").innerText=""; return; }
-      if(!isNaN(amt)){
+      if(Number.isFinite(amt) && amt>0){
         const aba = amt * rate; // USDT -> ABA
-        log1 += `${today}\nUSDT: ${amtStr} @ ${rateStr}\nABA: ${formatResultByMode(aba)}\n\n`;
-        const usdt = rate !== 0 ? (amt / rate) : 0; // ABA -> USDT
-        log2 += `${today}\nABA: ${amtStr} @ ${rateStr}\nUSDT: ${formatResultByMode(usdt)}\n\n`;
+        if(validConvertedMoney(aba))log1 += `${today}\nUSDT: ${formatGeneric(amt)} @ ${formatRate(rate)}\nABA: ${formatResultByMode(aba)}\n\n`;
+        const usdt = amt / rate; // ABA -> USDT
+        if(validConvertedMoney(usdt))log2 += `${today}\nABA: ${formatGeneric(amt)} @ ${formatRate(rate)}\nUSDT: ${formatResultByMode(usdt)}\n\n`;
       }
-      document.getElementById("logABA_u2a").innerText = log1 || "";
-      document.getElementById("logABA_a2u").innerText = log2 || "";
+      document.getElementById("logABA_u2a").innerText = log1 || '⚠ Số lượng hoặc kết quả không hợp lệ.';
+      document.getElementById("logABA_a2u").innerText = log2 || '⚠ Số lượng hoặc kết quả không hợp lệ.';
     }
-    function copyLog(id){ const t=document.getElementById(id).innerText; if(t.trim()) copyTextSafe(t); }
+    function copyLog(id){ const el=document.getElementById(id); const t=extractValidIDRBlocks(el?.innerText); if(t)copyTextSafe(t); else showToast('Không có phép tính hợp lệ để copy'); }
 
     // Copy ngang cho Excel/Google Sheet.
     // Mỗi phép tính thành 1 dòng TSV: KẾT QUẢ | TỶ GIÁ | SỐ LƯỢNG GỐC
@@ -1331,18 +1529,22 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
     // USDT: 10,000 @ 18150
     // IDR: 181,500,000
     // => dán vào Excel thành: 181,500,000 | 18,150 | 10,000
-    function formatExcelCellValue(raw){
-      const txt = String(raw || '').trim();
+    // LƯU Ý XUẤT EXCEL:
+    // Các ô số tiền IDR và USDT trên tab I được xuất dưới dạng số âm,
+    // kể cả khi Form đang hiển thị số dương. Tỷ giá không đổi dấu.
+    // Tab VI, Tê, AB giữ cách xuất gốc để tránh đổi nghiệp vụ ngoài yêu cầu.
+    function formatExcelCellValue(raw, currency, negativeIDRandUSDT=false){
+      const txt=String(raw??'').trim();
       if(!txt) return '';
-      const n = parseInput(txt);
-      if(!Number.isFinite(n)) return txt;
-      const hasDecimal = Math.abs(n - Math.round(n)) > 1e-9;
-      return n.toLocaleString('en-US', {
-        minimumFractionDigits: hasDecimal ? 2 : 0,
-        maximumFractionDigits: hasDecimal ? 2 : 0
-      });
+      const n=parseInput(txt);
+      // TSV không dùng dấu phẩy ngăn hàng nghìn: Excel/Sheets đọc số chính xác.
+      if(!Number.isFinite(n)) return '';
+      const c=String(currency??'').trim().toUpperCase();
+      const signed=negativeIDRandUSDT && (c==='IDR' || c==='USDT')
+        ? -Math.abs(n) : n;
+      return String(signed);
     }
-    function logToExcelRows(text){
+    function logToExcelRows(text, negativeIDRandUSDT=false){
       const rows = [];
       const blocks = String(text || '')
         .split(/\n\s*\n+/)
@@ -1356,19 +1558,20 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         const result = [...lines].reverse().find(line => !line.includes('@') && line.includes(':'));
         if(!source || !result) return;
 
-        const sourceMatch = source.match(/^[^:]+:\s*(.*?)\s*@\s*(.+)$/);
-        const resultMatch = result.match(/^[^:]+:\s*(.+)$/);
+        // Lấy tên đơn vị tiền để chỉ áp dụng dấu âm cho IDR/USDT.
+        const sourceMatch = source.match(/^([^:]+):\s*(.*?)\s*@\s*(.+)$/);
+        const resultMatch = result.match(/^([^:]+):\s*(.+)$/);
         if(!sourceMatch || !resultMatch) return;
 
-        const rawAmount = sourceMatch[1].replace(/\+.*$/,'').trim();
-        const rawRate = sourceMatch[2].trim();
-        const rawOutput = resultMatch[1].trim();
-        const amount = formatExcelCellValue(rawAmount);
-        const rateNum = parseRateABA(rawRate);
-        const rate = Number.isFinite(rateNum) && /[.,]/.test(rawRate) && Math.abs(rateNum) < 10
-          ? rateNum.toLocaleString('en-US', { maximumFractionDigits: 8 })
-          : formatExcelCellValue(rawRate);
-        const output = formatExcelCellValue(rawOutput);
+        const sourceCurrency=sourceMatch[1].trim();
+        const resultCurrency=resultMatch[1].trim();
+        const rawAmount=sourceMatch[2].replace(/\+.*$/,'').trim();
+        const rawRate=sourceMatch[3].trim();
+        const rawOutput=resultMatch[2].trim();
+        const amount=formatExcelCellValue(rawAmount,sourceCurrency,negativeIDRandUSDT);
+        const rate=formatExcelCellValue(rawRate); // tỷ giá luôn giữ nguyên dấu
+        const output=formatExcelCellValue(rawOutput,resultCurrency,negativeIDRandUSDT);
+        if(!amount || !rate || !output) return;
         rows.push([output, rate, amount].join('\t'));
       });
 
@@ -1377,11 +1580,11 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
     function copyExcel(id){
       const el = document.getElementById(id);
       if(!el) return;
-      const t = logToExcelRows(el.innerText);
+      const t = logToExcelRows(extractValidIDRBlocks(el.innerText));
       if(t.trim()) copyTextSafe(t);
     }
     function copyExcelIDR(){
-      const t = getSelectedIDRLogs().map(logToExcelRows).filter(Boolean).join('\n');
+      const t = getSelectedIDRLogs().map(log=>logToExcelRows(log,true)).filter(Boolean).join('\n');
       if(t.trim()) copyTextSafe(t);
       else showToast('Hãy tick ô cần copy');
     }
@@ -1411,10 +1614,12 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
 
     const statusEl  = document.getElementById('syncStatus');
     const appEl     = document.getElementById('app');
+    const appFXEl   = document.getElementById('appFX');
     const appVIEl   = document.getElementById('appVI');
     const appTHBEl  = document.getElementById('appTHB');
     const appABAEl  = document.getElementById('appABA');
     const pageIDREl = document.getElementById('pageIDR');
+    const pageFXEl  = document.getElementById('pageFX');
     const pageVIEl  = document.getElementById('pageVI');
     const pageTHBEl = document.getElementById('pageTHB');
     const pageABAEl = document.getElementById('pageABA');
@@ -1436,44 +1641,126 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
     const roomId = safeFirebaseKey(location.hash?.slice(1));
 
     function attachInputSync(inputsRef, ids, calcFnName){
-      let applying = false;
-      let saveTimer = null;
-      const readInputs = () => {
-        const o = {};
-        ids.forEach(id => o[id] = document.getElementById(id)?.value || "");
-        return o;
+      let active=true;
+      const timers=new Map();
+      const bindings=[];
+      const readOne=id=>{
+        const el=document.getElementById(id);
+        if(!el) return '';
+        if(id==='roundIconABA')return el.dataset.mode||'floor';
+        return el.type==='checkbox' ? el.checked : el.value;
       };
-      const saveInputs = () => {
-        if (applying) return;
-        clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => set(inputsRef, readInputs()), 120);
-      };
-      ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el || el.dataset.syncBound === '1') return;
-        el.dataset.syncBound = '1';
-        el.addEventListener('input', saveInputs);
-        el.addEventListener('change', saveInputs);
-        el.addEventListener('blur', saveInputs);
-      });
-      return onValue(inputsRef, s => {
-        const v = s.val();
-        if (!v) return;
-        applying = true;
-        ids.forEach(id => {
-          const el = document.getElementById(id);
-          if (!el || typeof v[id] === "undefined") return;
-          const next = v[id] ?? "";
-          // Không ghi đè khi người dùng đang gõ để tránh nhảy con trỏ/mất số.
-          if (document.activeElement === el) return;
-          if (el.value !== next) el.value = next;
+      const writeOne=id=>{
+        if(!active) return;
+        const value=readOne(id);
+        // Chỉ cập nhật ô đã chỉnh sửa: không ghi đè các ô khác từ thiết bị khác.
+        update(inputsRef,{[id]:value}).catch(e=>{
+          console.error('Firebase input sync failed:',e);
+          statusEl.classList.remove('sync-ok','sync-warn');
+          statusEl.classList.add('sync-err');statusEl.title='Lỗi lưu dữ liệu';
         });
-        applying = false;
-        if (typeof window[calcFnName] === 'function') window[calcFnName]();
+      };
+      ids.forEach(id=>{
+        const el=document.getElementById(id);
+        if(!el) return;
+        function schedule(){
+          clearTimeout(timers.get(id));
+          timers.set(id,setTimeout(()=>{timers.delete(id);writeOne(id);},180));
+        }
+        function flush(){
+          if(!timers.has(id)) return;
+          clearTimeout(timers.get(id));timers.delete(id);writeOne(id);
+        }
+        el.addEventListener('input',schedule);
+        el.addEventListener('change',schedule);
+        el.addEventListener('blur',flush);
+        bindings.push([el,schedule,flush]);
       });
+      const detach=onValue(inputsRef,s=>{
+        if(!active) return;
+        const v=s.val() || {};
+        ids.forEach(id=>{
+          const el=document.getElementById(id);
+          if(!el || document.activeElement===el) return;
+          const incoming=Object.prototype.hasOwnProperty.call(v,id)?v[id]:(el.type==='checkbox'?false:'');
+          if(id==='roundIconABA'){
+            setRoundModeABA(['floor','round','ceil'].includes(incoming)?incoming:'floor');
+          }else if(el.type==='checkbox') el.checked= incoming === true;
+          else if(el.value!==String(incoming??'')) el.value=String(incoming??'');
+        });
+        if(typeof window[calcFnName]==='function') window[calcFnName]();
+      },e=>{
+        if(!active)return;
+        console.error('Firebase realtime error:',e);
+        statusEl.classList.remove('sync-ok','sync-warn');
+        statusEl.classList.add('sync-err');statusEl.title='Lỗi đồng bộ dữ liệu';
+      });
+      return ()=>{
+        active=false;
+        for(const t of timers.values())clearTimeout(t);
+        timers.clear();detach();
+        bindings.forEach(([el,schedule,flush])=>{
+          el.removeEventListener('input',schedule);
+          el.removeEventListener('change',schedule);
+          el.removeEventListener('blur',flush);
+        });
+      };
+    }
+
+
+    // DOM diff theo khóa giao dịch: không phá ô người dùng đang nhập khi realtime cập nhật.
+    function renderLedgerDiff(data, historyEl, doneEl, makeActiveEntry, makeDoneEntry){
+      const arr=data?Object.entries(data):[];
+      arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+      const keys=new Set();
+      const existing=new Map();
+      [historyEl,doneEl].forEach(root=>[...root.children].forEach(el=>{
+        if(el.classList.contains('history-entry')&&el.dataset.key)existing.set(el.dataset.key,el);
+      }));
+      for(const [key,e] of arr){
+        if(!e || typeof e!=='object')continue;
+        keys.add(key);
+        const done=e.status==='done';
+        const target=done?doneEl:historyEl;
+        let node=existing.get(key);
+        const same=node && node.parentElement===target;
+        if(!same){
+          if(node)node.remove();
+          (done?makeDoneEntry:makeActiveEntry)(key,e);
+          node=[...target.children].find(el=>el.dataset.key===key);
+          if(node && target.firstElementChild!==node)target.insertBefore(node,target.firstElementChild);
+          continue;
+        }
+        const input=node.querySelector('.entry-header input[type="text"]');
+        if(input && document.activeElement!==input && input.value!==(e.name||''))input.value=e.name||'';
+        if(done){
+          const textarea=node.querySelector('textarea');
+          const display=[...node.children].find(x=>x!==node.querySelector('.entry-header')&&x!==textarea);
+          const content=e.content||(e.lines||[]).join('\n');
+          if(textarea && textarea.style.display!=='block' && textarea.value!==content)textarea.value=content;
+          if(display && textarea?.style.display!=='block'&&display.textContent!==content)display.textContent=content;
+        }else{
+          const lines=(e.lines||[]).filter(x=>String(x||'').trim());
+          const spans=[...node.querySelectorAll('.entry-content span')];
+          if(spans.length!==lines.length||spans.some((sp,i)=>sp.textContent!==lines[i])){
+            // Hiếm: nội dung từ nguồn khác đổi -> dựng lại đúng văn bản.
+            node.remove();makeActiveEntry(key,e);
+            continue;
+          }
+          node.querySelectorAll('.entry-content input[type="checkbox"]').forEach((check,i)=>{
+            const checked=!!(e.ticks&&e.ticks[i]);
+            if(check!==document.activeElement)check.checked=checked;
+            const text=check.nextElementSibling;
+            if(text)text.classList.toggle('highlighted',check.checked);
+          });
+        }
+      }
+      for(const [key,node] of existing){if(!keys.has(key))node.remove();}
     }
 
     let unsubInputs=null,   unsubEntries=null;
+    let unsubEntriesFX=null;
+    let unsubConnection=null;
     let unsubInputsVI=null, unsubEntriesVI=null;
     let unsubInputsTHB=null,unsubEntriesTHB=null;
     let unsubInputsABA=null,unsubEntriesABA=null;
@@ -1481,17 +1768,20 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
     function showPage(which){
       if(!window.isAuthed) return;
       document.getElementById('tabIDR').classList.remove('active');
+      document.getElementById('tabFX').classList.remove('active');
       document.getElementById('tabVI').classList.remove('active');
       document.getElementById('tabTHB').classList.remove('active');
       document.getElementById('tabABA').classList.remove('active');
-      pageIDREl.hidden=true; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
+      pageIDREl.hidden=true; pageFXEl.hidden=true; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
       if(which==='IDR'){ document.getElementById('tabIDR').classList.add('active'); pageIDREl.hidden=false; }
+      else if(which==='FX'){ document.getElementById('tabFX').classList.add('active'); pageFXEl.hidden=false; }
       else if(which==='VI'){ document.getElementById('tabVI').classList.add('active'); pageVIEl.hidden=false; }
       else if(which==='THB'){ document.getElementById('tabTHB').classList.add('active'); pageTHBEl.hidden=false; }
       else { document.getElementById('tabABA').classList.add('active'); pageABAEl.hidden=false; }
       document.body.setAttribute('data-ab-active', which==='ABA' ? '1' : '0');
     }
     document.getElementById('tabIDR').addEventListener('click',()=>showPage('IDR'));
+    document.getElementById('tabFX').addEventListener('click',()=>showPage('FX'));
     document.getElementById('tabVI').addEventListener('click',()=>showPage('VI'));
     document.getElementById('tabTHB').addEventListener('click',()=>showPage('THB'));
     document.getElementById('tabABA').addEventListener('click',()=>showPage('ABA'));
@@ -1512,18 +1802,30 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         loginWrap.style.display = "none";
         topbarEl2.hidden = false;
 
-        pageIDREl.hidden=false; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
+        pageIDREl.hidden=false; pageFXEl.hidden=true; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
 
         appEl.hidden=false;   appEl.style.display="flex";
+        appFXEl.hidden=false; appFXEl.style.display="flex";
         appVIEl.hidden=false; appVIEl.style.display="flex";
         appTHBEl.hidden=false;appTHBEl.style.display="flex";
         appABAEl.hidden=false;appABAEl.style.display="flex";
         logoutBtn.hidden=false;
 
-        statusEl.classList.remove('sync-warn','sync-err'); statusEl.classList.add('sync-ok');
-        statusEl.textContent = '🔄'; statusEl.title = 'Realtime';
+        statusEl.classList.remove('sync-ok','sync-err'); statusEl.classList.add('sync-warn');
+        statusEl.textContent = '🔄'; statusEl.title = 'Đang kiểm tra kết nối Firebase';
+        if(unsubConnection)unsubConnection();
+        unsubConnection=onValue(ref(db,'.info/connected'),snap=>{
+          const connected=snap.val()===true;
+          statusEl.classList.remove('sync-ok','sync-warn','sync-err');
+          statusEl.classList.add(connected?'sync-ok':'sync-warn');
+          statusEl.title=connected?'Firebase: đã kết nối':'Firebase: offline / đang kết nối';
+        },e=>{
+          statusEl.classList.remove('sync-ok','sync-warn');statusEl.classList.add('sync-err');
+          statusEl.title='Không xác định được trạng thái Firebase';
+        });
 
         attachRealtime_IDR(user);
+        attachRealtime_FX_entries(user);
         attachRealtime_VI(user);
         attachRealtime_THB(user);
         attachRealtime_ABA_inputs(user); // ABA: sync input
@@ -1532,8 +1834,9 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         // Hide app
         window.isAuthed = false;
         topbarEl2.hidden = true;
-        pageIDREl.hidden=true; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
+        pageIDREl.hidden=true; pageFXEl.hidden=true; pageVIEl.hidden=true; pageTHBEl.hidden=true; pageABAEl.hidden=true;
         appEl.hidden=true;     appEl.style.display="none";
+        appFXEl.hidden=true;   appFXEl.style.display="none";
         appVIEl.hidden=true;   appVIEl.style.display="none";
         appTHBEl.hidden=true;  appTHBEl.style.display="none";
         appABAEl.hidden=true;  appABAEl.style.display="none";
@@ -1544,12 +1847,26 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         statusEl.textContent = '🔄'; statusEl.title = 'Local only';
 
         detachRealtimeAll();
+        ['rateU','rateABA','rateUPGW','rateABAPGW','ratePHPC','ratePHPCPGW','usdt_input','aba_input','idr_usdt_input','idr_aba_input','idr_phpc_input','phpc_idr_input','myrCashPenang','rateMYRPenang','rateMYRPenangPGW','myrCashKuching','rateMYRKuching','rateMYRKuchingPGW',
+         'rateVI','vi_input','u_input_vi','rateTHB','thb_input','u_input_thb','rateABA4','amountABA','noFeeIDR'].forEach(id=>{
+          const el=document.getElementById(id);
+          if(el){ if(el.type==='checkbox') el.checked=false; else el.value=''; }
+        });
+        setRoundModeABA('floor');
+        ['log','logPGW','logFX','logFXPGW','logVI','logTHB','logABA_u2a','logABA_a2u'].forEach(id=>{
+          const el=document.getElementById(id);if(el)el.textContent='';
+        });
+        ['history','doneList','historyFX','doneListFX','historyVI','doneListVI','historyTHB','doneListTHB','historyABA','doneListABA'].forEach(id=>{
+          const el=document.getElementById(id);if(el)el.replaceChildren();
+        });
       }
     });
 
     function detachRealtimeAll(){
-      [unsubEntries,unsubInputs,unsubEntriesVI,unsubInputsVI,unsubEntriesTHB,unsubInputsTHB,unsubInputsABA,unsubEntriesABA].forEach(fn=>{ if(typeof fn==='function') fn(); });
-      unsubEntries=null;unsubInputs=null;unsubEntriesVI=null;unsubInputsVI=null;unsubEntriesTHB=null;unsubInputsTHB=null;unsubInputsABA=null;unsubEntriesABA=null;
+      if(typeof unsubConnection==='function')unsubConnection();
+      unsubConnection=null;
+      [unsubEntries,unsubInputs,unsubEntriesFX,unsubEntriesVI,unsubInputsVI,unsubEntriesTHB,unsubInputsTHB,unsubInputsABA,unsubEntriesABA].forEach(fn=>{ if(typeof fn==='function') fn(); });
+      unsubEntries=null;unsubInputs=null;unsubEntriesFX=null;unsubEntriesVI=null;unsubInputsVI=null;unsubEntriesTHB=null;unsubInputsTHB=null;unsubInputsABA=null;unsubEntriesABA=null;
     }
 
     /* ==== IDR realtime ==== */
@@ -1559,8 +1876,8 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
 
       const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputs`);
       const entriesRef = ref(db, `users/${user.uid}/rooms/${roomId}/entries`);
-      const ids=['rateU','rateABA','rateUPGW','rateABAPGW','usdt_input','aba_input','idr_usdt_input','idr_aba_input'];
-      unsubInputs = attachInputSync(inputsRef, ids, 'calculate');
+      const ids=['rateU','rateABA','rateUPGW','rateABAPGW','ratePHPC','ratePHPCPGW','usdt_input','aba_input','idr_usdt_input','idr_aba_input','idr_phpc_input','phpc_idr_input','myrCashPenang','rateMYRPenang','rateMYRPenangPGW','myrCashKuching','rateMYRKuching','rateMYRKuchingPGW','noFeeIDR'];
+      unsubInputs = attachInputSync(inputsRef, ids, 'calculateAllIDRAndFX');
 
       const historyEl=document.getElementById('history'); const doneEl=document.getElementById('doneList');
       function makeActiveEntry(key,e){
@@ -1572,8 +1889,8 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{name:name.value});});
         const date=document.createElement("span");date.textContent=e.date||"";
         const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`)) };
-        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; clearTimeout(tmr); remove(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; clearTimeout(tmr); const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
         header.append(name,date,doneBtn,del);
         const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
         (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entries/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
@@ -1592,11 +1909,7 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         entry.append(header,display,textarea);document.getElementById('doneList').appendChild(entry);
       }
       function renderAll(data){
-        const historyEl=document.getElementById('history'); const doneEl=document.getElementById('doneList');
-        historyEl.innerHTML="";doneEl.innerHTML="";
-        const arr=data?Object.entries(data):[];
-        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
-        for(const[Key,e]of arr){(e.status==='done'?makeDoneEntry:makeActiveEntry)(Key,e);}
+        renderLedgerDiff(data,document.getElementById('history'),document.getElementById('doneList'),makeActiveEntry,makeDoneEntry);
       }
       unsubEntries = onValue(entriesRef, s=>renderAll(s.val()));
 
@@ -1608,7 +1921,56 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entries`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
         showToast('Đã thêm vào lịch sử');
       }
-      window.clearHistory=function(){if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return;set(ref(db,`users/${user.uid}/rooms/${roomId}/entries`),null);}
+      window.clearHistory=function(){if(!confirm("Xóa toàn bộ lịch sử của tab này, bao gồm cả mục Đã xong? Dữ liệu đã xóa không thể hoàn tác."))return;set(ref(db,`users/${user.uid}/rooms/${roomId}/entries`),null);}
+    }
+
+    /* ==== PHP C / MYR — lịch sử tách riêng; các ô nhập vẫn dùng Firebase inputs cũ. ==== */
+    function attachRealtime_FX_entries(user){
+      if(typeof unsubEntriesFX==='function')unsubEntriesFX();
+      const entriesRef=ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX`);
+      const historyEl=document.getElementById('historyFX'); const doneEl=document.getElementById('doneListFX');
+      function makeActiveEntry(key,e){
+        const entry=document.createElement("div");entry.className="history-entry";entry.dataset.key=key;
+        const header=document.createElement("div");header.className="entry-header";
+        const name=document.createElement("input");name.type="text";name.placeholder="Tên giao dịch";name.value=e.name||"";name.autocomplete="off";name.spellcheck=false;name.autocapitalize="off";
+        let tmr=null;
+        name.addEventListener('input',()=>{clearTimeout(tmr);tmr=setTimeout(()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX/${key}`),{name:name.value});},600);});
+        name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX/${key}`),{name:name.value});});
+        const date=document.createElement("span");date.textContent=e.date||"";
+        const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; clearTimeout(tmr); remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; clearTimeout(tmr); const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        header.append(name,date,doneBtn,del);
+        const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
+        (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
+        entry.append(header,content);historyEl.appendChild(entry);
+      }
+      function makeDoneEntry(key,e){
+        const entry=document.createElement("div");entry.className="history-entry done-entry";entry.dataset.key=key;
+        const header=document.createElement("div");header.className="entry-header";
+        const nameInput=document.createElement("input");nameInput.type="text";nameInput.value=e.name||"";nameInput.style.fontWeight="bold";nameInput.style.color="#155724";nameInput.readOnly=true;nameInput.autocomplete="off";nameInput.spellcheck=false;nameInput.autocapitalize="off";
+        const editBtn=document.createElement("button");editBtn.className="edit-btn";editBtn.textContent="Chỉnh sửa";
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX/${key}`)) };
+        header.append(nameInput,editBtn,del);
+        const textarea=document.createElement("textarea");textarea.style.cssText="width:100%;margin-top:8px;font-family:monospace;font-size:14px;border-radius:6px;border:1px solid #ccc;resize:vertical;display:none;";textarea.value=e.content||(e.lines||[]).join("\n");
+        const display=document.createElement("div");display.style.cssText="white-space:pre-wrap;color:#155724;font-weight:bold;margin-top:8px;";display.textContent=textarea.value;
+        editBtn.onclick=()=>{const editing=textarea.style.display==="block";if(!editing){textarea.style.display="block";display.style.display="none";editBtn.textContent="Lưu";nameInput.readOnly=false;nameInput.focus();}else{textarea.style.display="none";display.style.display="block";display.textContent=textarea.value;editBtn.textContent="Chỉnh sửa";nameInput.readOnly=true;update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX/${key}`),{name:nameInput.value,content:textarea.value});}};
+        entry.append(header,display,textarea);document.getElementById('doneListFX').appendChild(entry);
+      }
+      function renderAll(data){
+        renderLedgerDiff(data,document.getElementById('historyFX'),document.getElementById('doneListFX'),makeActiveEntry,makeDoneEntry);
+      }
+      unsubEntriesFX = onValue(entriesRef, s=>renderAll(s.val()));
+
+      // bind push/clear cho IDR
+      window.addToHistoryFX=function(){
+        const logText=getCombinedFXLog().trim();
+        if(!logText){ showToast('Hãy tick ô cần thêm'); return; }
+        const lines=logText.split('\n').filter(l=>l.trim()!=="");
+        push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
+        showToast('Đã thêm vào lịch sử');
+      }
+      window.clearHistoryFX=function(){if(!confirm("Xóa toàn bộ lịch sử của tab này, bao gồm cả mục Đã xong? Dữ liệu đã xóa không thể hoàn tác."))return;set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesFX`),null);}
     }
 
     /* ==== VI realtime ==== */
@@ -1631,8 +1993,8 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{name:name.value});});
         const date=document.createElement("span");date.textContent=e.date||"";
         const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`)) };
-        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; clearTimeout(tmr); remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; clearTimeout(tmr); const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
         header.append(name,date,doneBtn,del);
         const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
         (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
@@ -1651,22 +2013,18 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         entry.append(header,display,textarea);document.getElementById('doneListVI').appendChild(entry);
       }
       function renderAll(data){
-        const historyEl=document.getElementById('historyVI'); const doneEl=document.getElementById('doneListVI');
-        historyEl.innerHTML="";doneEl.innerHTML="";
-        const arr=data?Object.entries(data):[];
-        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
-        for(const[Key,e]of arr){(e.status==='done'?makeDoneEntry:makeActiveEntry)(Key,e);}
+        renderLedgerDiff(data,document.getElementById('historyVI'),document.getElementById('doneListVI'),makeActiveEntry,makeDoneEntry);
       }
       unsubEntriesVI = onValue(entriesRef, s=>renderAll(s.val()));
 
       window.addToHistoryVI = function(){
-        const logText=document.getElementById("logVI").innerText.trim();
-        if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
+        const logText=extractValidIDRBlocks(document.getElementById("logVI").innerText);
+        if(!logText){showToast('Không có phép tính hợp lệ để lưu');return;}
         const lines=logText.split('\n').filter(l=>l.trim()!=="");
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
         showToast('Đã thêm vào lịch sử');
       }
-      window.clearHistoryVI = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI`),null); }
+      window.clearHistoryVI = function(){ if(!confirm("Xóa toàn bộ lịch sử của tab này, bao gồm cả mục Đã xong? Dữ liệu đã xóa không thể hoàn tác."))return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesVI`),null); }
     }
 
     /* ==== THB realtime ==== */
@@ -1689,8 +2047,8 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         name.addEventListener('blur',()=>{update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{name:name.value});});
         const date=document.createElement("span");date.textContent=e.date||"";
         const doneBtn=document.createElement("button");doneBtn.className="done-btn";doneBtn.textContent="Duyệt";
-        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`)) };
-        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
+        const del=document.createElement("button");del.className="delete-btn";del.textContent="Xóa";del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; clearTimeout(tmr); remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; clearTimeout(tmr); const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent);update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{status:'done',name:name.value||"",content:(e.content||lines.join("\n"))});};
         header.append(name,date,doneBtn,del);
         const content=document.createElement("div");content.className="entry-content";content.style.marginTop="8px";
         (e.lines||[]).forEach((line,i)=>{if(!line?.trim())return;const lc=document.createElement("div");const tick=document.createElement("input");tick.type="checkbox";tick.style.marginRight="8px";const span=document.createElement("span");span.textContent=line;tick.checked=!!(e.ticks&&e.ticks[i]);if(tick.checked)span.classList.add('highlighted');tick.addEventListener('change',()=>{const ticks=[];content.querySelectorAll('input[type="checkbox"]').forEach(ch=>ticks.push(ch.checked));update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB/${key}`),{ticks});span.classList.toggle('highlighted',tick.checked);});lc.append(tick,span);content.appendChild(lc);});
@@ -1709,29 +2067,25 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         entry.append(header,display,textarea);document.getElementById('doneListTHB').appendChild(entry);
       }
       function renderAll(data){
-        const historyEl=document.getElementById('historyTHB'); const doneEl=document.getElementById('doneListTHB');
-        historyEl.innerHTML="";doneEl.innerHTML="";
-        const arr=data?Object.entries(data):[];
-        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
-        for(const[Key,e]of arr){(e.status==='done'?makeDoneEntry:makeActiveEntry)(Key,e);}
+        renderLedgerDiff(data,document.getElementById('historyTHB'),document.getElementById('doneListTHB'),makeActiveEntry,makeDoneEntry);
       }
       unsubEntriesTHB = onValue(entriesRef, s=>renderAll(s.val()));
 
       window.addToHistoryTHB = function(){
-        const logText=document.getElementById("logTHB").innerText.trim();
-        if(!logText||logText==="Không có dữ liệu."||logText==="Không tìm thấy tỷ giá.")return;
+        const logText=extractValidIDRBlocks(document.getElementById("logTHB").innerText);
+        if(!logText){showToast('Không có phép tính hợp lệ để lưu');return;}
         const lines=logText.split('\n').filter(l=>l.trim()!=="");
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB`),{name:"",date:`${getToday()} ${getCurrentTime()}`,lines,ticks:new Array(lines.length).fill(false),status:"active",createdAt:Date.now()});
         showToast('Đã thêm vào lịch sử');
       }
-      window.clearHistoryTHB = function(){ if(!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử?"))return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB`),null); }
+      window.clearHistoryTHB = function(){ if(!confirm("Xóa toàn bộ lịch sử của tab này, bao gồm cả mục Đã xong? Dữ liệu đã xóa không thể hoàn tác."))return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesTHB`),null); }
     }
 
     /* ==== ABA realtime: inputs (giữ nguyên) ==== */
     function attachRealtime_ABA_inputs(user){
       if (typeof unsubInputsABA === 'function') unsubInputsABA();
       const inputsRef  = ref(db, `users/${user.uid}/rooms/${roomId}/inputsABA`);
-      const ids=['rateABA4','amountABA'];
+      const ids=['rateABA4','amountABA','roundIconABA'];
       unsubInputsABA = attachInputSync(inputsRef, ids, 'calculateABA');
     }
 
@@ -1752,8 +2106,8 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
         name.addEventListener('blur',()=>{ update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {name:name.value}); });
         const date=document.createElement("span"); date.textContent=e.date||"";
         const doneBtn=document.createElement("button"); doneBtn.className="done-btn"; doneBtn.textContent="Duyệt";
-        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`)) };
-        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return;  const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent); update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {status:'done', name:name.value||"", content:(e.content||lines.join("\n"))}); };
+        const del=document.createElement("button"); del.className="delete-btn"; del.textContent="Xóa"; del.onclick=()=>{ const __label=(typeof nameInput!='undefined' && nameInput && nameInput.value ? nameInput.value : (typeof name!='undefined' && name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này'))).toString().slice(0,80); if(!confirm('Xóa “'+__label+'”?')) return; clearTimeout(tmr); remove(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`)) };
+        doneBtn.onclick=()=>{ const __label=(name && name.value ? name.value : ((e.lines&&e.lines[0])||e.content||e.date||'mục này')).toString().slice(0,80); if(!confirm('Duyệt “'+__label+'”?')) return; clearTimeout(tmr);  const lines=[...entry.querySelectorAll('.entry-content span')].map(s=>s.textContent); update(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA/${key}`), {status:'done', name:name.value||"", content:(e.content||lines.join("\n"))}); };
         header.append(name,date,doneBtn,del);
 
         const content=document.createElement("div"); content.className="entry-content"; content.style.marginTop="8px";
@@ -1791,26 +2145,25 @@ ABA: ${Math.round(aba).toLocaleString('en-US')}
       }
 
       function renderAll(data){
-        historyEl.innerHTML=""; doneEl.innerHTML="";
-        const arr=data?Object.entries(data):[];
-        arr.sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
-        for(const [k,e] of arr){ (e.status==='done'?makeDoneEntry:makeActiveEntry)(k,e); }
+        renderLedgerDiff(data,document.getElementById('historyABA'),document.getElementById('doneListABA'),makeActiveEntry,makeDoneEntry);
       }
       unsubEntriesABA = onValue(entriesRef, s=>renderAll(s.val()));
 
       window.addToHistoryABA_U2A = function(){
-        const l=document.getElementById("logABA_u2a").innerText.trim(); if(!l) return;
+        const l=extractValidIDRBlocks(document.getElementById("logABA_u2a").innerText);
+        if(!l){showToast('Không có phép tính hợp lệ để lưu');return;}
         const lines=l.split('\n').filter(x=>x.trim()!=='');
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA`), {name:"", date:`${getToday()} ${getCurrentTime()}`, lines, ticks:new Array(lines.length).fill(false), status:"active", createdAt:Date.now(), direction:'U2A'});
         showToast('Đã thêm vào lịch sử');
       };
       window.addToHistoryABA_A2U = function(){
-        const l=document.getElementById("logABA_a2u").innerText.trim(); if(!l) return;
+        const l=extractValidIDRBlocks(document.getElementById("logABA_a2u").innerText);
+        if(!l){showToast('Không có phép tính hợp lệ để lưu');return;}
         const lines=l.split('\n').filter(x=>x.trim()!=='');
         push(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA`), {name:"", date:`${getToday()} ${getCurrentTime()}`, lines, ticks:new Array(lines.length).fill(false), status:"active", createdAt:Date.now(), direction:'A2U'});
         showToast('Đã thêm vào lịch sử');
       };
-      window.clearHistoryABA = function(){ if(!confirm('Bạn có chắc muốn xóa toàn bộ lịch sử?')) return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA`), null); };
+      window.clearHistoryABA = function(){ if(!confirm('Xóa toàn bộ lịch sử của tab này, bao gồm cả mục Đã xong? Dữ liệu đã xóa không thể hoàn tác.')) return; set(ref(db,`users/${user.uid}/rooms/${roomId}/entriesABA`), null); };
     }
   </script>
 
